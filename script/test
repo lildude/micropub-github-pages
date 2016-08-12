@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+REALPATH=$(cd $(dirname "$0")/.. && pwd)
+
+bundle exec ruby ${REALPATH}/test/app_test.rb
