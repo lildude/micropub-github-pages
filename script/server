@@ -3,4 +3,5 @@ set -e
 
 cd $(dirname "$0")/..
 
+test -z "$RACK_ENV" && RACK_ENV='development'
 bundle exec ruby micropub-github-pages.rb
