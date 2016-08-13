@@ -8,7 +8,7 @@ require 'uri'
 require 'net/https'
 require "sinatra/reloader" if development?
 
-config_file "#{::File.dirname(__FILE__)}/config.yml"
+config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
 
 helpers do
   # TBC
