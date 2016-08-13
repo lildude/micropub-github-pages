@@ -5,16 +5,4 @@ REALPATH=$(cd $(dirname "$0")/.. && pwd)
 
 export RACK_ENV="test"
 
-# Create test config
-cat > config.yml <<EOF
-sites:
-  testsite:
-    github_repo:
-    permalink_style: "/:categories/:year/:month/:title/"
-    site_url: "https://example.com"
-
-micropub:
-  token_endpoint: "http://example.com/micropub/token"
-EOF
-
 bundle exec ruby ${REALPATH}/test/app_test.rb

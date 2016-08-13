@@ -1,0 +1,10 @@
+sites:
+  testsite:
+    github_repo:
+    permalink_style: "/:categories/:year/:month/:title/"
+    site_url: "https://example.com"
+
+micropub:
+  token_endpoint: "http://example.com/micropub/token"
+
+github_username:
