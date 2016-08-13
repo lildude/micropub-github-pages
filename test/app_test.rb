@@ -1,5 +1,12 @@
 require 'simplecov'
-SimpleCov.start
+require 'coveralls'
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start do
+   add_filter 'vendor'
+end
 
 require File.expand_path '../test_helper.rb', __FILE__
 
