@@ -81,6 +81,10 @@ helpers do
     text.downcase.gsub('/[\s.\/_]/', ' ').squeeze(' ').strip.gsub(/[^\w-]/, '').tr(' ', '-')
   end
 
+  def syndicate_to(dest)
+    logger.info "Syndicated to #{dest}"
+  end
+
 end
 
 not_found do
