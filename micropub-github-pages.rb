@@ -65,6 +65,22 @@ helpers do
     url << '/' unless url.end_with?('/')
     url
   end
+
+  def create_slug(params)
+    # Use the provided slug
+    return params["slug"] if params.include? "slug" && !params["slug"].nil?
+
+    # If there's a name, use that
+    return slugify params["name"] if params.include? "name" && !params["name"].nil?
+
+    # Else generate a slug based on the published date.
+    return params["published"].strftime("%s").to_i % (24 * 60 * 60)
+  end
+
+  def slugify(text)
+    text.downcase.gsub('/[\s.\/_]/', ' ').squeeze(' ').strip.gsub(/[^\w-]/, '').tr(' ', '-')
+  end
+
 end
 
 not_found do
