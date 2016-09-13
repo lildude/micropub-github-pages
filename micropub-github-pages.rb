@@ -22,8 +22,7 @@ helpers do
     })
 
     resp = http.request(request)
-    decoded_resp = URI.decode_www_form(resp.body).inject({}) {|r, (key,value)| r[key.to_sym] = value;r}
-
+    decoded_resp = URI.decode_www_form(resp.body).each_with_object({}){|(k,v), h| h[k.to_sym] = v}
     unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
       logger.info "Received response without scope or me"
       halt 401, "401: Unauthorized."
