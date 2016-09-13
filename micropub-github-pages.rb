@@ -65,8 +65,7 @@ end
 
 post '/micropub/:site' do |site|
   not_found unless settings.sites.include? site
-  #{}"#{@result} | #{params}" if @result[:scope] == "post" && (@result[:me] == normalise_url(settings.sites[site]["site_url"]) || @result[:me] == normalise_url(settings.micropub[:token_me]))
 
-  logger.info "#{params}" if @result[:scope] == "post"
+  #logger.info "#{params}" if @result[:scope] == "post"
 
 end
