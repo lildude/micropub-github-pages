@@ -153,4 +153,8 @@ post '/micropub/:site' do |site|
 
   content = erb "<%= yield_content :some_key %>"
   content
+
+  #publish_post site, content, params
+
+  #syndicate_to params["mp-syndicate-to"] if params.include? "mp-syndicate-to"
 end
