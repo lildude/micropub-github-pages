@@ -4,11 +4,14 @@ require 'rubygems'
 require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/config_file'
+require 'sinatra/content_for'
 require 'uri'
 require 'net/https'
 require "sinatra/reloader" if development?
 
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
+
+set :views, settings.root + '/templates'
 
 helpers do
   def verify_token(auth_header)
@@ -68,4 +71,40 @@ post '/micropub/:site' do |site|
 
   #logger.info "#{params}" if @result[:scope] == "post"
 
+  # Add in a few more params if they're not set
+  params["published"] = Time.now unless params.include? "published"
+
+  # Pass the content through our template, but don't output it.
+  # Uses sinatra/content_for.  Alternate solution may be to use partials - http://www.sinatrarb.com/faq.html#partials or https://github.com/yb66/Sinatra-Partial
+
+  # Convert all keys to symbols
+  post_params = params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
+  # Bump off params we're not interested in
+  post_params.reject!{ |key,_v| key =~ /^h|splat|captures|site|mp_syndicate_to/i }
+
+  #logger.info "#{post_params}"
+  # Determine the template to use based on various params received.
+  type =
+    if params["h"] == "entry"
+      if params.include? "name"
+        :article
+      elsif params.include? "in-reply-to"
+        :reply
+      elsif params.include? "repost-of"
+        :repost
+      elsif params.include? "bookmark-of"
+        :bookmark
+      else
+        :note
+      end
+    elsif params["h"] == "event"
+        :event
+    elsif params["h"] == "cite"
+        :cite
+    end
+
+  erb type, :locals => post_params
+
+  content = erb "<%= yield_content :some_key %>"
+  content
 end
