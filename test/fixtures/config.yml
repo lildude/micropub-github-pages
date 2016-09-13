@@ -7,4 +7,4 @@ sites:
 micropub:
   token_endpoint: "http://example.com/micropub/token"
 
-github_username:
+github_username: lildude
