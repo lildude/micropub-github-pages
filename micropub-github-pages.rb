@@ -6,10 +6,13 @@ require 'sinatra'
 require 'sinatra/config_file'
 require 'sinatra/content_for'
 require 'uri'
+require 'octokit'
 require 'net/https'
 require "sinatra/reloader" if development?
 
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
+
+require './env' if File.exists?('env.rb')
 
 set :views, settings.root + '/templates'
 
@@ -32,6 +35,29 @@ helpers do
     end
 
     decoded_resp
+  end
+
+  def publish_post(site, content, params)
+    # Authenticate
+    client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+
+    repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
+
+    logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{site} | repo: #{repo}"
+
+    # Verify the repo exists
+    halt 422, "422: invalid request: repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit." unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
+
+    now = Time.now
+    date = now.strftime("%F")
+
+    filename = params["published"].strftime("%F")
+    filename << "-#{create_slug(params)}.md"
+
+    logger.info "Filename: #{filename}"
+    if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
+      "_posts/#{filename}.md successfully created."
+    end
   end
 
   # Add trailing slash if it's missing
