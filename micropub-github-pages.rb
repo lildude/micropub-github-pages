@@ -121,7 +121,7 @@ post '/micropub/:site' do |site|
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  halt 400, "400: invalid_request" unless params.any? { |k| ["h", "q", "action"].include? k }
+  halt 400, "400: invalid_request" unless params.any? { |k, _v| ["h", "q", "action"].include? k }
 
   # Add in a few more params if they're not set
   params["published"] = Time.now unless params.include? "published"
