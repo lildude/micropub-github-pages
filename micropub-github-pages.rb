@@ -117,6 +117,12 @@ post '/micropub/:site' do |site|
 
   #logger.info "#{params}" if @result[:scope] == "post"
 
+  # Check for reserved params which tell us what to do:
+  # h = create entry
+  # q = query the endpoint
+  # action = update, delete, undelete etc.
+  halt 400, "400: invalid_request" unless params.any? { |k| ["h", "q", "action"].include? k }
+
   # Add in a few more params if they're not set
   params["published"] = Time.now unless params.include? "published"
 
