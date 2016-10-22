@@ -42,19 +42,20 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include?('401: Unauthorized')
   end
 
-  def test_authorized_if_auth_header
+  def test_authorized_if_auth_header_and_no_action
     stub_token
     post '/micropub/testsite', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
-    assert last_response.ok?
     refute last_response.unauthorized?
-    assert last_response.body.include?('0987654321')
+    assert last_response.bad_request?
+    assert last_response.body.include?('400: invalid_request')
   end
 
-  def test_authorized_if_access_token_query_param
+  def test_authorized_if_access_token_query_param_and_no_action
     stub_token
     post '/micropub/testsite', :access_token => "1234567890"
-    assert last_response.ok?
     refute last_response.unauthorized?
+    assert last_response.bad_request?
+    assert last_response.body.include?('400: invalid_request')
   end
 
   def test_new_note_with_syndication
