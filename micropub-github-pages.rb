@@ -58,7 +58,7 @@ helpers do
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
       headers "Location" => "URL-TBC"
-      body "_posts/#{filename}.md successfully created."
+      body content if ENV['RACK_ENV'] = "test"
     end
   end
 
@@ -114,6 +114,7 @@ before :method => :post do
 
 end
 
+# https://www.w3.org/TR/2016/CR-micropub-20160816/
 post '/micropub/:site' do |site|
   not_found unless settings.sites.include? site
 
@@ -126,7 +127,11 @@ post '/micropub/:site' do |site|
   halt 400, "400: invalid_request" unless params.any? { |k, _v| ["h", "q", "action"].include? k }
 
   # Add in a few more params if they're not set
+  # Spec says we should use h-entry if no type provided.
+  params["h"] = "entry" unless params.include? "h"
+  # It's nice to honour the client's published date, if set, else set one.
   params["published"] = Time.now unless params.include? "published"
+
 
   # Pass the content through our template, but don't output it.
   # Uses sinatra/content_for.  Alternate solution may be to use partials - http://www.sinatrarb.com/faq.html#partials or https://github.com/yb66/Sinatra-Partial
