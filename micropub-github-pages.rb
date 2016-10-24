@@ -48,10 +48,8 @@ helpers do
     # Verify the repo exists
     halt 422, "422: invalid request: repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit." unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
 
-    now = Time.now
-    date = now.strftime("%F")
-
-    filename = params["published"].strftime("%F")
+    date = DateTime.parse(params["published"])
+    filename = date.strftime("%F")
     filename << "-#{create_slug(params)}.md"
 
     logger.info "Filename: #{filename}"
@@ -76,7 +74,7 @@ helpers do
     return slugify params["name"] if params.include? "name" && !params["name"].nil?
 
     # Else generate a slug based on the published date.
-    return params["published"].strftime("%s").to_i % (24 * 60 * 60)
+    return DateTime.parse(params["published"]).strftime("%s").to_i % (24 * 60 * 60)
   end
 
   def slugify(text)
@@ -130,7 +128,7 @@ post '/micropub/:site' do |site|
   # Spec says we should use h-entry if no type provided.
   params["h"] = "entry" unless params.include? "h"
   # It's nice to honour the client's published date, if set, else set one.
-  params["published"] = Time.now unless params.include? "published"
+  params["published"] = Time.now.to_s unless params.include? "published"
 
 
   # Pass the content through our template, but don't output it.
