@@ -1,0 +1,10 @@
+<% content_for :some_key do %>
+---
+layout: note
+<%= "tags: #{category.join(", ")}\n" if defined? category && !category.empty? %>
+<%= "permalink: #{slug}\n" if defined? slug %>
+date: <%= published %>
+---
+
+<%= content %>
+<% end %>
