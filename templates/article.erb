@@ -1,0 +1,14 @@
+<% content_for :some_key do %>
+---
+layout: post
+title: <%= name %>
+<% if defined? category && !category.empty? %>
+tags:
+<% category.each do |tag| %>
+- <%= tag %>
+<% end %>
+<% end %>
+<%= "permalink: #{slug}\n" if defined? slug %>
+date: <%= published %>
+---
+<%= content %>
