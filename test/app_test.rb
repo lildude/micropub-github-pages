@@ -60,7 +60,19 @@ class MainAppTest < Minitest::Test
 
   def test_new_note_with_syndication
     stub_token
+    stub_get_github_request
+    stub_put_github_request
     post('/micropub/testsite', {:h => "entry", :content => "This is the content", :category => ["tag1", "tag2"], "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude"}, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
-    assert last_response.ok?
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
+  end
+
+  def test_new_entry
+    stub_token
+    stub_get_github_request
+    stub_put_github_request
+    post('/micropub/testsite', {:h => "entry", :title => "This is a 😍 Post!!", :content => "This is the content", :category => ["tag1", "tag2"], "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude"}, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
   end
 end
