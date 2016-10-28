@@ -79,7 +79,6 @@ helpers do
     # Else generate a slug based on the published date.
       slug = DateTime.parse(params["published"]).strftime("%s").to_i % (24 * 60 * 60)
     end
-    logger.info slug
     slug
   end
 
