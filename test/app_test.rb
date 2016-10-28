@@ -104,4 +104,20 @@ class MainAppTest < Minitest::Test
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "this-is-a-post", last_response.header['Location']
   end
+
+  def test_new_note_json_syntax
+    stub_token
+    stub_get_github_request
+    stub_put_github_request
+    post('/micropub/testsite', {
+      :body => '{
+        "type": ["h-entry"],
+        "properties": {
+          "content": ["hello world"],
+          "category": ["foo","bar"],
+        }
+      }'
+    }, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+  end
 end
