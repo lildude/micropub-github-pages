@@ -2,13 +2,10 @@
 ---
 layout: post
 title: <%= name %>
-<% if defined? category && !category.empty? %>
-tags:
-<% category.each do |tag| %>
-- <%= tag %>
-<% end %>
-<% end %>
+<%= "tags: #{category.join(", ")}\n" if defined? category and !category.empty? %>
 <%= "permalink: #{slug}\n" if defined? slug %>
 date: <%= published %>
 ---
 <%= content %>
+
+<%end%>
