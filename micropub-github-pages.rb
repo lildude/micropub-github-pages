@@ -45,14 +45,15 @@ helpers do
 
     logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{site} | repo: #{repo}"
 
-    # Verify the repo exists
-    halt 422, "422: invalid request: repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit." unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
-
     date = DateTime.parse(params["published"])
     filename = date.strftime("%F")
     filename << "-#{create_slug(params)}.md"
 
     logger.info "Filename: #{filename}"
+
+    # Verify the repo exists
+    halt 422, "422: invalid request: repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit." unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
+
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
       headers "Location" => "URL-TBC"
