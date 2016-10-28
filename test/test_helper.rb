@@ -17,7 +17,7 @@ def stub_token
       :issued_at => "123456789",
       :scope => "post",
       :nonce => "0987654321"
-      }))
+  }))
 end
 
 def stub_noscope_token_response
@@ -29,7 +29,7 @@ def stub_noscope_token_response
       :client_id => "http://testsite.example.com",
       :issued_at => "123456789",
       :nonce => "0987654321"
-      }))
+  }))
 end
 
 def stub_unauthed_token
@@ -42,7 +42,7 @@ def stub_unauthed_token
       :issued_at => "123456789",
       :scope => "post",
       :nonce => "0987654321"
-      }))
+  }))
 end
 
 def stub_get_github_request
