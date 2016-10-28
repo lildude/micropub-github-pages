@@ -110,6 +110,7 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_github_request
     stub_put_github_request
+    now = Time.now.to_s
     post('/micropub/testsite', {
       :body => '{
         "type": ["h-entry"],
@@ -120,5 +121,6 @@ class MainAppTest < Minitest::Test
       }'
     }, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal DateTime.parse(now).strftime("%s").to_i % (24 * 60 * 60), last_response.header['Location']
   end
 end
