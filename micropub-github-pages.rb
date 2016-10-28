@@ -31,7 +31,7 @@ helpers do
     decoded_resp = URI.decode_www_form(resp.body).each_with_object({}){|(k,v), h| h[k.to_sym] = v}
     unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
       logger.info "Received response without scope or me"
-      halt 401, "401: Unauthorized."
+      halt 401, JSON.generate({:error => "insufficient_scope", :error_description => "Insufficient scope information provided."})
     end
 
     decoded_resp
@@ -104,7 +104,7 @@ before :method => :post do
     auth_header = "Bearer #{params[:access_token]}"
   else
     logger.info "Received request without a token"
-    halt 401, "401: Unauthorized."
+    halt 401, JSON.generate({:error => "unauthorized", :error_description => "Unauthorized"})
   end
 
   # Verify the token
@@ -122,7 +122,15 @@ post '/micropub/:site' do |site|
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  halt 400, "400: invalid_request" unless params.any? { |k, _v| ["h", "q", "action"].include? k }
+=begin
+  if env["CONTENT_TYPE"] = "application/json"
+    return 500, "500: Not implemented yet"
+    params = JSON.parse(params[:body], :symbolize_keys => true)
+    halt 400, "400: invalid_request" unless true
+  else
+=end
+    halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless params.any? { |k, _v| ["h", "q", "action"].include? k }
+#  end
 
   # Add in a few more params if they're not set
   # Spec says we should use h-entry if no type provided.
