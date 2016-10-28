@@ -42,6 +42,12 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include?('401: Unauthorized')
   end
 
+  def test_authorized_if_access_token_response_has_no_scope
+    stub_noscope_token_response
+    post '/micropub/testsite', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
+    assert last_response.unauthorized?
+  end
+
   def test_authorized_if_auth_header_and_no_action
     stub_token
     post '/micropub/testsite', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
