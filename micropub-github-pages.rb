@@ -70,13 +70,17 @@ helpers do
 
   def create_slug(params)
     # Use the provided slug
-    return params["slug"] if params.include? "slug" && !params["slug"].nil?
-
+    if params.include? "slug" and !params["slug"].nil?
+      slug = params["slug"]
     # If there's a name, use that
-    return slugify params["name"] if params.include? "name" && !params["name"].nil?
-
+    elsif params.include? "name" and !params["name"].nil?
+      slug = slugify params["name"]
+    else
     # Else generate a slug based on the published date.
-    return DateTime.parse(params["published"]).strftime("%s").to_i % (24 * 60 * 60)
+      slug = DateTime.parse(params["published"]).strftime("%s").to_i % (24 * 60 * 60)
+    end
+    logger.info slug
+    slug
   end
 
   def slugify(text)
