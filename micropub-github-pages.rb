@@ -84,7 +84,7 @@ helpers do
   end
 
   def slugify(text)
-    text.downcase.gsub('/[\s.\/_]/', ' ').squeeze(' ').strip.gsub(/[^\w-]/, '').tr(' ', '-')
+    text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-')
   end
 
   def syndicate_to(dest)
