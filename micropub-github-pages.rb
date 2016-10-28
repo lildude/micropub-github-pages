@@ -115,6 +115,8 @@ before :method => :post do
   # Remove the access_token to prevent any accidental exposure later
   params.delete(:access_token)
 
+  # Verify the token
+  verify_token auth_header
 end
 
 # https://www.w3.org/TR/2016/CR-micropub-20160816/
