@@ -58,22 +58,37 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include?('400: invalid_request')
   end
 
-  def test_new_note_with_syndication
+  def test_new_entry_with_syndication_everything_and_unrecognised_params
     stub_token
     stub_get_github_request
     stub_put_github_request
     now = Time.now.to_s
-    post('/micropub/testsite', {:h => "entry", :content => "This is the content", :category => ["tag1", "tag2"], :published => now, "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude"}, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+    post('/micropub/testsite', {
+      :h => "entry",
+      :content => "This is the content",
+      :category => ["tag1", "tag2"],
+      :published => now,
+      :slug => "this-is-the-content-slug",
+      "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude",
+      :unrecog_param => "foo",
+      :ano_unrecog_param => "bar"
+      }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "---\nlayout: note\ntags: tag1, tag2\ndate: #{now}\n---\n\nThis is the content", last_response.body
+    assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now}\n---\n\nThis is the content", last_response.body
   end
 
-  def test_new_entry
+  def test_new_note
     stub_token
     stub_get_github_request
     stub_put_github_request
-    post('/micropub/testsite', {:h => "entry", :title => "This is a 😍 Post!!", :content => "This is the content", :category => ["tag1", "tag2"], "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude"}, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+    post('/micropub/testsite', {
+      :h => "entry",
+      :title => "This is a 😍 Post!!",
+      :content => "This is the content",
+      :category => ["tag1", "tag2"],
+      "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude"
+      }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
   end
