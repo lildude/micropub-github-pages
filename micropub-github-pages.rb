@@ -47,7 +47,8 @@ helpers do
 
     date = DateTime.parse(params["published"])
     filename = date.strftime("%F")
-    filename << "-#{create_slug(params)}.md"
+    slug = create_slug(params)
+    filename << "-#{slug}.md"
 
     logger.info "Filename: #{filename}"
 
@@ -56,7 +57,7 @@ helpers do
 
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
-      headers "Location" => "URL-TBC"
+      headers "Location" => "#{slug}"
       body content if ENV['RACK_ENV'] = "test"
     end
   end
