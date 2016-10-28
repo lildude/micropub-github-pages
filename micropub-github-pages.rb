@@ -112,8 +112,8 @@ before :method => :post do
     halt 401, JSON.generate({:error => "unauthorized", :error_description => "Unauthorized"})
   end
 
-  # Verify the token
-  @result = verify_token auth_header
+  # Remove the access_token to prevent any accidental exposure later
+  params.delete(:access_token)
 
 end
 
