@@ -129,15 +129,17 @@ post '/micropub/:site' do |site|
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-=begin
-  if env["CONTENT_TYPE"] = "application/json"
-    return 500, "500: Not implemented yet"
-    params = JSON.parse(params[:body], :symbolize_keys => true)
-    halt 400, "400: invalid_request" unless true
-  else
-=end
-    halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless params.any? { |k, _v| ["h", "q", "action"].include? k }
-#  end
+  #p params
+  if env["CONTENT_TYPE"] == "application/json"
+    params = JSON.parse(request.body.read.to_s, :symbolize_keys => true)
+    if params["type"][0]
+      params["h"] = params["type"][0].tr("h-",'')
+      params.delete("type")
+    end
+    params.merge!(params.delete("properties"))
+  end
+
+  halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless params.any? { |k, _v| ["h", "q", "action"].include? k }
 
   # Add in a few more params if they're not set
   # Spec says we should use h-entry if no type provided.
@@ -152,7 +154,7 @@ post '/micropub/:site' do |site|
   # Convert all keys to symbols
   post_params = params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
   # Bump off params we're not interested in
-  post_params.reject!{ |key,_v| key =~ /^h|splat|captures|site|mp_syndicate_to/i }
+  post_params.reject!{ |key,_v| key =~ /^h|splat|captures|site|mp_syndicate_to|type/i }
 
   #logger.info "#{post_params}"
   # Determine the template to use based on various params received.
