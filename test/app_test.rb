@@ -112,14 +112,13 @@ class MainAppTest < Minitest::Test
     stub_put_github_request
     now = Time.now.to_s
     post('/micropub/testsite', {
-      :body => JSON.generate({
         :type => ["h-entry"],
         :properties => {
-          :content => ["This is the content"],
+          :content => ["This is the JSON content"],
           :category => ["tag1", "tag2"]
-          }})
-    }, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+          }
+    }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal DateTime.parse(now).strftime("%s").to_i % (24 * 60 * 60), last_response.header['Location']
+    assert_equal DateTime.parse(now).strftime("%s").to_i % (24 * 60 * 60), last_response.header['Location'].to_i
   end
 end
