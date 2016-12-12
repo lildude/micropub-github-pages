@@ -5,4 +5,4 @@ REALPATH=$(cd $(dirname "$0")/.. && pwd)
 
 export RACK_ENV="test"
 
-bundle exec ruby ${REALPATH}/test/app_test.rb
+bundle exec ruby ${REALPATH}/test/app_test.rb "$@"
