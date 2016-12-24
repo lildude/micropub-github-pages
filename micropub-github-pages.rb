@@ -125,20 +125,21 @@ post '/micropub/:site' do |site|
 
   #logger.info "#{params}" if @result[:scope] == "post"
 
+  # Normalise params
+  if env["CONTENT_TYPE"] == "application/json"
+    json_params = JSON.parse(request.body.read.to_s, :symbolize_names => false)
+    if json_params["type"][0]
+      params["h"] = json_params["type"][0].tr("h-",'')
+      json_params.delete("type")
+    end
+    params.merge!(json_params.delete("properties"))
+  end
+
   # Check for reserved params which tell us what to do:
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  #p params
-  if env["CONTENT_TYPE"] == "application/json"
-    params = JSON.parse(request.body.read.to_s, :symbolize_keys => true)
-    if params["type"][0]
-      params["h"] = params["type"][0].tr("h-",'')
-      params.delete("type")
-    end
-    params.merge!(params.delete("properties"))
-  end
-
+  
   halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless params.any? { |k, _v| ["h", "q", "action"].include? k }
 
   # Add in a few more params if they're not set
