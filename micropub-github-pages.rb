@@ -135,12 +135,7 @@ not_found do
   '404: Not Found'
 end
 
-set(:method) do |method|
-  method = method.to_s.upcase
-  condition { request.request_method == method }
-end
-
-before :method => :post do
+before do
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
     auth_header = env['HTTP_AUTHORIZATION']
