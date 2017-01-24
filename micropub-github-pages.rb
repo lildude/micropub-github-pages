@@ -14,6 +14,7 @@ config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#
 
 require './env' if File.exists?('env.rb')
 
+# TODO: I think it might be best to switch to Liquid templates instead or erb.
 set :views, settings.root + '/templates'
 
 helpers do
