@@ -146,15 +146,15 @@ before :method => :post do
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
     auth_header = env['HTTP_AUTHORIZATION']
-  elsif params[:access_token]
-    auth_header = "Bearer #{params[:access_token]}"
+  elsif params["access_token"]
+    auth_header = "Bearer #{params["access_token"]}"
   else
     logger.info "Received request without a token"
     halt 401, JSON.generate({:error => "unauthorized", :error_description => "Unauthorized"})
   end
 
   # Remove the access_token to prevent any accidental exposure later
-  params.delete(:access_token)
+  params.delete("access_token")
 
   # Verify the token
   verify_token auth_header
