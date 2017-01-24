@@ -158,6 +158,28 @@ before :method => :post do
   verify_token auth_header
 end
 
+# Query
+get '/micropub/:site' do |site|
+  not_found unless settings.sites.include? site
+  not_found unless params.include? "q"
+
+  case params["q"]
+  when /config/
+    status 200
+    headers "Content-type" => "application/json"
+    body JSON.generate({})  # TODO: Determine what goes in here
+  when /source/
+    status 200
+    headers "Content-type" => "application/json"
+    body JSON.generate({})  # TODO: Determine what goes in here
+  when /syndicate-to/
+    status 200
+    headers "Content-type" => "application/json"
+    body JSON.generate({})  # TODO: Determine what goes in here
+  end
+
+end
+
 # https://www.w3.org/TR/2016/CR-micropub-20160816/
 post '/micropub/:site' do |site|
   not_found unless settings.sites.include? site
