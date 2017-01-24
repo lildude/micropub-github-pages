@@ -176,7 +176,7 @@ get '/micropub/:site' do |site|
   when /syndicate-to/
     status 200
     headers "Content-type" => "application/json"
-    body JSON.generate({})  # TODO: Determine what goes in here
+    body JSON.generate("syndicate-to": [{}])  # TODO: Determine what goes in here
   end
 
 end
