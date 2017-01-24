@@ -109,8 +109,7 @@ helpers do
       post_params["content"] = post_params["content"][0]
     end
 
-    # We may receive markdown in the content. If the first line is a header, set the name with it
-
+    # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
     first_line = post_params["content"].match(/^#+\s?(.+$)\n+/)
     if !first_line.nil? and !post_params["name"]
       post_params["name"] = first_line[1].to_s
