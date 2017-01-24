@@ -19,6 +19,11 @@ require './env' if File.exists?('env.rb')
 set :views, settings.root + '/templates'
 
 helpers do
+  # https://www.w3.org/TR/micropub/#error-response
+  def error(error, description = nil)
+    JSON.generate({:error => error, :error_description => description })
+  end
+
   def verify_token(auth_header)
     uri = URI.parse(settings.micropub[:token_endpoint])
     http = Net::HTTP.new(uri.host, uri.port)
@@ -33,7 +38,7 @@ helpers do
     decoded_resp = URI.decode_www_form(resp.body).each_with_object({}){|(k,v), h| h[k.to_sym] = v}
     unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
       logger.info "Received response without scope or me"
-      halt 401, JSON.generate({:error => "insufficient_scope", :error_description => "Insufficient scope information provided."})
+      halt 401, error('insufficient_scope', 'Insufficient scope information provided.')
     end
 
     decoded_resp
@@ -55,7 +60,7 @@ helpers do
     logger.info "Filename: #{filename}"
 
     # Verify the repo exists
-    halt 422, "422: invalid request: repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit." unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
+    halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
 
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
@@ -97,7 +102,7 @@ helpers do
     # Bump off the standard Sinatra params we don't use
     post_params.reject!{ |key,_v| key =~ /^splat|captures|site/i }
 
-    halt 400, JSON.generate({:error => "invalid_request", :error_description => "Invalid request"}) if post_params.empty?
+    halt 400, error('invalid_request', 'Invalid request') if post_params.empty?
 
     # JSON-specific processing
     if env["CONTENT_TYPE"] == "application/json"
@@ -143,7 +148,7 @@ before do
     auth_header = "Bearer #{params["access_token"]}"
   else
     logger.info "Received request without a token"
-    halt 401, JSON.generate({:error => "unauthorized", :error_description => "Unauthorized"})
+    halt 401, error('unauthorized')
   end
 
   # Remove the access_token to prevent any accidental exposure later
@@ -186,7 +191,7 @@ post '/micropub/:site' do |site|
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless post_params.any? { |k, _v| [:h, :q, :action].include? k }
+  halt 400, error('invalid_request', "I don't know what you want me to do.") unless post_params.any? { |k, _v| [:h, :q, :action].include? k }
 
   # Determine the template to use based on various params received.
   type =
