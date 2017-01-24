@@ -72,10 +72,10 @@ helpers do
 
   def create_slug(params)
     # Use the provided slug
-    if params.include? "slug" and !params[:slug].nil?
+    if params.include? :slug and !params[:slug].nil?
       slug = params[:slug]
     # If there's a name, use that
-    elsif params.include? "name" and !params[:name].nil?
+    elsif params.include? :name and !params[:name].nil?
       slug = slugify params[:name]
     else
     # Else generate a slug based on the published date.
