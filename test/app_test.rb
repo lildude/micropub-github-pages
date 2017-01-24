@@ -17,16 +17,30 @@ class MainAppTest < Minitest::Test
     Sinatra::Application
   end
 
-  def test_404_if_get_micropub_endpoint
+  def test_unauthorized_if_get_micropub_endpoint_without_token_or_header
     get '/micropub'
-    assert last_response.not_found?
-    assert last_response.body.include?('404: Not Found')
+    assert last_response.unauthorized?
+    assert JSON.parse(last_response.body)
+    assert last_response.body.include?('unauthorized')
   end
 
   def test_404_if_get_known_site
     get '/micropub/testsite'
+    assert last_response.unauthorized?
+    assert last_response.body.include?('unauthorized')
+  end
+
+  def test_404_if_get_known_site_without_query
+    stub_token
+    get '/micropub/testsite', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
     assert last_response.not_found?
-    assert last_response.body.include?('404: Not Found')
+  end
+
+  def test_get_config_with_authorisation_header
+    stub_token
+    get '/micropub/testsite?q=config', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
+    assert last_response.ok?
+    # TODO: Assert the correct JSON content
   end
 
   def test_404_if_not_defined_site
