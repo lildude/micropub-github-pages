@@ -46,7 +46,6 @@ helpers do
 
     logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{site} | repo: #{repo}"
 
-    p "#{params}"
     date = DateTime.parse(params[:published])
     filename = date.strftime("%F")
     slug = create_slug(params)
@@ -124,10 +123,8 @@ helpers do
 
     # Convert all keys to symbols - just catching any missed earlier
     post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
-    # Bump off params we're not interested in
-    post_params.reject!{ |key,_v| key =~ /^splat|captures|site|mp_syndicate_to|type/i }
 
-    p "#{post_params}"
+    #p "#{post_params}"
     post_params
 
   end
