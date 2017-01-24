@@ -177,13 +177,13 @@ post '/micropub/:site' do |site|
   # Determine the template to use based on various params received.
   type =
     if post_params[:h] == "entry"
-      if post_params.include? "name"
+      if post_params.include? :name
         :article
-      elsif post_params.include? "in-reply-to"
+      elsif post_params.include? :in_reply_to
         :reply
-      elsif post_params.include? "repost-of"
+      elsif post_params.include? :repost_of
         :repost
-      elsif post_params.include? "bookmark-of"
+      elsif post_params.include? :bookmark_of
         :bookmark
       else
         :note
