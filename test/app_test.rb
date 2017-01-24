@@ -86,7 +86,7 @@ class MainAppTest < Minitest::Test
       }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now}\n---\n\This is the content", last_response.body
+    assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now}\n---\nThis is the content", last_response.body
     assert_equal "this-is-the-content-slug", last_response.header['Location']
   end
 
