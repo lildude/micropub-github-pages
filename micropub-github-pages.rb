@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-
+# Spec: https://www.w3.org/TR/micropub
 require 'rubygems'
 require 'bundler/setup'
 require 'sinatra'
@@ -175,7 +175,6 @@ get '/micropub/:site' do |site|
 
 end
 
-# https://www.w3.org/TR/2016/CR-micropub-20160816/
 post '/micropub/:site' do |site|
   not_found unless settings.sites.include? site
 
