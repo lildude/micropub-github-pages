@@ -94,6 +94,11 @@ helpers do
 
   # Process and clean up params for use later
   def process_params(post_params)
+    # Bump off the standard Sinatra params we don't use
+    post_params.reject!{ |key,_v| key =~ /^splat|captures|site/i }
+
+    halt 400, JSON.generate({:error => "invalid_request", :error_description => "Invalid request"}) if post_params.empty?
+
     # JSON-specific processing
     if env["CONTENT_TYPE"] == "application/json"
       if post_params["type"][0]
