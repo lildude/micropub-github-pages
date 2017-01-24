@@ -136,6 +136,7 @@ helpers do
   end
 end
 
+# My own message for 404 errors
 not_found do
   '404: Not Found'
 end
@@ -160,8 +161,8 @@ end
 
 # Query
 get '/micropub/:site' do |site|
-  not_found unless settings.sites.include? site
-  not_found unless params.include? "q"
+  halt 404 unless settings.sites.include? site
+  halt 404 unless params.include? "q"
 
   case params["q"]
   when /config/
@@ -181,7 +182,7 @@ get '/micropub/:site' do |site|
 end
 
 post '/micropub/:site' do |site|
-  not_found unless settings.sites.include? site
+  halt 404 unless settings.sites.include? site
 
   # Normalise params
   post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => false) : params
