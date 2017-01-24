@@ -45,7 +45,8 @@ helpers do
 
     logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{site} | repo: #{repo}"
 
-    date = DateTime.parse(params["published"])
+    p "#{params}"
+    date = DateTime.parse(params[:published])
     filename = date.strftime("%F")
     slug = create_slug(params)
     filename << "-#{slug}.md"
@@ -70,14 +71,14 @@ helpers do
 
   def create_slug(params)
     # Use the provided slug
-    if params.include? "slug" and !params["slug"].nil?
-      slug = params["slug"]
+    if params.include? "slug" and !params[:slug].nil?
+      slug = params[:slug]
     # If there's a name, use that
-    elsif params.include? "name" and !params["name"].nil?
-      slug = slugify params["name"]
+    elsif params.include? "name" and !params[:name].nil?
+      slug = slugify params[:name]
     else
     # Else generate a slug based on the published date.
-      slug = DateTime.parse(params["published"]).strftime("%s").to_i % (24 * 60 * 60)
+      slug = DateTime.parse(params[:published]).strftime("%s").to_i % (24 * 60 * 60)
     end
     slug
   end
@@ -90,6 +91,41 @@ helpers do
     logger.info "Syndicated to #{dest}"
   end
 
+  # Process and clean up params for use later
+  def process_params(post_params)
+    # JSON-specific processing
+    if env["CONTENT_TYPE"] == "application/json"
+      if post_params["type"][0]
+        post_params["h"] = post_params["type"][0].tr("h-",'')
+        post_params.delete("type")
+      end
+      post_params.merge!(post_params.delete("properties"))
+      post_params["content"] = post_params["content"][0]
+    end
+
+    # We may receive markdown in the content. If the first line is a header, set the name with it
+
+    first_line = post_params["content"].match(/^#+\s?(.+$)\n+/)
+    if !first_line.nil? and !post_params["name"]
+      post_params["name"] = first_line[1].to_s
+      post_params["content"].sub!(first_line[0], '')
+    end
+
+    # Add in a few more params if they're not set
+    # Spec says we should use h-entry if no type provided.
+    post_params["h"] = "entry" unless post_params.include? "h"
+    # It's nice to honour the client's published date, if set, else set one.
+    post_params["published"] = Time.now.to_s unless post_params.include? "published"
+
+    # Convert all keys to symbols - just catching any missed earlier
+    post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
+    # Bump off params we're not interested in
+    post_params.reject!{ |key,_v| key =~ /^splat|captures|site|mp_syndicate_to|type/i }
+
+    p "#{post_params}"
+    post_params
+
+  end
 end
 
 not_found do
@@ -123,58 +159,33 @@ end
 post '/micropub/:site' do |site|
   not_found unless settings.sites.include? site
 
-  #logger.info "#{params}" if @result[:scope] == "post"
-
   # Normalise params
-  if env["CONTENT_TYPE"] == "application/json"
-    json_params = JSON.parse(request.body.read.to_s, :symbolize_names => false)
-    if json_params["type"][0]
-      params["h"] = json_params["type"][0].tr("h-",'')
-      json_params.delete("type")
-    end
-    params.merge!(json_params.delete("properties"))
-  end
+  post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => false) : params
+  post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  
-  halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless params.any? { |k, _v| ["h", "q", "action"].include? k }
+  halt 400, JSON.generate({:error => "invalid_request", :error_description => "I don't know what you want me to do."}) unless post_params.any? { |k, _v| [:h, :q, :action].include? k }
 
-  # Add in a few more params if they're not set
-  # Spec says we should use h-entry if no type provided.
-  params["h"] = "entry" unless params.include? "h"
-  # It's nice to honour the client's published date, if set, else set one.
-  params["published"] = Time.now.to_s unless params.include? "published"
-
-
-  # Pass the content through our template, but don't output it.
-  # Uses sinatra/content_for.  Alternate solution may be to use partials - http://www.sinatrarb.com/faq.html#partials or https://github.com/yb66/Sinatra-Partial
-
-  # Convert all keys to symbols
-  post_params = params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
-  # Bump off params we're not interested in
-  post_params.reject!{ |key,_v| key =~ /^h|splat|captures|site|mp_syndicate_to|type/i }
-
-  #logger.info "#{post_params}"
   # Determine the template to use based on various params received.
   type =
-    if params["h"] == "entry"
-      if params.include? "name"
+    if post_params[:h] == "entry"
+      if post_params.include? "name"
         :article
-      elsif params.include? "in-reply-to"
+      elsif post_params.include? "in-reply-to"
         :reply
-      elsif params.include? "repost-of"
+      elsif post_params.include? "repost-of"
         :repost
-      elsif params.include? "bookmark-of"
+      elsif post_params.include? "bookmark-of"
         :bookmark
       else
         :note
       end
-    elsif params["h"] == "event"
+    elsif post_params[:h] == "event"
         :event
-    elsif params["h"] == "cite"
+    elsif post_params[:h] == "cite"
         :cite
     end
 
@@ -183,7 +194,7 @@ post '/micropub/:site' do |site|
   content = erb "<%= yield_content :some_key %>"
   content
 
-  publish_post site, content, params
+  publish_post site, content, post_params
 
-  #syndicate_to params["mp-syndicate-to"] if params.include? "mp-syndicate-to"
+  #syndicate_to post_params["mp-syndicate-to"] if post_params.include? "mp-syndicate-to"
 end
