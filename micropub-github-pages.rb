@@ -8,6 +8,7 @@ require 'sinatra/content_for'
 require 'uri'
 require 'octokit'
 require 'net/https'
+require 'json'
 require "sinatra/reloader" if development?
 
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
