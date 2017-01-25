@@ -9,6 +9,8 @@ require 'uri'
 require 'octokit'
 require 'net/https'
 require 'json'
+require 'base64'
+require 'open-uri'
 require "sinatra/reloader" if development?
 
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
@@ -70,8 +72,23 @@ helpers do
   end
 
   # Download the photo and add to GitHub repo if config allows
-  def download_photo(url)
+  def download_photo(site, url)
+    # TODO: Per-repo settings take pref over global. Global only at the mo
+    if settings.download_photos === true
+      encoded_file = Base64.encode64(open(url).read)
+      client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
 
+      repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
+      filename = url.split('/').last
+
+      # Verify the repo exists
+      halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
+
+      # TODO: Make the image upload dir configurable
+      client.create_contents("#{repo}", "media/#{filename}", "Added new photo", encoded_file)
+      url = "/media/#{filename}"
+    end
+    url
   end
 
   # Add trailing slash if it's missing
@@ -218,6 +235,10 @@ post '/micropub/:site' do |site|
     elsif post_params[:h] == "cite"
         :cite
     end
+
+  # If there's a photo, "download" it to the GitHub repo and return the new URL
+  # TODO: Use the config to return a complete URL.
+  post_params[:photo] = download_photo(site, post_params[:photo]) if post_params[:photo]
 
   erb type, :locals => post_params
 
