@@ -8,3 +8,4 @@ micropub:
   token_endpoint: "http://example.com/micropub/token"
 
 github_username: lildude
+download_photos: true
