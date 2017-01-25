@@ -54,3 +54,7 @@ def stub_put_github_request
   stub_request(:put, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/_posts\/[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9].*\.md/).
     to_return(:status => 201, :body => "{ json here }")
 end
+
+def stub_get_photo
+  stub_request(:get, /scontent.cdninstagram.com\/t51.2885-15\/e35\/12716713_162835967431386_291746593_n.jpg/).
+    to_return(:status => 200, :body => open("test/fixtures/photo.jpg", "rb"))
