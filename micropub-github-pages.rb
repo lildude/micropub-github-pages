@@ -69,6 +69,11 @@ helpers do
     end
   end
 
+  # Download the photo and add to GitHub repo if config allows
+  def download_photo(url)
+
+  end
+
   # Add trailing slash if it's missing
   def normalise_url(url)
     url << '/' unless url.end_with?('/')
