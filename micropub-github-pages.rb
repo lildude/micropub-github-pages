@@ -75,17 +75,17 @@ helpers do
   def download_photo(site, url)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
-      encoded_file = Base64.encode64(open(url).read)
-      client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
-
-      repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
+      file = open(url).read
       filename = url.split('/').last
+
+      client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+      repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
 
       # Verify the repo exists
       halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
 
       # TODO: Make the image upload dir configurable
-      client.create_contents("#{repo}", "media/#{filename}", "Added new photo", encoded_file)
+      client.create_contents("#{repo}", "media/#{filename}", "Added new photo", file)
       url = "/media/#{filename}"
     end
     url
