@@ -1,13 +1,7 @@
 <% content_for :some_key do %>
 ---
 layout: note
-<% if defined? category %>
-  <% if category.is_a? Array %>
-    <%= "tags: #{category.join(", ")}\n"  %>
-    <% else %>
-    <%= "tags: #{category}\n" %>
-  <% end %>
-<% end %>
+<% if defined? category %><% if category.is_a? Array %><%= "tags: #{category.join(", ")}\n"  %><% else %><%= "tags: #{category}\n" %><% end %><% end %>
 <%= "permalink: #{slug}\n" if defined? slug %>
 date: <%= published %>
 ---
