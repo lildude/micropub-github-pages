@@ -173,6 +173,7 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_non_existant_github_file
     stub_put_github_request
     now = Time.now.to_s
     post('/micropub/testsite', {

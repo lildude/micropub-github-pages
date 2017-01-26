@@ -59,3 +59,13 @@ def stub_get_photo
   stub_request(:get, /scontent.cdninstagram.com\/t51.2885-15\/e35\/12716713_162835967431386_291746593_n.jpg/).
     to_return(:status => 200, :body => open("test/fixtures/photo.jpg", "rb"))
 end
+
+def stub_non_existant_github_file
+  stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/media\/12716713_162835967431386_291746593_n.jpg/).
+    to_return(:status => 404, :body => '404 - Not Found')
+end
+
+def stub_existing_github_file
+  stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/media\/12716713_162835967431386_291746593_n.jpg/).
+    to_return(:status => 200, :body => '{  "sha": "3d21ec53a331a6f037a91c368710b99387d012c1" }') # We don't need the rest of the info from the response, yet.
+end
