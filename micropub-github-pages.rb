@@ -132,29 +132,30 @@ helpers do
 
     # JSON-specific processing
     if env["CONTENT_TYPE"] == "application/json"
-      if post_params["type"][0]
-        post_params["h"] = post_params["type"][0].tr("h-",'')
-        post_params.delete("type")
+      if post_params[:type][0]
+        post_params[:h] = post_params[:type][0].tr("h-",'')
+        post_params.delete(:type)
       end
-      post_params.merge!(post_params.delete("properties"))
-      post_params["content"] = post_params["content"][0]
+      post_params.merge!(post_params.delete(:properties))
+      post_params[:content] = post_params[:content][0]
+      post_params[:photo] = post_params[:photo][0] if post_params[:photo].is_a? Array and post_params[:photo].length == 1 and post_params[:photo][0].is_a? String
+    else
+      # Convert all keys to symbols from form submission
+      post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
     end
 
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
-    first_line = post_params["content"].match(/^#+\s?(.+$)\n+/)
-    if !first_line.nil? and !post_params["name"]
-      post_params["name"] = first_line[1].to_s
-      post_params["content"].sub!(first_line[0], '')
+    first_line = post_params[:content].match(/^#+\s?(.+$)\n+/)
+    if !first_line.nil? and !post_params[:name]
+      post_params[:name] = first_line[1].to_s
+      post_params[:content].sub!(first_line[0], '')
     end
 
     # Add in a few more params if they're not set
     # Spec says we should use h-entry if no type provided.
-    post_params["h"] = "entry" unless post_params.include? "h"
+    post_params[:h] = "entry" unless post_params.include? :h
     # It's nice to honour the client's published date, if set, else set one.
-    post_params["published"] = Time.now.to_s unless post_params.include? "published"
-
-    # Convert all keys to symbols - just catching any missed earlier
-    post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
+    post_params[:published] = Time.now.to_s unless post_params.include? :published
 
     #p "#{post_params}"
     post_params
