@@ -72,11 +72,11 @@ helpers do
   end
 
   # Download the photo and add to GitHub repo if config allows
-  def download_photo(site, url)
+  def download_photo(site, photo)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
-      file = open(url).read
-      filename = url.split('/').last
+      file = open(photo).read
+      filename = photo.split('/').last
 
       client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
       repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
