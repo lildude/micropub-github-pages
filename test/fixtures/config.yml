@@ -3,6 +3,7 @@ sites:
     github_repo: "micropub-github-pages"
     permalink_style: "/:categories/:year/:month/:title/"
     site_url: "https://example.com"
+    image_dir: "img"
 
 micropub:
   token_endpoint: "http://example.com/micropub/token"

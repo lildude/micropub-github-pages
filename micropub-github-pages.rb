@@ -86,11 +86,10 @@ helpers do
 
       # Return URL early if file already exists in the repo
       # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
-      return "/media/#{filename}" if client.contents("#{repo}", :path => "media/#{filename}") rescue nil
+      return "/#{settings.sites[site]['image_dir']}/#{filename}" if client.contents("#{repo}", :path => "#{settings.sites[site]['image_dir']}/#{filename}") rescue nil
 
-      # TODO: Make the image upload dir configurable
-      client.create_contents("#{repo}", "media/#{filename}", "Added new photo", file)
-      photo = "/media/#{filename}"
+      client.create_contents("#{repo}", "#{settings.sites[site]['image_dir']}/#{filename}", "Added new photo", file)
+      photo = "/#{settings.sites[site]['image_dir']}/#{filename}"
     end
     photo
   end
