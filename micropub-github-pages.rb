@@ -182,9 +182,7 @@ helpers do
     # It's nice to honour the client's published date, if set, else set one.
     post_params[:published] = Time.now.to_s unless post_params.include? :published
 
-    #p "#{post_params}"
     post_params
-
   end
 end
 
