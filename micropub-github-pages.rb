@@ -162,7 +162,7 @@ helpers do
         post_params.delete(:type)
       end
       post_params.merge!(post_params.delete(:properties))
-      post_params[:content] = post_params[:content][0]
+      post_params[:content] = post_params[:content][0] if post_params[:content]
       post_params[:photo] = post_params[:photo][0] if post_params[:photo].is_a? Array and post_params[:photo].length == 1 and post_params[:photo][0].is_a? String
     else
       # Convert all keys to symbols from form submission
@@ -170,7 +170,7 @@ helpers do
     end
 
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
-    first_line = post_params[:content].match(/^#+\s?(.+$)\n+/)
+    first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
     if !first_line.nil? and !post_params[:name]
       post_params[:name] = first_line[1].to_s
       post_params[:content].sub!(first_line[0], '')
