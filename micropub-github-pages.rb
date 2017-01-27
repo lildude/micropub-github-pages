@@ -268,7 +268,6 @@ post '/micropub/:site' do |site|
     end
 
   # If there's a photo, "download" it to the GitHub repo and return the new URL
-  # TODO: Use the config to return a complete URL.
   post_params[:photo] = download_photo(post_params) if post_params[:photo]
 
   erb type, :locals => post_params
