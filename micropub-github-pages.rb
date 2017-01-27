@@ -239,7 +239,8 @@ post '/micropub/:site' do |site|
   # Normalise params
   post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => true) : params
   post_params = process_params(post_params)
-
+  post_params[:site] = site
+  
   # Check for reserved params which tell us what to do:
   # h = create entry
   # q = query the endpoint
