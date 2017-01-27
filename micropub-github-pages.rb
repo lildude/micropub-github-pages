@@ -86,13 +86,13 @@ helpers do
 
       # Return URL early if file already exists in the repo
       # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
-      return url if client.contents("#{repo}", :path => "media/#{filename}") rescue nil
+      return "/media/#{filename}" if client.contents("#{repo}", :path => "media/#{filename}") rescue nil
 
       # TODO: Make the image upload dir configurable
       client.create_contents("#{repo}", "media/#{filename}", "Added new photo", file)
-      url = "/media/#{filename}"
+      photo = "/media/#{filename}"
     end
-    url
+    photo
   end
 
   # Add trailing slash if it's missing
