@@ -56,17 +56,18 @@ helpers do
 
     date = DateTime.parse(params[:published])
     filename = date.strftime("%F")
-    slug = create_slug(params)
-    filename << "-#{slug}.md"
+    params[:slug] = create_slug(params)
+    filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
+    location = create_permalink(site, params)
 
     # Verify the repo exists
     halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
 
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
-      headers "Location" => "#{slug}"
+      headers "Location" => "#{location}"
       body content if ENV['RACK_ENV'] = "test"
     end
   end
@@ -115,6 +116,28 @@ helpers do
       slug = DateTime.parse(params[:published]).strftime("%s").to_i % (24 * 60 * 60)
     end
     slug
+  end
+
+  def create_permalink(site, params)
+    permalink_style = settings.sites[site]['permalink_style']
+    date = DateTime.parse(params[:published])
+
+    # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
+    template_variables = {
+      ":year" => date.strftime("%Y"),
+      ":month" => date.strftime("%m"),
+      ":i_month" => date.strftime("%-m"),
+      ":day" => date.strftime("%d"),
+      ":i_day" => date.strftime("%-d"),
+      ":short_year" => date.strftime("%y"),
+      ":hour" => date.strftime("%H"),
+      ":minute" => date.strftime("%M"),
+      ":second" => date.strftime("%S"),
+      ":title" => params[:slug],
+      ":categories" => ''
+    }
+
+    permalink_style.gsub(/(:[a-z]+)/, template_variables).gsub(/(\/\/)/, '/')
   end
 
   def slugify(text)
