@@ -110,7 +110,7 @@ class MainAppTest < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now.to_s}\n---\nThis is the content", last_response.body
-    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-content-slug", last_response.header['Location']
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-content-slug", last_response.header['Location']
   end
 
   def test_new_entry
@@ -127,7 +127,7 @@ class MainAppTest < Minitest::Test
       }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article
@@ -142,7 +142,7 @@ class MainAppTest < Minitest::Test
     }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
     assert_equal "---\nlayout: post\ntitle: This is a 😍 Post!!\ntags: tag1, tag2\ndate: #{now}\n---\nThis is the content", last_response.body
   end
 
@@ -177,7 +177,7 @@ class MainAppTest < Minitest::Test
           }
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article_json
@@ -193,7 +193,7 @@ class MainAppTest < Minitest::Test
           }
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-header", last_response.header['Location']
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-header", last_response.header['Location']
     assert_equal "---\nlayout: post\ntitle: This is the header\ntags: tag1, tag2\ndate: #{now.to_s}\n---\nThis is the JSON content", last_response.body
   end
 

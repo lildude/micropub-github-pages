@@ -60,7 +60,8 @@ helpers do
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    location = create_permalink(params)
+    location = "#{settings.sites[params[:site]]['site_url']}"
+    location << create_permalink(params)
 
     # Verify the repo exists
     halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
