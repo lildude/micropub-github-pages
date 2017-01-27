@@ -43,6 +43,15 @@ class MainAppTest < Minitest::Test
     # TODO: Assert the correct JSON content
   end
 
+  def test_get_syndicate_to
+    skip("TODO")
+    stub_token
+    get '/micropub/testsite?q=syndicate-to', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
+    assert last_response.ok?
+    assert_equal "foo", last_response.body
+  end
+
+
   def test_404_if_not_defined_site
     stub_token
     post '/micropub/foobar', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
