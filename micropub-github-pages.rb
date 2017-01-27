@@ -84,12 +84,15 @@ helpers do
       # Verify the repo exists
       halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
 
+      photo_path_prefix = settings.sites[site]['full_image_urls'] === true ? "#{settings.sites[site]['site_url']}" : ''
+      photo_path = "#{photo_path_prefix}/#{settings.sites[site]['image_dir']}/#{filename}"
+
       # Return URL early if file already exists in the repo
       # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
-      return "/#{settings.sites[site]['image_dir']}/#{filename}" if client.contents("#{repo}", :path => "#{settings.sites[site]['image_dir']}/#{filename}") rescue nil
+      return photo_path if client.contents("#{repo}", :path => "#{settings.sites[site]['image_dir']}/#{filename}") rescue nil
 
       client.create_contents("#{repo}", "#{settings.sites[site]['image_dir']}/#{filename}", "Added new photo", file)
-      photo = "/#{settings.sites[site]['image_dir']}/#{filename}"
+      photo = photo_path
     end
     photo
   end
