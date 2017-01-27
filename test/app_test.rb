@@ -129,39 +129,6 @@ class MainAppTest < Minitest::Test
     assert_equal "this-is-a-post", last_response.header['Location']
   end
 
-  def test_new_note_json_syntax
-    stub_token
-    stub_get_github_request
-    stub_put_github_request
-    now = Time.now.to_s
-    post('/micropub/testsite', {
-        :type => ["h-entry"],
-        :properties => {
-          :content => ["This is the JSON content"],
-          :category => ["tag1", "tag2"]
-          }
-    }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal DateTime.parse(now).strftime("%s").to_i % (24 * 60 * 60), last_response.header['Location'].to_i
-  end
-
-  def test_new_note_with_title_in_markdown_content_becomes_article_json
-    stub_token
-    stub_get_github_request
-    stub_put_github_request
-    now = Time.now.to_s
-    post('/micropub/testsite', {
-        :type => ["h-entry"],
-        :properties => {
-          :content => ["# This is the header\n\nThis is the JSON content"],
-          :category => ["tag1", "tag2"]
-          }
-    }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "this-is-the-header", last_response.header['Location']
-    assert_equal "---\nlayout: post\ntitle: This is the header\ntags: tag1, tag2\ndate: #{now}\n---\nThis is the JSON content", last_response.body
-  end
-
   def test_new_note_with_title_in_markdown_content_becomes_article
     stub_token
     stub_get_github_request
@@ -193,6 +160,41 @@ class MainAppTest < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_match /!\[\]\(\/img\/12716713_162835967431386_291746593_n\.jpg\)/, last_response.body
+  end
+
+  #----:[ JSON tests ]:----#
+  
+  def test_new_note_json_syntax
+    stub_token
+    stub_get_github_request
+    stub_put_github_request
+    now = Time.now.to_s
+    post('/micropub/testsite', {
+        :type => ["h-entry"],
+        :properties => {
+          :content => ["This is the JSON content"],
+          :category => ["tag1", "tag2"]
+          }
+    }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal DateTime.parse(now).strftime("%s").to_i % (24 * 60 * 60), last_response.header['Location'].to_i
+  end
+
+  def test_new_note_with_title_in_markdown_content_becomes_article_json
+    stub_token
+    stub_get_github_request
+    stub_put_github_request
+    now = Time.now.to_s
+    post('/micropub/testsite', {
+        :type => ["h-entry"],
+        :properties => {
+          :content => ["# This is the header\n\nThis is the JSON content"],
+          :category => ["tag1", "tag2"]
+          }
+    }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal "this-is-the-header", last_response.header['Location']
+    assert_equal "---\nlayout: post\ntitle: This is the header\ntags: tag1, tag2\ndate: #{now}\n---\nThis is the JSON content", last_response.body
   end
 
   def test_new_note_with_photo_reference_json
@@ -236,4 +238,5 @@ class MainAppTest < Minitest::Test
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_match /!\[Instagram photo\]\(\/media\/12716713_162835967431386_291746593_n\.jpg\)/, last_response.body
   end
+
 end
