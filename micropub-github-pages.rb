@@ -46,13 +46,13 @@ helpers do
     decoded_resp
   end
 
-  def publish_post(site, content, params)
+  def publish_post(content, params)
     # Authenticate
     client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
 
-    repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
+    repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
 
-    logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{site} | repo: #{repo}"
+    logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{params[:site]} | repo: #{repo}"
 
     date = DateTime.parse(params[:published])
     filename = date.strftime("%F")
@@ -60,10 +60,10 @@ helpers do
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    location = create_permalink(site, params)
+    location = create_permalink(params)
 
     # Verify the repo exists
-    halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
+    halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
@@ -73,29 +73,29 @@ helpers do
   end
 
   # Download the photo and add to GitHub repo if config allows
-  def download_photo(site, photo)
+  def download_photo(params)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
-      file = open(photo).read
-      filename = photo.split('/').last
+      file = open(params[:photo]).read
+      filename = params[:photo].split('/').last
 
       client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
-      repo = "#{settings.github_username}/#{settings.sites[site]["github_repo"]}"
+      repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
 
       # Verify the repo exists
-      halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[site]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[site]['github_repo']}")
+      halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-      photo_path_prefix = settings.sites[site]['full_image_urls'] === true ? "#{settings.sites[site]['site_url']}" : ''
-      photo_path = "#{photo_path_prefix}/#{settings.sites[site]['image_dir']}/#{filename}"
+      photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? "#{settings.sites[params[:site]]['site_url']}" : ''
+      photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+
 
       # Return URL early if file already exists in the repo
       # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
-      return photo_path if client.contents("#{repo}", :path => "#{settings.sites[site]['image_dir']}/#{filename}") rescue nil
-
-      client.create_contents("#{repo}", "#{settings.sites[site]['image_dir']}/#{filename}", "Added new photo", file)
-      photo = photo_path
+      return photo_path if client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}") rescue nil
+      client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
+      params[:photo] = photo_path
     end
-    photo
+    params[:photo]
   end
 
   # Add trailing slash if it's missing
@@ -118,8 +118,8 @@ helpers do
     slug
   end
 
-  def create_permalink(site, params)
-    permalink_style = settings.sites[site]['permalink_style']
+  def create_permalink(params)
+    permalink_style = settings.sites[params[:site]]['permalink_style']
     date = DateTime.parse(params[:published])
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
@@ -240,7 +240,7 @@ post '/micropub/:site' do |site|
   post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => true) : params
   post_params = process_params(post_params)
   post_params[:site] = site
-  
+
   # Check for reserved params which tell us what to do:
   # h = create entry
   # q = query the endpoint
@@ -269,14 +269,14 @@ post '/micropub/:site' do |site|
 
   # If there's a photo, "download" it to the GitHub repo and return the new URL
   # TODO: Use the config to return a complete URL.
-  post_params[:photo] = download_photo(site, post_params[:photo]) if post_params[:photo]
+  post_params[:photo] = download_photo(post_params) if post_params[:photo]
 
   erb type, :locals => post_params
 
   content = erb "<%= yield_content :some_key %>"
   content
 
-  publish_post site, content, post_params
+  publish_post content, post_params
 
   #syndicate_to post_params["mp-syndicate-to"] if post_params.include? "mp-syndicate-to"
 end
