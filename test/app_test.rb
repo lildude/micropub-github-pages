@@ -96,12 +96,12 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_github_request
     stub_put_github_request
-    now = Time.now.to_s
+    now = Time.now
     post('/micropub/testsite', {
       :h => "entry",
       :content => "This is the content",
       :category => ["tag1", "tag2"],
-      :published => now,
+      :published => now.to_s,
       :slug => "this-is-the-content-slug",
       "mp-syndicate-to" => "https://myfavoritesocialnetwork.example/lildude",
       :unrecog_param => "foo",
@@ -109,14 +109,15 @@ class MainAppTest < Minitest::Test
       }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now}\n---\nThis is the content", last_response.body
-    assert_equal "this-is-the-content-slug", last_response.header['Location']
+    assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now.to_s}\n---\nThis is the content", last_response.body
+    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-content-slug", last_response.header['Location']
   end
 
   def test_new_entry
     stub_token
     stub_get_github_request
     stub_put_github_request
+    now = Time.now
     post('/micropub/testsite', {
       :h => "entry",
       :name => "This is a 😍 Post!!",
@@ -126,14 +127,14 @@ class MainAppTest < Minitest::Test
       }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "this-is-a-post", last_response.header['Location']
+    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article
     stub_token
     stub_get_github_request
     stub_put_github_request
-    now = Time.now.to_s
+    now = Time.now
     post('/micropub/testsite', {
       :h => "entry",
       :content => "# This is a 😍 Post!!\n\nThis is the content",
@@ -141,7 +142,7 @@ class MainAppTest < Minitest::Test
     }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "this-is-a-post", last_response.header['Location']
+    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
     assert_equal "---\nlayout: post\ntitle: This is a 😍 Post!!\ntags: tag1, tag2\ndate: #{now}\n---\nThis is the content", last_response.body
   end
 
@@ -151,7 +152,6 @@ class MainAppTest < Minitest::Test
     stub_get_github_request
     stub_non_existant_github_file
     stub_put_github_request
-    now = Time.now.to_s
     post('/micropub/testsite', {
       :h => "entry",
       :content => "Adding a new photo",
@@ -163,12 +163,12 @@ class MainAppTest < Minitest::Test
   end
 
   #----:[ JSON tests ]:----#
-  
+
   def test_new_note_json_syntax
     stub_token
     stub_get_github_request
     stub_put_github_request
-    now = Time.now.to_s
+    now = Time.now
     post('/micropub/testsite', {
         :type => ["h-entry"],
         :properties => {
@@ -177,14 +177,14 @@ class MainAppTest < Minitest::Test
           }
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal DateTime.parse(now).strftime("%s").to_i % (24 * 60 * 60), last_response.header['Location'].to_i
+    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article_json
     stub_token
     stub_get_github_request
     stub_put_github_request
-    now = Time.now.to_s
+    now = Time.now
     post('/micropub/testsite', {
         :type => ["h-entry"],
         :properties => {
@@ -193,8 +193,8 @@ class MainAppTest < Minitest::Test
           }
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "this-is-the-header", last_response.header['Location']
-    assert_equal "---\nlayout: post\ntitle: This is the header\ntags: tag1, tag2\ndate: #{now}\n---\nThis is the JSON content", last_response.body
+    assert_equal "/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-header", last_response.header['Location']
+    assert_equal "---\nlayout: post\ntitle: This is the header\ntags: tag1, tag2\ndate: #{now.to_s}\n---\nThis is the JSON content", last_response.body
   end
 
   def test_new_note_with_photo_reference_json
@@ -203,7 +203,6 @@ class MainAppTest < Minitest::Test
     stub_get_github_request
     stub_non_existant_github_file
     stub_put_github_request
-    now = Time.now.to_s
     post('/micropub/testsite', {
         :type => ["h-entry"],
         :properties => {
@@ -223,7 +222,6 @@ class MainAppTest < Minitest::Test
     stub_get_github_request
     stub_non_existant_github_file
     stub_put_github_request
-    now = Time.now.to_s
     post('/micropub/testsite', {
         :type => ["h-entry"],
         :properties => {
