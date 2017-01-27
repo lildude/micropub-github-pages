@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/lildude/micropub-github-pages.svg?branch=master)](https://travis-ci.org/lildude/micropub-github-pages) [![Coverage Status](https://coveralls.io/repos/github/lildude/micropub-github-pages/badge.svg)](https://coveralls.io/github/lildude/micropub-github-pages)
 
-A simple endpoint that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository.  This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
+A simple Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository.  This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
 
 ## Setup
 
@@ -16,7 +16,9 @@ Clicky the button that will appear right :point_right: :soon:
 
 ### Elsewhere
 
-Run `script/server` and you'll have the application running on http://localhost:4567 .
+Run `GITHUB_ACCESS_TOKEN=[your_personal_access_token] script/server` and you'll have the application running on http://localhost:4567 .
+
+Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = '[your_personal_access_token]'`.
 
 ## Configuration
 
