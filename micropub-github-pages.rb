@@ -212,7 +212,7 @@ post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
 
   # Normalise params
-  post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => false) : params
+  post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => true) : params
   post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
