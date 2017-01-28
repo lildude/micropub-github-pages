@@ -52,8 +52,6 @@ helpers do
 
     repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
 
-    logger.info "token: #{ENV['GITHUB_ACCESS_TOKEN']} | site: #{params[:site]} | repo: #{repo}"
-
     date = DateTime.parse(params[:published])
     filename = date.strftime("%F")
     params[:slug] = create_slug(params)
