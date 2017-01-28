@@ -75,24 +75,33 @@ helpers do
   def download_photo(params)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
-      file = open(params[:photo]).read
-      filename = params[:photo].split('/').last
+      params[:photo].each_with_index do | photo, i |
+        file = open(photo).read
+        filename = photo.split('/').last
 
-      client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
-      repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
+        client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+        repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
 
-      # Verify the repo exists
-      halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
+        # Verify the repo exists
+        halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-      photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? "#{settings.sites[params[:site]]['site_url']}" : ''
-      photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+        photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? "#{settings.sites[params[:site]]['site_url']}" : ''
+        photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
 
+        # Return URL early if file already exists in the repo
+        # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
+        begin
+          client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
+          params[:photo][i] = photo_path
+          next
+        rescue Octokit::NotFound
+          # Do nothing if the file doesn't exist.
+          nil
+        end
 
-      # Return URL early if file already exists in the repo
-      # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
-      return photo_path if client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}") rescue nil
-      client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
-      params[:photo] = photo_path
+        client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
+        params[:photo][i] = photo_path
+      end
     end
     params[:photo]
   end
@@ -162,10 +171,10 @@ helpers do
       end
       post_params.merge!(post_params.delete(:properties))
       post_params[:content] = post_params[:content][0] if post_params[:content]
-      post_params[:photo] = post_params[:photo][0] if post_params[:photo].is_a? Array and post_params[:photo].length == 1 and post_params[:photo][0].is_a? String
     else
       # Convert all keys to symbols from form submission
       post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
+      post_params[:photo] = Array.new(1, post_params[:photo])
     end
 
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
