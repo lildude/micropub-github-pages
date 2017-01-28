@@ -5,5 +5,8 @@ layout: note
 <%= "permalink: #{slug}\n" if defined? slug %>
 date: <%= published %>
 ---
-<%= "![](#{photo})\n\n" if defined? photo %><%= content %>
+<% if defined? photo
+  photo.each do | pic | %>
+<%= "![](#{pic})\n\n"  %>
+<% end %><% end %><%= content %>
 <% end %>
