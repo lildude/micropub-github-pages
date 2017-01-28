@@ -174,7 +174,7 @@ helpers do
     else
       # Convert all keys to symbols from form submission
       post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
-      post_params[:photo] = Array.new(1, post_params[:photo])
+      post_params[:photo] = Array.new(1, post_params[:photo]) if post_params[:photo]
     end
 
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
