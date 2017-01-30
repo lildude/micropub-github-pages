@@ -95,12 +95,10 @@ helpers do
           params[:photo][i] = photo_path
           next
         rescue Octokit::NotFound
-          # Do nothing if the file doesn't exist.
-          nil
+          # Add the file if it doesn't exist
+          client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
+          params[:photo][i] = photo_path
         end
-
-        client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
-        params[:photo][i] = photo_path
       end
     end
     params[:photo]
