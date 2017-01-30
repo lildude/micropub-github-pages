@@ -181,11 +181,9 @@ class MainAppTest < Minitest::Test
   end
 
   def test_new_note_with_html_json
-    skip('TODO')
     stub_token
     stub_get_github_request
     stub_put_github_request
-    now = Time.now
     post('/micropub/testsite', {
         :type => ["h-entry"],
         :properties => {
@@ -195,7 +193,7 @@ class MainAppTest < Minitest::Test
           }
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
+    assert_match %r{<p>This post has <b>bold</b> and <i>italic</i> text.</p>}, last_response.body
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article_json
