@@ -44,7 +44,7 @@ class MainAppTest < Minitest::Test
   end
 
   def test_get_syndicate_to
-    skip("TODO")
+    skip("TODO: Not yet implemented")
     stub_token
     get '/micropub/testsite?q=syndicate-to', nil, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"}
     assert last_response.ok?
@@ -251,7 +251,7 @@ class MainAppTest < Minitest::Test
   end
 
   def test_new_note_with_photo_reference_with_alt_json
-    skip("TODO")
+    skip("TODO: Not yet implemented")
     stub_token
     stub_get_photo
     stub_get_github_request
