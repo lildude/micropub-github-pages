@@ -168,7 +168,9 @@ helpers do
         post_params.delete(:type)
       end
       post_params.merge!(post_params.delete(:properties))
-      post_params[:content] = post_params[:content][0] if post_params[:content]
+      if post_params[:content]
+        post_params[:content] = (post_params[:content][0].is_a? Hash) ? post_params[:content][0][:html] : post_params[:content][0]
+      end
     else
       # Convert all keys to symbols from form submission
       post_params = post_params.each_with_object({}){|(k,v), h| h[k.gsub(/\-/,"_").to_sym] = v}
