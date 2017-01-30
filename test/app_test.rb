@@ -228,7 +228,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match /!\[\]\(\/img\/12716713_162835967431386_291746593_n\.jpg\)/, last_response.body
+    assert_match %r{!\[\]\(/img/12716713_162835967431386_291746593_n\.jpg\)}, last_response.body
   end
 
   def test_new_note_with_multiple_photos_reference_json
@@ -247,7 +247,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match /!\[\]\(\/img\/12716713_162835967431386_291746593_n\.jpg\)/, last_response.body
+    assert_match %r{!\[\]\(/img/12716713_162835967431386_291746593_n\.jpg\)}, last_response.body
   end
 
   def test_new_note_with_photo_reference_with_alt_json
@@ -269,7 +269,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match /!\[Instagram photo\]\(\/media\/12716713_162835967431386_291746593_n\.jpg\)/, last_response.body
+    assert_match %r{!\[Instagram photo\]\(/media/12716713_162835967431386_291746593_n\.jpg\)}, last_response.body
   end
 
 end
