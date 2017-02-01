@@ -286,4 +286,28 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
+  def test_h_entry_with_nested_object
+    stub_token
+    stub_get_github_request
+    stub_put_github_request
+    now = Time.now
+    post('/micropub/testsite', {
+        :type => ['h-entry'],
+        :properties => {
+          :summary => ['Weighed 70.64 kg'],
+          :x_weight => [{
+            :type => ['h-measure'],
+            :properties => {
+              :num => ['70.64'],
+              :unit => ['kg']
+            }
+          }]
+        }
+    }.to_json, {'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
+    assert last_response.body.include? 'Weighed 70.64 kg'
+    assert last_response.body.include? '70.64'
+    assert last_response.body.include? 'kg'
+  end
 end
