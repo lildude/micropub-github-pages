@@ -287,6 +287,7 @@ class MainAppTest < Minitest::Test
   end
 
   def test_h_entry_with_nested_object
+    skip('TODO: Not yet implemented')
     stub_token
     stub_get_github_request
     stub_put_github_request
