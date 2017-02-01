@@ -109,7 +109,11 @@ class MainAppTest < Minitest::Test
       }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "---\nlayout: note\ntags: tag1, tag2\npermalink: this-is-the-content-slug\ndate: #{now.to_s}\n---\nThis is the content", last_response.body
+    assert last_response.body.include? 'tag1'
+    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? 'this-is-the-content-slug'
+    assert last_response.body.include? now.to_s
+    assert last_response.body.include? 'This is the content'
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-content-slug", last_response.header['Location']
   end
 
@@ -143,7 +147,10 @@ class MainAppTest < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
-    assert_equal "---\nlayout: post\ntitle: This is a 😍 Post!!\ntags: tag1, tag2\ndate: #{now}\n---\nThis is the content", last_response.body
+    assert last_response.body.include? 'tag1'
+    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? 'This is a 😍 Post!!'
+    assert last_response.body.include? 'This is the content'
   end
 
   def test_new_note_with_photo_reference
@@ -159,7 +166,7 @@ class MainAppTest < Minitest::Test
     }, {"HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match /!\[\]\(\/img\/12716713_162835967431386_291746593_n\.jpg\)/, last_response.body
+    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
   #----:[ JSON tests ]:----#
@@ -178,6 +185,9 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
+    assert last_response.body.include? 'tag1'
+    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? 'This is the JSON content'
   end
 
   def test_new_note_with_html_json
@@ -193,7 +203,7 @@ class MainAppTest < Minitest::Test
           }
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_match %r{<p>This post has <b>bold</b> and <i>italic</i> text.</p>}, last_response.body
+    assert last_response.body.include? '<p>This post has <b>bold</b> and <i>italic</i> text.</p>'
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article_json
@@ -210,7 +220,11 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-header", last_response.header['Location']
-    assert_equal "---\nlayout: post\ntitle: This is the header\ntags: tag1, tag2\ndate: #{now.to_s}\n---\nThis is the JSON content", last_response.body
+    assert last_response.body.include? 'tag1'
+    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? 'This is the header'
+    refute last_response.body.include? '# This is the header'
+    assert last_response.body.include? 'This is the JSON content'
   end
 
   def test_new_note_with_photo_reference_json
@@ -228,7 +242,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match %r{!\[\]\(/img/12716713_162835967431386_291746593_n\.jpg\)}, last_response.body
+    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
   def test_new_note_with_multiple_photos_reference_json
@@ -247,7 +261,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match %r{!\[\]\(/img/12716713_162835967431386_291746593_n\.jpg\)}, last_response.body
+    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
   def test_new_note_with_photo_reference_with_alt_json
@@ -269,7 +283,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {"CONTENT_TYPE" => "application/json", "HTTP_AUTHORIZATION" => "Bearer 1234567890"})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_match %r{!\[Instagram photo\]\(/media/12716713_162835967431386_291746593_n\.jpg\)}, last_response.body
+    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
 end
