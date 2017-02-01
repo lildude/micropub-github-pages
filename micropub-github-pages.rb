@@ -264,8 +264,11 @@ post '/micropub/:site' do |site|
         :repost
       elsif post_params.include? :bookmark_of
         :bookmark
-      else
+      elsif post_params.include? :content
         :note
+      else
+        # Dump all params into this template as it doesn't fit any other type.
+        :dump_all
       end
     elsif post_params[:h] == "event"
         :event
