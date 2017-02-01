@@ -287,7 +287,6 @@ class MainAppTest < Minitest::Test
   end
 
   def test_h_entry_with_nested_object
-    skip('TODO: Not yet implemented')
     stub_token
     stub_get_github_request
     stub_put_github_request
@@ -307,8 +306,8 @@ class MainAppTest < Minitest::Test
     }.to_json, {'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
-    assert last_response.body.include? 'Weighed 70.64 kg'
-    assert last_response.body.include? '70.64'
-    assert last_response.body.include? 'kg'
+    assert last_response.body.include?('Weighed 70.64 kg'), 'Body did not include "Weighed 70.64 kg"'
+    assert last_response.body.include?('70.64'), 'Body did not include "70.64"'
+    assert last_response.body.include?('kg'), 'Body did not include "kg"'
   end
 end
