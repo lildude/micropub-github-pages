@@ -284,6 +284,7 @@ class MainAppTest < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
+    assert last_response.body.include? 'Instagram photo'
   end
 
   def test_h_entry_with_nested_object
