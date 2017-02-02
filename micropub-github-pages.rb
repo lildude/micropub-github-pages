@@ -76,8 +76,11 @@ helpers do
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
       params[:photo].each_with_index do | photo, i |
-        file = open(photo).read
-        filename = photo.split('/').last
+        alt = photo.is_a?(String) ? '' : photo[:alt]
+        url = photo.is_a?(String) ? photo : photo[:value]
+        
+        file = open(url).read
+        filename = url.split('/').last
 
         client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
         repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
@@ -92,13 +95,12 @@ helpers do
         # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
         begin
           client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
-          params[:photo][i] = photo_path
           next
         rescue Octokit::NotFound
           # Add the file if it doesn't exist
           client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
-          params[:photo][i] = photo_path
         end
+        params[:photo][i] = {:url => photo_path, :alt => alt}
       end
     end
     params[:photo]
