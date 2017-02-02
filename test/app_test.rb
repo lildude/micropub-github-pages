@@ -265,7 +265,7 @@ class MainAppTest < Minitest::Test
   end
 
   def test_new_note_with_photo_reference_with_alt_json
-    skip("TODO: Not yet implemented")
+    #skip("TODO: Not yet implemented")
     stub_token
     stub_get_photo
     stub_get_github_request
