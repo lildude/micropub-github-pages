@@ -7,6 +7,6 @@ date: <%= published %>
 ---
 <% if defined? photo
   photo.each do | pic | %>
-<%= "![](#{pic})\n\n"  %>
+<%= "![#{pic[:alt]}](#{pic[:url]})\n\n"  %>
 <% end %><% end %><%= content %>
 <% end %>
