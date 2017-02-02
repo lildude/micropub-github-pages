@@ -95,7 +95,6 @@ helpers do
         # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
         begin
           client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
-          next
         rescue Octokit::NotFound
           # Add the file if it doesn't exist
           client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
