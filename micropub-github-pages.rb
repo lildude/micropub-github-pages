@@ -72,6 +72,9 @@ helpers do
   end
 
   # Download the photo and add to GitHub repo if config allows
+  #
+  # WARNING: the handling of alt in JSON may change in the future.
+  # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
   def download_photo(params)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
