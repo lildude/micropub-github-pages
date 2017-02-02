@@ -78,7 +78,7 @@ helpers do
       params[:photo].each_with_index do | photo, i |
         alt = photo.is_a?(String) ? '' : photo[:alt]
         url = photo.is_a?(String) ? photo : photo[:value]
-        
+
         file = open(url).read
         filename = url.split('/').last
 
