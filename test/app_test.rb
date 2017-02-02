@@ -295,7 +295,7 @@ class MainAppTest < Minitest::Test
         :type => ['h-entry'],
         :properties => {
           :summary => ['Weighed 70.64 kg'],
-          :x_weight => [{
+          :"x-weight" => [{
             :type => ['h-measure'],
             :properties => {
               :num => ['70.64'],
