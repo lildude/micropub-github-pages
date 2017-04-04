@@ -67,7 +67,7 @@ helpers do
     if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
       status 201
       headers "Location" => "#{location}"
-      body content if ENV['RACK_ENV'] = "test"
+      body content if ENV['RACK_ENV'] == 'test'
     end
   end
 
