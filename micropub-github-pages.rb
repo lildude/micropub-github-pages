@@ -13,6 +13,8 @@ require 'base64'
 require 'open-uri'
 require "sinatra/reloader" if development?
 
+configure { set :server, :puma }
+
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
 
 require './env' if File.exists?('env.rb')
