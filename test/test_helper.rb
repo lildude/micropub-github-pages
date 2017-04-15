@@ -66,6 +66,10 @@ def stub_non_existant_github_file
 end
 
 def stub_existing_github_file
-  stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/.*\/\d+_\d+_\d+_n.jpg/).
-    to_return(:status => 200, :body => '{  "sha": "3d21ec53a331a6f037a91c368710b99387d012c1" }') # We don't need the rest of the info from the response, yet.
+  stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents/).
+    to_return(:status => 200, :headers => {"Content-Type"=> "application/json"}, :body => JSON.generate({
+        :sha => "d735c3364cacbda4a9631af085227ce200589676",
+        :content => "LS0tCmxheW91dDogbm90ZQpkYXRlOiAyMDE3LTAxLTI4IDE2OjUyOjMwICsw\nMDAwCi0tLQoKIVtdKGh0dHBzOi8vbGlsZHVkZS5naXRodWIuaW8vL21lZGlh\nL3N1bnNldC5qcGcpCgpNaWNyb3B1YiB0ZXN0IG9mIGNyZWF0aW5nIGEgcGhv\ndG8gcmVmZXJlbmNlZCBieSBVUkw=\n"
+      }))
+end
 end
