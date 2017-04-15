@@ -177,6 +177,17 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
+  #----:[ HTTP Multipart ]:----#
+
+  def test_new_entry_with_photo_multipart
+    skip('TODO: not yet implemented')
+
+  end
+
+  def test_new_entry_with_two_photos_multipart
+    skip('TODO: not yet implemented')
+  end
+
   #----:[ JSON tests ]:----#
 
   def test_new_note_json_syntax
