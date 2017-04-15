@@ -72,4 +72,17 @@ def stub_existing_github_file
         :content => "LS0tCmxheW91dDogbm90ZQpkYXRlOiAyMDE3LTAxLTI4IDE2OjUyOjMwICsw\nMDAwCi0tLQoKIVtdKGh0dHBzOi8vbGlsZHVkZS5naXRodWIuaW8vL21lZGlh\nL3N1bnNldC5qcGcpCgpNaWNyb3B1YiB0ZXN0IG9mIGNyZWF0aW5nIGEgcGhv\ndG8gcmVmZXJlbmNlZCBieSBVUkw=\n"
       }))
 end
+
+def stub_github_search
+  stub_request(:get, %r{api.github.com/search/code}).
+    to_return(:status => 200, :body => JSON.generate({
+        :total_count => 1,
+        :items => [
+          {
+            :name => "example-post.md",
+            :path => "_post/2010-01-14-example-post.md",
+            :sha => "d735c3364cacbda4a9631af085227ce200589676",
+          }
+        ]
+      }))
 end
