@@ -11,6 +11,7 @@ require 'net/https'
 require 'json'
 require 'base64'
 require 'open-uri'
+require 'yaml'
 require "sinatra/reloader" if development?
 
 configure { set :server, :puma }
@@ -108,6 +109,21 @@ helpers do
       end
     end
     params[:photo]
+  end
+
+  # Grab the contents of the file referenced by the URL received from the client
+  # This assumes the final part of the URL contains part of the filename as it
+  # appears in the repository.
+  def get_post(url)
+    fuzzy_filename = url.split('/').last
+    client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+    code = client.search_code("filename:#{fuzzy_filename} repo:#{repo}")
+    # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
+    code = JSON.parse(code, :symbolize_names => true) if ENV['RACK_ENV'] == 'test'
+    content = client.contents(repo, :path => code[:items][0][:path]) if code[:total_count] == 1
+    nc = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
+    YAML.load(nc)
   end
 
   # Add trailing slash if it's missing
@@ -239,7 +255,8 @@ get '/micropub/:site' do |site|
   when /source/
     status 200
     headers "Content-type" => "application/json"
-    body JSON.generate({})  # TODO: Determine what goes in here
+    #body JSON.generate("response": get_post(params[:url]))  # TODO: Determine what goes in here
+    body get_post(params[:url])
   when /syndicate-to/
     status 200
     headers "Content-type" => "application/json"
