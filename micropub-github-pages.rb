@@ -12,6 +12,7 @@ require 'json'
 require 'base64'
 require 'open-uri'
 require 'yaml'
+require 'liquid'
 require "sinatra/reloader" if development?
 
 configure { set :server, :puma }
@@ -21,7 +22,7 @@ config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#
 require './env' if File.exists?('env.rb')
 
 # TODO: I think it might be best to switch to Liquid templates instead or erb.
-set :views, settings.root + '/templates'
+#set :views, settings.root + '/templates'
 
 helpers do
   # https://www.w3.org/TR/micropub/#error-response
@@ -105,7 +106,7 @@ helpers do
           # Add the file if it doesn't exist
           client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
         end
-        params[:photo][i] = {:url => photo_path, :alt => alt}
+        params[:photo][i] = {'url' => photo_path, 'alt' => alt}
       end
     end
     params[:photo]
@@ -239,7 +240,7 @@ before do
   params.delete("access_token")
 
   # Verify the token
-  verify_token auth_header
+  verify_token auth_header unless ENV['RACK_ENV'] == 'development'
 end
 
 # Query
@@ -305,9 +306,14 @@ post '/micropub/:site' do |site|
   # If there's a photo, "download" it to the GitHub repo and return the new URL
   post_params[:photo] = download_photo(post_params) if post_params[:photo]
 
-  erb type, :locals => post_params
+  #erb type, :locals => post_params
+  #content = erb "<%= yield_content :some_key %>"
 
-  content = erb "<%= yield_content :some_key %>"
+  #liquid :dump_all, :locals => post_params
+  #content = liquid "{{ yield }}"
+  #content
+
+  content = Liquid::Template.parse(File.read("templates/#{post_params[:h]}.liquid")).render(post_params.stringify_keys)
   content
 
   publish_post content, post_params

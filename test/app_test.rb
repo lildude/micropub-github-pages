@@ -154,12 +154,12 @@ class MainAppTest < Minitest::Test
       :category => ['tag1', 'tag2']
     }, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location']
-    assert last_response.body.include? 'tag1'
-    assert last_response.body.include? 'tag2'
-    assert last_response.body.include? 'This is a 😍 Post!!'
-    assert last_response.body.include? 'This is the content'
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got \n#{last_response.header}"
+    assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post", last_response.header['Location'], "Expected Location header of: https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-a-post but got \n#{last_response.header}"
+    assert last_response.body.include?('tag1'), "Expected body to include tag 'tag1' but got \n#{last_response.body}"
+    assert last_response.body.include?('tag2'), "Expected body to include tag 'tag2' but got \n#{last_response.body}"
+    assert last_response.body.include?('This is a 😍 Post!!'), "Expected body to include 'This is a 😍 Post!!' but got \n#{last_response.body}"
+    assert last_response.body.include?('This is the content'), "Expected body to include 'This is the content' but got \n#{last_response.body}"
   end
 
   def test_new_note_with_photo_reference

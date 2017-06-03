@@ -17,6 +17,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     hashdiff (0.3.2)
     json (2.0.3)
+    liquid (4.0.0)
     minitest (5.10.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
@@ -65,6 +66,7 @@ PLATFORMS
 
 DEPENDENCIES
   coveralls
+  liquid
   minitest
   octokit
   puma
@@ -76,4 +78,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.14.3
+   1.14.6

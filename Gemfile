@@ -4,6 +4,7 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'octokit'
 gem 'puma'
+gem 'liquid'
 
 group :test do
   gem 'minitest'
