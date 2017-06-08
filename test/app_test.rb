@@ -242,7 +242,7 @@ class MainAppTest < Minitest::Test
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/this-is-the-header", last_response.header['Location']
     assert last_response.body.include? 'tag1'
     assert last_response.body.include? 'tag2'
-    assert last_response.body.include? 'This is the header'
+    assert last_response.body.include?('title: This is the header'), "Expected title to include 'This is the header', but got\n#{last_response.body}"
     refute last_response.body.include? '# This is the header'
     assert last_response.body.include? 'This is the JSON content'
   end
@@ -326,7 +326,7 @@ class MainAppTest < Minitest::Test
     }.to_json, {'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
-    assert last_response.body.include?('Weighed 70.64 kg'), 'Body did not include "Weighed 70.64 kg"'
+    assert last_response.body.include?('Weighed 70.64 kg'), "Body did not include 'Weighed 70.64 kg'\n#{last_response.body}"
     assert last_response.body.include?('70.64'), 'Body did not include "70.64"'
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
   end
