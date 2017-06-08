@@ -1,6 +1,0 @@
-<% content_for :some_key do %>
-<%= locals %>
-<% locals.each do |key, value| %>
-<%= "#{key}: " %><% if value.is_a? Array and value.length == 1 %><%= "#{value[0]}\n" %><% else %><%= "#{value}\n" %><% end %>
-<% end %>
-<% end %>

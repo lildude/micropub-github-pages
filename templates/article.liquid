@@ -1,0 +1,15 @@
+---
+layout: post
+title: {{ name }}
+{% if category -%}
+tags:
+{% for cat in category -%}
+- {{ cat }}
+{% endfor -%}
+{% endif -%}
+{% if slug -%}
+permalink: {{ slug }}
+{% endif -%}
+date: {{ published }}
+---
+{{ content }}
