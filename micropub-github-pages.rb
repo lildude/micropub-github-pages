@@ -200,9 +200,6 @@ helpers do
       post_params[:photo] = [*post_params[:photo]] if post_params[:photo]
     end
 
-    # TODO: The -/_ sub is because tilt, used by erb, doesn't play nice with keys with hypens. Remove me when switching to liquid templates
-    post_params = post_params.each_with_object({}){|(k,v), h| h[k.to_s.gsub(/\-/,"_").to_sym] = v}
-
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
     first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
     if !first_line.nil? and !post_params[:name]
