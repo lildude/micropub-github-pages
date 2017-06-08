@@ -313,7 +313,7 @@ post '/micropub/:site' do |site|
   #content = liquid "{{ yield }}"
   #content
 
-  content = Liquid::Template.parse(File.read("templates/#{post_params[:h]}.liquid")).render(post_params.stringify_keys)
+  content = Liquid::Template.parse(File.read("templates/#{type.to_s}.liquid")).render(post_params.stringify_keys)
   content
 
   publish_post content, post_params
