@@ -36,29 +36,29 @@ class MainAppTest < Minitest::Test
     assert last_response.not_found?
   end
 
+  # TODO: update me when implementing a media-endpoint and syndicate-to
   def test_get_config_with_authorisation_header
     stub_token
     get '/micropub/testsite?q=config', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
     assert last_response.ok?
-    # TODO: Assert the correct JSON content
+    assert JSON.parse(last_response.body).empty?
   end
 
+  # TODO: update me when implementing syndicate-to
   def test_get_syndicate_to
-    skip('TODO: Not yet implemented')
     stub_token
     get '/micropub/testsite?q=syndicate-to', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
     assert last_response.ok?
-    assert_equal 'foo', last_response.body
+    assert JSON.parse(last_response.body)["syndicate-to"].empty?
   end
 
   def test_get_source
-    skip('TODO: not yet fully implemented')
     stub_token
     stub_github_search
     stub_existing_github_file
     get '/micropub/testsite?q=source&url=https://example.com/2010/01/14/example-post', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
     assert last_response.ok?, "Expected 200 but got #{last_response.status}"
-    assert_equal "---\nlayout: note\ndate: 2017-01-28 16:52:30 +0000\n---\n\n![](https://lildude.github.io//media/sunset.jpg)\n\nMicropub test of creating a photo referenced by URL", last_response.body
+    assert_equal '{"type": ["h-entry"], "properties": {"published": ["date-here"], "content": ["Hello World"], "category": ["foo", "bar"]}}', last_response.body
   end
 
   def test_404_if_not_defined_site
