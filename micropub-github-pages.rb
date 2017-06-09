@@ -125,8 +125,26 @@ helpers do
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, :symbolize_names => true) if ENV['RACK_ENV'] == 'test'
     content = client.contents(repo, :path => code[:items][0][:path]) if code[:total_count] == 1
-    nc = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
-    YAML.load(nc)
+    decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
+
+    jekyll_post_to_json decoded_content
+  end
+
+  def jekyll_post_to_json(content)
+    # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
+    if content =~ %r!\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)!m
+      content = $'  # $POSTMATCH doesn't work for some reason
+      front_matter = SafeYAML.load(Regexp.last_match(1))
+    end
+
+    data = {}
+    data[:type] = ['h-entry'] # TODO: Handle other types.
+    data[:properties] = {}
+    data[:properties][:published] = [front_matter['date']]
+    data[:properties][:content] = content.nil? ? [''] : [content.strip]
+    data[:properties][:category] = front_matter['tags'] unless front_matter['tags'].nil? || front_matter['tags'].empty?
+
+    JSON.generate(data)
   end
 
   # Add trailing slash if it's missing
