@@ -251,7 +251,7 @@ get '/micropub/:site' do |site|
   when /config/
     status 200
     headers "Content-type" => "application/json"
-    body JSON.generate({})  # TODO: Determine what goes in here
+    body JSON.generate({})  # TODO: Populate this with media-endpoint and syndicate-to when supported. Until then, empty object is fine.
   when /source/
     status 200
     headers "Content-type" => "application/json"
@@ -260,7 +260,7 @@ get '/micropub/:site' do |site|
   when /syndicate-to/
     status 200
     headers "Content-type" => "application/json"
-    body JSON.generate("syndicate-to": [{}])  # TODO: Determine what goes in here
+    body JSON.generate("syndicate-to": [])  # TODO: Populate with syndicate-to when supported. Until then, empty object is fine.
   end
 
 end
