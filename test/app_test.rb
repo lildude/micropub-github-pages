@@ -52,13 +52,14 @@ class MainAppTest < Minitest::Test
     assert JSON.parse(last_response.body)["syndicate-to"].empty?
   end
 
+  # TODO: Update response to include tags I'm testing here
   def test_get_source
     stub_token
     stub_github_search
     stub_existing_github_file
     get '/micropub/testsite?q=source&url=https://example.com/2010/01/14/example-post', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
     assert last_response.ok?, "Expected 200 but got #{last_response.status}"
-    assert_equal '{"type": ["h-entry"], "properties": {"published": ["date-here"], "content": ["Hello World"], "category": ["foo", "bar"]}}', last_response.body
+    assert_equal '{"type":["h-entry"],"properties":{"published":["2017-01-28 16:52:30 +0000"],"content":["![](https://lildude.github.io//media/sunset.jpg)\n\nMicropub test of creating a photo referenced by URL"],"category":["foo","bar"]}}', last_response.body
   end
 
   def test_404_if_not_defined_site
