@@ -50,7 +50,7 @@ helpers do
     decoded_resp
   end
 
-  def publish_post(content, params)
+  def publish_post(params)
     # Authenticate
     client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
 
@@ -68,7 +68,9 @@ helpers do
     # Verify the repo exists
     halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-    if client.create_contents("#{repo}", "_posts/#{filename}", "Added new content", content)
+    content = Liquid::Template.parse(File.read("templates/#{params[:type].to_s}.liquid")).render(params.stringify_keys)
+
+    if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", content)
       status 201
       headers "Location" => "#{location}"
       body content if ENV['RACK_ENV'] == 'test'
@@ -278,7 +280,7 @@ post '/micropub/:site' do |site|
   halt 400, error('invalid_request', "I don't know what you want me to do.") unless post_params.any? { |k, _v| [:h, :q, :action].include? k }
 
   # Determine the template to use based on various params received.
-  type =
+  post_params[:type] =
     if post_params[:h] == "entry"
       if post_params.include? :name
         :article
@@ -303,17 +305,8 @@ post '/micropub/:site' do |site|
   # If there's a photo, "download" it to the GitHub repo and return the new URL
   post_params[:photo] = download_photo(post_params) if post_params[:photo]
 
-  #erb type, :locals => post_params
-  #content = erb "<%= yield_content :some_key %>"
-
-  #liquid :dump_all, :locals => post_params
-  #content = liquid "{{ yield }}"
-  #content
-
-  content = Liquid::Template.parse(File.read("templates/#{type.to_s}.liquid")).render(post_params.stringify_keys)
-  content
-
-  publish_post content, post_params
+  # Publish the post
+  publish_post post_params
 
   #syndicate_to post_params["mp-syndicate-to"] if post_params.include? "mp-syndicate-to"
 end
