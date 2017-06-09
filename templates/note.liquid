@@ -13,7 +13,7 @@ date: {{ published }}
 ---
 {% if photo -%}
   {% for pic in photo -%}
-    ![{{ pic["alt"] }}]({{ pic["url"] }})
+![{{ pic["alt"] }}]({{ pic["url"] }})
   {% endfor -%}
 {% endif %}
 {{ content }}
