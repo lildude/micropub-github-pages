@@ -62,6 +62,16 @@ class MainAppTest < Minitest::Test
     assert_equal '{"type":["h-entry"],"properties":{"published":["2017-01-28 16:52:30 +0000"],"content":["![](https://lildude.github.io//media/sunset.jpg)\n\nMicropub test of creating a photo referenced by URL"],"category":["foo","bar"]}}', last_response.body
   end
 
+  def test_get_specific_props_from_source
+    skip('TODO: not yet implemented')
+    stub_token
+    stub_github_search
+    stub_existing_github_file
+    get '/micropub/testsite?q=source&properties[]=content&properties[]=category&url=https://example.com/2010/01/14/example-post', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
+    assert last_response.ok?, "Expected 200 but got #{last_response.status}"
+    assert_equal '{"type":["h-entry"],"properties":{"published":["2017-01-28 16:52:30 +0000"],"content":["![](https://lildude.github.io//media/sunset.jpg)\n\nMicropub test of creating a photo referenced by URL"],"category":["foo","bar"]}}', last_response.body
+  end
+
   def test_404_if_not_defined_site
     stub_token
     post '/micropub/foobar', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
