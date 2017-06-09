@@ -11,7 +11,7 @@ require 'net/https'
 require 'json'
 require 'base64'
 require 'open-uri'
-require 'yaml'
+require 'safe_yaml'
 require 'liquid'
 require "sinatra/reloader" if development?
 

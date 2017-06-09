@@ -5,6 +5,7 @@ gem 'sinatra-contrib'
 gem 'octokit'
 gem 'puma'
 gem 'liquid'
+gem 'safe_yaml'
 
 group :test do
   gem 'minitest'
