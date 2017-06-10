@@ -69,7 +69,7 @@ def stub_existing_github_file
   stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents/).
     to_return(:status => 200, :headers => {"Content-Type"=> "application/json"}, :body => JSON.generate({
         :sha => "d735c3364cacbda4a9631af085227ce200589676",
-        :content => "LS0tCmxheW91dDogbm90ZQpkYXRlOiAyMDE3LTAxLTI4IDE2OjUyOjMwICsw\nMDAwCi0tLQoKIVtdKGh0dHBzOi8vbGlsZHVkZS5naXRodWIuaW8vL21lZGlh\nL3N1bnNldC5qcGcpCgpNaWNyb3B1YiB0ZXN0IG9mIGNyZWF0aW5nIGEgcGhv\ndG8gcmVmZXJlbmNlZCBieSBVUkw=\n"
+        :content => "LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9zdA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9vIA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3QtcG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBUYWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQgX19pdGFsaWNfXyBtYXJrZG93bg=="
       }))
 end
 
