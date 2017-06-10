@@ -142,6 +142,7 @@ helpers do
     data[:properties] = {}
     data[:properties][:published] = [front_matter['date']]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
+    data[:properties][:slug] = [front_matter['permalink']] unless front_matter['permalink'].nil?
     data[:properties][:category] = front_matter['tags'] unless front_matter['tags'].nil? || front_matter['tags'].empty?
 
     JSON.generate(data)
