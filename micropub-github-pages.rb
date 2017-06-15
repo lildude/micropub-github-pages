@@ -148,12 +148,6 @@ helpers do
     JSON.generate(data)
   end
 
-  # Add trailing slash if it's missing
-  def normalise_url(url)
-    url << '/' unless url.end_with?('/')
-    url
-  end
-
   def create_slug(params)
     # Use the provided slug
     if params.include? :slug and !params[:slug].nil?
