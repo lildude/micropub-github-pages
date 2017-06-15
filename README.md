@@ -12,7 +12,7 @@ Just run `script/bootstrap` and you're get all the gem bundle goodness happening
 
 ### Heroku
 
-Clicky the button that will appear right :point_right: :soon:
+Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lildude/micropub-github-pages)
 
 ### Elsewhere
 
