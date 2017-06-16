@@ -3,5 +3,11 @@ set -e
 
 cd $(dirname "$0")/..
 
-test -z "$RACK_ENV" && export RACK_ENV='development'
-bundle exec ruby micropub-github-pages.rb
+BIND='unix:///tmp/puma.sock'
+
+if [ -z "$RACK_ENV" ]; then
+  export RACK_ENV='development'
+  BIND='tcp://127.0.0.1:9292'
+fi
+
+bundle exec puma -b $BIND
