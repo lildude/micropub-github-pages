@@ -17,6 +17,10 @@ class MainAppTest < Minitest::Test
     Sinatra::Application
   end
 
+  def helpers
+    Class.new { include AppHelpers }
+  end
+
   def test_unauthorized_if_get_micropub_endpoint_without_token_or_header
     get '/micropub'
     assert last_response.unauthorized?
