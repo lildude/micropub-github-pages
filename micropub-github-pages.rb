@@ -226,6 +226,29 @@ module AppHelpers
 
     post_params
   end
+
+  def post_type(post_params)
+    if post_params[:h] == "entry"
+      if post_params.include? :name
+        :article
+      elsif post_params.include? :in_reply_to
+        :reply
+      elsif post_params.include? :repost_of
+        :repost
+      elsif post_params.include? :bookmark_of
+        :bookmark
+      elsif post_params.include? :content
+        :note
+      else
+        # Dump all params into this template as it doesn't fit any other type.
+        :dump_all
+      end
+    elsif post_params[:h] == "event"
+        :event
+    elsif post_params[:h] == "cite"
+        :cite
+    end
+  end
 end
 
 Sinatra::Application.helpers AppHelpers
@@ -291,27 +314,7 @@ post '/micropub/:site' do |site|
   halt 400, error('invalid_request', "I don't know what you want me to do.") unless post_params.any? { |k, _v| [:h, :q, :action].include? k }
 
   # Determine the template to use based on various params received.
-  post_params[:type] =
-    if post_params[:h] == "entry"
-      if post_params.include? :name
-        :article
-      elsif post_params.include? :in_reply_to
-        :reply
-      elsif post_params.include? :repost_of
-        :repost
-      elsif post_params.include? :bookmark_of
-        :bookmark
-      elsif post_params.include? :content
-        :note
-      else
-        # Dump all params into this template as it doesn't fit any other type.
-        :dump_all
-      end
-    elsif post_params[:h] == "event"
-        :event
-    elsif post_params[:h] == "cite"
-        :cite
-    end
+  post_params[:type] = post_type(post_params)
 
   # If there's a photo, "download" it to the GitHub repo and return the new URL
   post_params[:photo] = download_photo(post_params) if post_params[:photo]
