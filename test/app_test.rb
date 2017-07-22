@@ -468,4 +468,10 @@ class MainAppTest < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime("%Y")}/#{now.strftime("%m")}/#{now.strftime("%s").to_i % (24 * 60 * 60)}", last_response.header['Location']
   end
+
+  #### ----- Testing AppHelpers ----- ####
+  def test_slugify
+    assert_equal "this-is-text", helpers.new.slugify('this is text')
+    assert_equal "this-is-1234-no-emoji-or-punc", helpers.new.slugify('this is 🍎 1234 no emoji ! or punc')
+  end
 end
