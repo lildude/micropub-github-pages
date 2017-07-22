@@ -473,7 +473,7 @@ class MainAppTest < Minitest::Test
   def test_create_slug
 
   end
-  
+
   def test_slugify
     assert_equal "this-is-text", helpers.new.slugify('this is text')
     assert_equal "this-is-1234-no-emoji-or-punc", helpers.new.slugify('this is 🍎 1234 no emoji ! or punc')
@@ -486,5 +486,16 @@ class MainAppTest < Minitest::Test
       published: "2017-07-02 02:56:22 -0700",
     }
     assert_equal "/2017/07/7/02/2/17/02/56/22/foo-bar", helpers.new.create_permalink(params)
+  end
+
+  def test_post_type
+    assert_equal :article, helpers.new.post_type({h: "entry", name: "foo", content: "foo"})
+    assert_equal :reply, helpers.new.post_type({h: "entry", in_reply_to: "foo"})
+    assert_equal :repost, helpers.new.post_type({h: "entry", repost_of: "foo"})
+    assert_equal :bookmark, helpers.new.post_type({h: "entry", bookmark_of: "foo"})
+    assert_equal :note, helpers.new.post_type({h: "entry", content: "foo"})
+    assert_equal :dump_all, helpers.new.post_type({h: "entry", ano: "foo"})
+    assert_equal :event, helpers.new.post_type({h: "event", content: "foo"})
+    assert_equal :cite, helpers.new.post_type({h: "cite", content: "foo"})
   end
 end
