@@ -159,7 +159,7 @@ module AppHelpers
   end
 
   def create_permalink(params)
-    permalink_style = settings.sites[params[:site]]['permalink_style']
+    permalink_style = params[:permalink_style] || settings.sites[params[:site]]['permalink_style']
     date = DateTime.parse(params[:published])
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
