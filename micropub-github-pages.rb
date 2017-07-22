@@ -177,7 +177,7 @@ module AppHelpers
       ":categories" => ''
     }
 
-    permalink_style.gsub(/(:[a-z]+)/, template_variables).gsub(/(\/\/)/, '/')
+    permalink_style.gsub(/(:[a-z_]+)/, template_variables).gsub(/(\/\/)/, '/')
   end
 
   def slugify(text)
@@ -229,6 +229,7 @@ module AppHelpers
 end
 
 Sinatra::Application.helpers AppHelpers
+
 # My own message for 404 errors
 not_found do
   '404: Not Found'
