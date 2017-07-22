@@ -382,6 +382,11 @@ class MainAppTest < Minitest::Test
   end
 
   #### ----- Testing AppHelpers ----- ####
+  def test_jekyll_post_to_json
+    content = "---\nlayout: post\ntags:\n- tag1\n- tag2\npermalink: \"/2017/07/foo-bar\"\ndate: 2017-07-22 10:56:22 +0100\n---\nThis is the content"
+    assert_equal '{"type":["h-entry"],"properties":{"published":["2017-07-22 10:56:22 +0100"],"content":["This is the content"],"slug":["/2017/07/foo-bar"],"category":["tag1","tag2"]}}', helpers.new.jekyll_post_to_json(content)
+  end
+
   def test_create_slug
     assert_equal "this-is-a-slug", helpers.new.create_slug({slug: "this-is-a-slug"})
     assert_equal "this-is-a-name-slug", helpers.new.create_slug({name: "This is a name 😜 Slug"})
