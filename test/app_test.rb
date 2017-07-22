@@ -382,6 +382,22 @@ class MainAppTest < Minitest::Test
   end
 
   #### ----- Testing AppHelpers ----- ####
+  def test_verify_token
+    skip('TODO: not yet implemented')
+  end
+
+  def test_publish_post
+    skip('TODO: not yet implemented')
+  end
+
+  def test_download_photo
+    skip('TODO: not yet implemented')
+  end
+
+  def test_get_post
+    skip('TODO: not yet implemented')
+  end
+
   def test_jekyll_post_to_json
     content = "---\nlayout: post\ntags:\n- tag1\n- tag2\npermalink: \"/2017/07/foo-bar\"\ndate: 2017-07-22 10:56:22 +0100\n---\nThis is the content"
     assert_equal '{"type":["h-entry"],"properties":{"published":["2017-07-22 10:56:22 +0100"],"content":["This is the content"],"slug":["/2017/07/foo-bar"],"category":["tag1","tag2"]}}', helpers.new.jekyll_post_to_json(content)
@@ -405,6 +421,14 @@ class MainAppTest < Minitest::Test
       published: "2017-07-02 02:56:22 -0700",
     }
     assert_equal "/2017/07/7/02/2/17/02/56/22/foo-bar", helpers.new.create_permalink(params)
+  end
+
+  def test_syndicate_to
+    skip('TODO: not yet implemented')
+  end
+
+  def test_process_params
+    skip('TODO: not yet implemented')
   end
 
   def test_post_type
