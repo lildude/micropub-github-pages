@@ -14,15 +14,11 @@ require 'open-uri'
 require 'safe_yaml'
 require 'liquid'
 require "sinatra/reloader" if development?
-
-configure { set :server, :puma }
-
-config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
-
 require './env' if File.exists?('env.rb')
 
-# TODO: I think it might be best to switch to Liquid templates instead or erb.
-#set :views, settings.root + '/templates'
+configure { set :server, :puma }
+config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
+
 
 helpers do
   # https://www.w3.org/TR/micropub/#error-response
