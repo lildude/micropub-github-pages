@@ -19,8 +19,8 @@ require './env' if File.exists?('env.rb')
 configure { set :server, :puma }
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
 
-
-helpers do
+# Put helper functions in a module for easy testing.
+module AppHelpers
   # https://www.w3.org/TR/micropub/#error-response
   def error(error, description = nil)
     JSON.generate({:error => error, :error_description => description })
@@ -228,6 +228,7 @@ helpers do
   end
 end
 
+Sinatra::Application.helpers AppHelpers
 # My own message for 404 errors
 not_found do
   '404: Not Found'
