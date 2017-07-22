@@ -471,7 +471,9 @@ class MainAppTest < Minitest::Test
 
   #### ----- Testing AppHelpers ----- ####
   def test_create_slug
-
+    assert_equal "this-is-a-slug", helpers.new.create_slug({slug: "this-is-a-slug"})
+    assert_equal "this-is-a-name-slug", helpers.new.create_slug({name: "This is a name 😜 Slug"})
+    assert_equal "35782", helpers.new.create_slug({published: "2017-07-02 02:56:22 -0700"})
   end
 
   def test_slugify
