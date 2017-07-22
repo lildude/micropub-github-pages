@@ -71,6 +71,10 @@ class MainAppTest < Minitest::Test
     skip('TODO: not yet implemented')
   end
 
+  def test_process_params_markdown_title
+    skip('TODO: not yet implemented')
+  end
+
   def test_post_type
     assert_equal :article, helpers.new.post_type({h: "entry", name: "foo", content: "foo"})
     assert_equal :reply, helpers.new.post_type({h: "entry", in_reply_to: "foo"})
@@ -81,7 +85,7 @@ class MainAppTest < Minitest::Test
     assert_equal :event, helpers.new.post_type({h: "event", content: "foo"})
     assert_equal :cite, helpers.new.post_type({h: "cite", content: "foo"})
   end
-  
+
   #### ---- Integration tests ---- ####
   def test_unauthorized_if_get_micropub_endpoint_without_token_or_header
     get '/micropub'
@@ -118,7 +122,6 @@ class MainAppTest < Minitest::Test
     assert JSON.parse(last_response.body)["syndicate-to"].empty?
   end
 
-  # TODO: Update response to include tags I'm testing here
   def test_get_source
     stub_token
     stub_github_search
