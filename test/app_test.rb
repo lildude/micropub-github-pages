@@ -470,6 +470,10 @@ class MainAppTest < Minitest::Test
   end
 
   #### ----- Testing AppHelpers ----- ####
+  def test_create_slug
+
+  end
+  
   def test_slugify
     assert_equal "this-is-text", helpers.new.slugify('this is text')
     assert_equal "this-is-1234-no-emoji-or-punc", helpers.new.slugify('this is 🍎 1234 no emoji ! or punc')
