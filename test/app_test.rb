@@ -22,13 +22,25 @@ class MainAppTest < Minitest::Test
   end
 
   #### ----- AppHelpers unit tests ----- ####
-  def test_verify_token
+  def test_verify_token_valid
     stub_token
     result = helpers.new.verify_token("Bearer 1234567890")
     assert result.include? :me
     assert result.include? :issued_by
     assert result.include? :client_id
     assert_equal "https://testsite.example.com", result[:me]
+  end
+
+  def test_verify_token_no_scope
+    skip('TODO: not yet implemented')
+    stub_token
+    result = helpers.new.verify_token("Bearer 1234567890")
+  end
+
+  def test_verify_token_no_me
+    skip('TODO: not yet implemented')
+    stub_token
+    result = helpers.new.verify_token("Bearer 1234567890")
   end
 
   def test_publish_post
