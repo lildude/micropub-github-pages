@@ -27,7 +27,7 @@ module AppHelpers
   end
 
   def verify_token(auth_header)
-    uri = URI.parse(settings.micropub[:token_endpoint])
+    uri = URI.parse(Sinatra::Application.settings.micropub[:token_endpoint])
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.port == 443)
     request = Net::HTTP::Get.new(uri.request_uri)
