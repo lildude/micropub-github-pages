@@ -23,7 +23,12 @@ class MainAppTest < Minitest::Test
 
   #### ----- AppHelpers unit tests ----- ####
   def test_verify_token
-    skip('TODO: not yet implemented')
+    stub_token
+    result = helpers.new.verify_token("Bearer 1234567890")
+    assert result.include? :me
+    assert result.include? :issued_by
+    assert result.include? :client_id
+    assert_equal "https://testsite.example.com", result[:me]
   end
 
   def test_publish_post
@@ -68,6 +73,10 @@ class MainAppTest < Minitest::Test
   end
 
   def test_process_params
+    skip('TODO: not yet implemented')
+  end
+
+  def test_process_params_fails_if_no_params
     skip('TODO: not yet implemented')
   end
 
