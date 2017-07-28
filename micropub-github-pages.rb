@@ -26,14 +26,14 @@ module AppHelpers
     JSON.generate({:error => error, :error_description => description })
   end
 
-  def verify_token(auth_header)
+  def verify_token
     uri = URI.parse(Sinatra::Application.settings.micropub[:token_endpoint])
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.port == 443)
     request = Net::HTTP::Get.new(uri.request_uri)
     request.initialize_http_header({
       'Content-type' => 'application/x-www-form-urlencoded',
-      'Authorization' => auth_header
+      'Authorization' => "Bearer #{@access_token}"
     })
 
     resp = http.request(request)
@@ -261,9 +261,9 @@ end
 before do
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
-    auth_header = env['HTTP_AUTHORIZATION']
+    @access_token = env['HTTP_AUTHORIZATION'].match(/Bearer (.*)$/)[1]
   elsif params["access_token"]
-    auth_header = "Bearer #{params["access_token"]}"
+    @access_token = params["access_token"]
   else
     logger.info "Received request without a token"
     halt 401, error('unauthorized')
@@ -273,7 +273,7 @@ before do
   params.delete("access_token")
 
   # Verify the token
-  verify_token auth_header unless ENV['RACK_ENV'] == 'development'
+  verify_token unless ENV['RACK_ENV'] == 'development'
 end
 
 # Query
