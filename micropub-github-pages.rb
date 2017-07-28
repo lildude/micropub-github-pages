@@ -184,8 +184,12 @@ module AppHelpers
     text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-')
   end
 
-  def syndicate_to(dest)
-    logger.info "Syndicated to #{dest}"
+  # Syndicate to destinations supported by silo.pub as that's what we use
+  # instead of having to implement all the APIs ourselves.
+  #
+  # If no destination is provided, assume it's a query and return all destinations.
+  def syndicate_to(dest = nil)
+    JSON.generate("syndicate-to": []) if dest.nil?
   end
 
   # Process and clean up params for use later
@@ -294,7 +298,7 @@ get '/micropub/:site' do |site|
   when /syndicate-to/
     status 200
     headers "Content-type" => "application/json"
-    body JSON.generate("syndicate-to": [])  # TODO: Populate with syndicate-to when supported. Until then, empty object is fine.
+    body syndicate_to
   end
 
 end
