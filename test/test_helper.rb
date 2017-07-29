@@ -86,3 +86,9 @@ def stub_github_search
         ]
       }))
 end
+
+def stub_silo_pub
+  stub_request(:post, "https://silo.pub/micropub").
+    with(body: {content: /.*/, url: /.*/}, headers: {'Authorization'=>'Bearer 0987654321', 'Content-Type'=>'application/x-www-form-urlencoded'}).
+      to_return(status: 200, body: '{"entities":{"urls":[{"url": "https://t.co/somewhere"}]}}', headers: {})
+end

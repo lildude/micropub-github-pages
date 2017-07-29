@@ -85,10 +85,22 @@ class MainAppTest < Minitest::Test
     assert_equal "/2017/07/7/02/2/17/02/56/22/foo-bar", @helper.create_permalink(params)
   end
 
-  def test_syndicate_to
-    skip('TODO: not yet implemented')
-    @helper.instance_variable_set(:@access_token, "1234567890")
-    assert_equal "", @helper.syndicate_to
+  def test_syndicate_to_get
+    output = JSON.parse(@helper.syndicate_to)
+    assert output.include? 'syndicate-to'
+    assert_equal 'Twitter', output['syndicate-to'][0]['name']
+    assert_equal 'https://twitter.com/lildude', output['syndicate-to'][0]['uid']
+    refute output['syndicate-to'][0].include? 'silo_pub_token'
+  end
+
+  def test_syndicate_note
+    stub_silo_pub
+    @helper.instance_variable_set(:@content, 'this is the content')
+    @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
+    params = {:'mp-syndicate-to' => 'https://twitter.com/lildude'}
+    assert_equal 'https://t.co/somewhere', @helper.syndicate_to(params)
+    assert_equal nil, @helper.syndicate_to({})
+    assert_equal nil, @helper.syndicate_to({:'mp-syndicate-to' => ''})
   end
 
   def test_process_params
@@ -147,7 +159,7 @@ class MainAppTest < Minitest::Test
     stub_token
     get '/micropub/testsite?q=syndicate-to', nil, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'}
     assert last_response.ok?
-    assert JSON.parse(last_response.body)["syndicate-to"].empty?
+    refute JSON.parse(last_response.body)["syndicate-to"].empty?
   end
 
   def test_get_source
