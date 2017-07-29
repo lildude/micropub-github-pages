@@ -64,12 +64,12 @@ module AppHelpers
     # Verify the repo exists
     halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-    @content = Liquid::Template.parse(File.read("templates/#{params[:type].to_s}.liquid")).render(params.stringify_keys)
+    content = Liquid::Template.parse(File.read("templates/#{params[:type].to_s}.liquid")).render(params.stringify_keys)
 
-    if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", @content)
+    if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", content)
       status 201
       headers "Location" => "#{@location}"
-      body @content if ENV['RACK_ENV'] == 'test'
+      body content if ENV['RACK_ENV'] == 'test'
     end
   end
 
@@ -201,11 +201,12 @@ module AppHelpers
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
     dest = params.key?(:"mp-syndicate-to") ? params[:"mp-syndicate-to"] : nil
+    return if dest.nil?
+
     dest_entry = destinations.find {|d| d["uid"] == dest}
     return if dest_entry.nil?
 
     silo_pub_token = dest_entry["silo_pub_token"]
-
     uri = URI.parse("https://silo.pub/micropub")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.port == 443)
@@ -214,9 +215,9 @@ module AppHelpers
       'Authorization' => "Bearer #{silo_pub_token}"
     })
 
-    request.set_form_data("url" => "#{@location}", "content" => "#{@content}" )
+    request.set_form_data("url" => "#{@location}", "content" => "#{params[:content]}" )
     resp = http.request(request)
-    JSON.parse(resp.body)["entities"]["urls"][0]["url"]
+    JSON.parse(resp.body)["id_str"] if ENV['RACK_ENV'] == 'test'
   end
 
   # Process and clean up params for use later
@@ -353,5 +354,5 @@ post '/micropub/:site' do |site|
   # Publish the post
   publish_post post_params
 
-  #syndicate_to post_params["mp-syndicate-to"] if post_params.include? "mp-syndicate-to"
+  syndicate_to post_params
 end

@@ -97,8 +97,8 @@ class MainAppTest < Minitest::Test
     stub_silo_pub
     @helper.instance_variable_set(:@content, 'this is the content')
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
-    params = {:'mp-syndicate-to' => 'https://twitter.com/lildude'}
-    assert_equal 'https://t.co/somewhere', @helper.syndicate_to(params)
+    params = {:'mp-syndicate-to' => 'https://twitter.com/lildude', :content => 'this is the content'}
+    assert_equal '12344321', @helper.syndicate_to(params)
     assert_equal nil, @helper.syndicate_to({})
     assert_equal nil, @helper.syndicate_to({:'mp-syndicate-to' => ''})
   end
