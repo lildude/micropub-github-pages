@@ -25,6 +25,10 @@ Alternatively, create an `env.rb` file in the root of this repository containing
 
 Copy `config-example.yml` to `config.yml` and customise to your :heart:'s content.
 
+## Syndication
+
+To limit the scope of this, we rely on https://silo.pub to syndicate posts to the destinations supported by them, like Twitter etc.
+
 ## Testing
 
 Run `script/test` to run through the full test suite.
