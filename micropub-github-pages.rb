@@ -217,7 +217,12 @@ module AppHelpers
       'Authorization' => "Bearer #{silo_pub_token}"
     })
 
-    request.set_form_data("url" => "#{@location}", "content" => "#{params[:content]}" )
+    form_data = {}
+    form_data["name"] = params[:name] if params[:name]
+    form_data["url"] = @location
+    form_data["content"] = params[:content]
+    
+    request.set_form_data(form_data)
     resp = http.request(request)
     JSON.parse(resp.body)["id_str"] if ENV['RACK_ENV'] == 'test'
   end
