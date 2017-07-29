@@ -73,10 +73,10 @@ class MainAppTest < Minitest::Test
     stub_silo_pub
     @helper.instance_variable_set(:@content, 'this is the content')
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
-    params = {:'mp-syndicate-to' => 'https://twitter.com/lildude', :content => 'this is the content'}
+    params = {:'syndicate-to' => 'https://twitter.com/lildude', :content => 'this is the content'}
     assert_equal '12344321', @helper.syndicate_to(params)
     assert_equal nil, @helper.syndicate_to({})
-    assert_equal nil, @helper.syndicate_to({:'mp-syndicate-to' => ''})
+    assert_equal nil, @helper.syndicate_to({:'syndicate-to' => ''})
   end
 
   def test_post_type
@@ -209,7 +209,7 @@ class MainAppTest < Minitest::Test
       :category => ['tag1', 'tag2'],
       :published => now.to_s,
       :slug => 'this-is-the-content-slug',
-      'mp-syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
+      'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
       :unrecog_param => 'foo',
       :ano_unrecog_param => 'bar'
       }, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
@@ -233,7 +233,7 @@ class MainAppTest < Minitest::Test
       :name => 'This is a 😍 Post!!',
       :content => 'This is the content',
       :category => ['tag1', 'tag2'],
-      'mp-syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
+      'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
       }, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
