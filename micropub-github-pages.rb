@@ -255,7 +255,7 @@ module AppHelpers
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
     first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
     if !first_line.nil? and !post_params[:name]
-      post_params[:name] = first_line[1].to_s
+      post_params[:name] = first_line[1].to_s.strip
       post_params[:content].sub!(first_line[0], '')
     end
 
