@@ -203,6 +203,7 @@ module AppHelpers
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
     dest = params.key?(:"mp-syndicate-to") ? params[:"mp-syndicate-to"] : nil
+    logger.info "Received #{dest}" unless ENV['RACK_ENV'] == 'test'
     return if dest.nil?
 
     dest_entry = destinations.find {|d| d["uid"] == dest}
@@ -221,9 +222,10 @@ module AppHelpers
     form_data["name"] = params[:name] if params[:name]
     form_data["url"] = @location
     form_data["content"] = params[:content]
-    
+
     request.set_form_data(form_data)
     resp = http.request(request)
+    logger.info "Syndicated to #{dest}" unless ENV['RACK_ENV'] == 'test'
     JSON.parse(resp.body)["id_str"] if ENV['RACK_ENV'] == 'test'
   end
 
