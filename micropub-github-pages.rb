@@ -246,6 +246,9 @@ module AppHelpers
       if post_params[:content]
         post_params[:content] = (post_params[:content][0].is_a? Hash) ? post_params[:content][0][:html] : post_params[:content][0]
       end
+      if post_params[:name]
+        post_params[:name] = post_params[:name][0]
+      end
     else
       # Convert all keys to symbols from form submission
       post_params = post_params.each_with_object({}){|(k,v), h| h[k.to_sym] = v}
@@ -360,6 +363,7 @@ post '/micropub/:site' do |site|
   # If there's a photo, "download" it to the GitHub repo and return the new URL
   post_params[:photo] = download_photo(post_params) if post_params[:photo]
 
+  logger.info post_params unless ENV['RACK_ENV'] == 'test'
   # Publish the post
   publish_post post_params
 
