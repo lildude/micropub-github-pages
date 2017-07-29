@@ -19,6 +19,8 @@ require './env' if File.exists?('env.rb')
 configure { set :server, :puma }
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
 
+SafeYAML::OPTIONS[:default_mode] = :safe
+
 # Put helper functions in a module for easy testing.
 module AppHelpers
   # https://www.w3.org/TR/micropub/#error-response
@@ -127,7 +129,6 @@ module AppHelpers
   end
 
   def jekyll_post_to_json(content)
-    SafeYAML::OPTIONS[:default_mode] = :safe
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
     if content =~ %r!\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)!m
       content = $'  # $POSTMATCH doesn't work for some reason
