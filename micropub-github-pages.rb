@@ -354,5 +354,6 @@ post '/micropub/:site' do |site|
   # Publish the post
   publish_post post_params
 
+  # Syndicate the post
   syndicate_to post_params
 end

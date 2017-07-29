@@ -36,30 +36,6 @@ class MainAppTest < Minitest::Test
     assert_equal "https://testsite.example.com", result[:me]
   end
 
-  def test_verify_token_no_scope
-    skip('TODO: not yet implemented')
-    stub_token
-    result = @helper.verify_token("Bearer 1234567890")
-  end
-
-  def test_verify_token_no_me
-    skip('TODO: not yet implemented')
-    stub_token
-    result = @helper.verify_token("Bearer 1234567890")
-  end
-
-  def test_publish_post
-    skip('TODO: not yet implemented')
-  end
-
-  def test_download_photo
-    skip('TODO: not yet implemented')
-  end
-
-  def test_get_post
-    skip('TODO: not yet implemented')
-  end
-
   def test_jekyll_post_to_json
     content = "---\nlayout: post\ntags:\n- tag1\n- tag2\npermalink: \"/2017/07/foo-bar\"\ndate: 2017-07-22 10:56:22 +0100\n---\nThis is the content"
     assert_equal '{"type":["h-entry"],"properties":{"published":["2017-07-22 10:56:22 +0100"],"content":["This is the content"],"slug":["/2017/07/foo-bar"],"category":["tag1","tag2"]}}', @helper.jekyll_post_to_json(content)
@@ -101,18 +77,6 @@ class MainAppTest < Minitest::Test
     assert_equal '12344321', @helper.syndicate_to(params)
     assert_equal nil, @helper.syndicate_to({})
     assert_equal nil, @helper.syndicate_to({:'mp-syndicate-to' => ''})
-  end
-
-  def test_process_params
-    skip('TODO: not yet implemented')
-  end
-
-  def test_process_params_fails_if_no_params
-    skip('TODO: not yet implemented')
-  end
-
-  def test_process_params_markdown_title
-    skip('TODO: not yet implemented')
   end
 
   def test_post_type
