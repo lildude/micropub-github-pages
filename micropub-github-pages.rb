@@ -58,18 +58,18 @@ module AppHelpers
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    location = "#{settings.sites[params[:site]]['site_url']}"
-    location << create_permalink(params)
+    @location = "#{settings.sites[params[:site]]['site_url']}"
+    @location << create_permalink(params)
 
     # Verify the repo exists
     halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-    content = Liquid::Template.parse(File.read("templates/#{params[:type].to_s}.liquid")).render(params.stringify_keys)
+    @content = Liquid::Template.parse(File.read("templates/#{params[:type].to_s}.liquid")).render(params.stringify_keys)
 
-    if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", content)
+    if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", @content)
       status 201
-      headers "Location" => "#{location}"
-      body content if ENV['RACK_ENV'] == 'test'
+      headers "Location" => "#{@location}"
+      body @content if ENV['RACK_ENV'] == 'test'
     end
   end
 
@@ -188,8 +188,35 @@ module AppHelpers
   # instead of having to implement all the APIs ourselves.
   #
   # If no destination is provided, assume it's a query and return all destinations.
-  def syndicate_to(dest = nil)
-    JSON.generate("syndicate-to": []) if dest.nil?
+  def syndicate_to(params = nil)
+    # TODO: Per-repo settings take pref over global. Global only at the mo
+    # TODO Add the response URL to the post meta data
+    # Note: need to use Sinatra::Application.syndicate_to here until we move to
+    # modular approach so the settings can be accessed when testing.
+    destinations = Sinatra::Application.syndicate_to.values
+    clean_dests = []
+    destinations.each do |e|
+      clean_dests << e.select {|k| k != "silo_pub_token"}
+    end
+    return JSON.generate("syndicate-to": clean_dests) if params.nil?
+
+    dest = params.key?(:"mp-syndicate-to") ? params[:"mp-syndicate-to"] : nil
+    dest_entry = destinations.find {|d| d["uid"] == dest}
+    return if dest_entry.nil?
+
+    silo_pub_token = dest_entry["silo_pub_token"]
+
+    uri = URI.parse("https://silo.pub/micropub")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = (uri.port == 443)
+    request = Net::HTTP::Post.new(uri.request_uri)
+    request.initialize_http_header({
+      'Authorization' => "Bearer #{silo_pub_token}"
+    })
+
+    request.set_form_data("url" => "#{@location}", "content" => "#{@content}" )
+    resp = http.request(request)
+    JSON.parse(resp.body)["entities"]["urls"][0]["url"]
   end
 
   # Process and clean up params for use later
