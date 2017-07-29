@@ -16,10 +16,10 @@ require 'liquid'
 require "sinatra/reloader" if development?
 require './env' if File.exists?('env.rb')
 
+SafeYAML::OPTIONS[:default_mode] = :safe
+
 configure { set :server, :puma }
 config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
-
-SafeYAML::OPTIONS[:default_mode] = :safe
 
 # Put helper functions in a module for easy testing.
 module AppHelpers
