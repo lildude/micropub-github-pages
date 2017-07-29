@@ -202,7 +202,7 @@ module AppHelpers
     end
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
-    dest = params.key?(:"syndicate-to") ? params[:"syndicate-to"] : nil
+    dest = params.key?(:"syndicate-to") ? params[:"syndicate-to"][0] : nil
     logger.info "Received #{dest}" unless ENV['RACK_ENV'] == 'test'
     return if dest.nil?
 
