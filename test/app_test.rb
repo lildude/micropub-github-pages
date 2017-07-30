@@ -50,6 +50,7 @@ class MainAppTest < Minitest::Test
   def test_slugify
     assert_equal "this-is-text", @helper.slugify('this is text')
     assert_equal "this-is-1234-no-emoji-or-punc", @helper.slugify('this is 🍎 1234 no emoji ! or punc')
+    assert_equal "this-ends-in-emoji", @helper.slugify('tHis ends In emoji 🤡')
   end
 
   def test_create_permalink

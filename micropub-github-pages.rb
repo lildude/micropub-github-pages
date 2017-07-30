@@ -183,7 +183,7 @@ module AppHelpers
   end
 
   def slugify(text)
-    text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-')
+    text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-').chomp('-')
   end
 
   # Syndicate to destinations supported by silo.pub as that's what we use
