@@ -203,7 +203,7 @@ module AppHelpers
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
     dest = params.key?(:"syndicate-to") ? params[:"syndicate-to"][0] : nil
-    logger.info "Received #{dest}" unless ENV['RACK_ENV'] == 'test'
+    logger.info "Asked to syndicate to: #{dest}" unless ENV['RACK_ENV'] == 'test'
     return if dest.nil?
 
     dest_entry = destinations.find {|d| d["uid"] == dest}
