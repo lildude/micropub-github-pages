@@ -89,13 +89,13 @@ module AppHelpers
         # TODO: Retry a few times as the file may not instantly be available for download
         begin
           begin
-            sleep 1
+            sleep 2
             retries ||= 0
             file = open(url).read
             raise "Download attempt #{retries}"
           rescue
             logger.info "Download attempt #{retries}" unless ENV['RACK_ENV'] == 'test'
-            retry if (retries += 1) < 3
+            retry if (retries += 1) < 5
             raise
           end
 
