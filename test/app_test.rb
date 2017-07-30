@@ -210,7 +210,7 @@ class MainAppTest < Minitest::Test
       :category => ['tag1', 'tag2'],
       :published => now.to_s,
       :slug => 'this-is-the-content-slug',
-      'syndicate-to' => ['https://myfavoritesocialnetwork.example/lildude'],
+      'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
       :unrecog_param => 'foo',
       :ano_unrecog_param => 'bar'
       }, {'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})

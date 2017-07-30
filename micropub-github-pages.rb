@@ -253,6 +253,7 @@ module AppHelpers
       # Convert all keys to symbols from form submission
       post_params = post_params.each_with_object({}){|(k,v), h| h[k.to_sym] = v}
       post_params[:photo] = [*post_params[:photo]] if post_params[:photo]
+      post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
