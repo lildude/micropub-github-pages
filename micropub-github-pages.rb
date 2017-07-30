@@ -82,6 +82,7 @@ module AppHelpers
   def download_photo(params)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
+      require 'open-uri'
       params[:photo].each_with_index do | photo, i |
         alt = photo.is_a?(String) ? '' : photo[:alt]
         url = photo.is_a?(String) ? photo : photo[:value]
@@ -92,7 +93,7 @@ module AppHelpers
             sleep 2
             retries ||= 0
             file = open(url).read
-            raise "Download attempt #{retries} - |#{url}|"
+            raise "Download attempt #{retries}"
           rescue Exception => e
             logger.info "#{e}" unless ENV['RACK_ENV'] == 'test'
             retry if (retries += 1) < 5
