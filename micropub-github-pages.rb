@@ -111,7 +111,7 @@ module AppHelpers
           params[:photo][i] = {'url' => photo_path, 'alt' => alt}
         rescue
           # Fall back to orig url if we can't download
-          params[:photo][i] = {'url' => url 'alt' => alt}
+          params[:photo][i] = {'url' => url, 'alt' => alt}
         end
       end
     end
