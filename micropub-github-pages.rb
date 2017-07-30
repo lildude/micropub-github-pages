@@ -86,27 +86,33 @@ module AppHelpers
         alt = photo.is_a?(String) ? '' : photo[:alt]
         url = photo.is_a?(String) ? photo : photo[:value]
 
-        file = open(url).read
-        filename = url.split('/').last
-
-        client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
-        repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
-
-        # Verify the repo exists
-        halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
-
-        photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? "#{settings.sites[params[:site]]['site_url']}" : ''
-        photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
-
-        # Return URL early if file already exists in the repo
-        # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
+        # TODO: Retry a few times as the file may not instantly be available for download
         begin
-          client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
-        rescue Octokit::NotFound
-          # Add the file if it doesn't exist
-          client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
+          file = open(url).read
+          filename = url.split('/').last
+
+          client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+          repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
+
+          # Verify the repo exists
+          halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
+
+          photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? "#{settings.sites[params[:site]]['site_url']}" : ''
+          photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+
+          # Return URL early if file already exists in the repo
+          # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
+          begin
+            client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
+          rescue Octokit::NotFound
+            # Add the file if it doesn't exist
+            client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
+          end
+          params[:photo][i] = {'url' => photo_path, 'alt' => alt}
+        rescue
+          # Fall back to orig url if we can't download
+          params[:photo][i] = {'url' => url 'alt' => alt}
         end
-        params[:photo][i] = {'url' => photo_path, 'alt' => alt}
       end
     end
     params[:photo]
