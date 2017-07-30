@@ -94,6 +94,7 @@ module AppHelpers
             file = open(url).read
             raise "Download attempt #{retries}"
           rescue
+            logger.info "Download attempt #{retries}" unless ENV['RACK_ENV'] == 'test'
             retry if (retries += 1) < 3
             raise
           end
