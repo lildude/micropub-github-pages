@@ -352,7 +352,7 @@ class MainAppTest < Minitest::Test
     post('/micropub/testsite', {
         :type => ['h-entry'],
         :properties => {
-          :name => "This is the title",
+          :name => ["This is the title"],
           :content => ["# This is the header\n\nThis is the JSON content"],
           :category => ['tag1', 'tag2']
           }
