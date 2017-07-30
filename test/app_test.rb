@@ -75,8 +75,8 @@ class MainAppTest < Minitest::Test
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
     params = {:'syndicate-to' => ['https://twitter.com/lildude'], :content => 'this is the content'}
     assert_equal '12344321', @helper.syndicate_to(params)
-    assert_equal nil, @helper.syndicate_to({})
-    assert_equal nil, @helper.syndicate_to({:'syndicate-to' => ''})
+    assert_nil @helper.syndicate_to({})
+    assert_nil @helper.syndicate_to({:'syndicate-to' => ''})
   end
 
   def test_post_type
