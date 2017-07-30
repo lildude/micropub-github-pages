@@ -88,7 +88,16 @@ module AppHelpers
 
         # TODO: Retry a few times as the file may not instantly be available for download
         begin
-          file = open(url).read
+          begin
+            sleep 1
+            retries ||= 0
+            file = open(url).read
+            raise "Download attempt #{retries}"
+          rescue
+            retry if (retries += 1) < 3
+            raise
+          end
+
           filename = url.split('/').last
 
           client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
