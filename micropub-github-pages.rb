@@ -86,7 +86,6 @@ module AppHelpers
         alt = photo.is_a?(String) ? '' : photo[:alt]
         url = photo.is_a?(String) ? photo : photo[:value]
 
-        # TODO: Retry a few times as the file may not instantly be available for download
         begin
           begin
             retries ||= 0
