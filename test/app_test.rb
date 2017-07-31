@@ -385,6 +385,24 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
+  def test_new_note_with_unreachable_photo_reference_json
+    stub_token
+    stub_cant_get_photo
+    stub_get_github_request
+    stub_non_existant_github_file
+    stub_put_github_request
+    post('/micropub/testsite', {
+        :type => ['h-entry'],
+        :properties => {
+          :content => ['Adding a new photo'],
+          :photo => ['https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_nope.jpg']
+          }
+    }.to_json, {'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'})
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
+    assert last_response.body.include? 'https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_nope.jpg'
+  end
+
   def test_new_note_with_multiple_photos_reference_json
     stub_token
     stub_get_photo

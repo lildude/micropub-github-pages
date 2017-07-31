@@ -60,6 +60,11 @@ def stub_get_photo
     to_return(:status => 200, :body => open("test/fixtures/photo.jpg", "rb"))
 end
 
+def stub_cant_get_photo
+  stub_request(:get, /.*instagram.*\/t51.2885-15\/e35\/\d+_\d+_\d+_nope.jpg/).
+    to_return(:status => 404, :body => '')
+end
+
 def stub_non_existant_github_file
   stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/.*\/\d+_\d+_\d+_n.jpg/).
     to_return(:status => 404, :body => '404 - Not Found')
