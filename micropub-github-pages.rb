@@ -91,8 +91,10 @@ module AppHelpers
             retries ||= 0
             file = open(url).read
           rescue Exception => e
-            logger.info "#{e} - Download attempt #{retries}" unless ENV['RACK_ENV'] == 'test'
-            sleep 2
+            unless ENV['RACK_ENV'] == 'test'
+              logger.info "#{e} - Download attempt #{retries}"
+              sleep 2
+            end
             retry if (retries += 1) < 5
             raise
           end
