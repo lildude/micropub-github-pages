@@ -15,4 +15,5 @@ group :test do
   gem 'coveralls'
   gem 'webmock'
   gem 'rake'
+  gem 'rubocop', require: false
 end
