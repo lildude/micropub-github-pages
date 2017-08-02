@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 ENV['RACK_ENV'] = 'test'
 
 require 'minitest/autorun'
@@ -6,7 +7,7 @@ require 'rack/test'
 require 'webmock/minitest'
 require_relative '../micropub-github-pages'
 
-WebMock.disable_net_connect!(:allow_localhost => true)
+WebMock.disable_net_connect!(allow_localhost: true)
 
 def stub_token
   stub_request(:get, 'http://example.com/micropub/token')
@@ -48,8 +49,8 @@ def stub_unauthed_token
 end
 
 def stub_get_github_request
-  stub_request(:get, "https://api.github.com/repos/lildude/micropub-github-pages").
-    to_return(:status => 200, :body => "{ json here }")
+  stub_request(:get, 'https://api.github.com/repos/lildude/micropub-github-pages')
+    .to_return(status: 200, body: '{ json here }')
 end
 
 def stub_put_github_request
@@ -79,21 +80,19 @@ def stub_existing_github_file
 end
 
 def stub_github_search
-  stub_request(:get, %r{api.github.com/search/code}).
-    to_return(:status => 200, :body => JSON.generate({
-        :total_count => 1,
-        :items => [
-          {
-            :name => "example-post.md",
-            :path => "_post/2010-01-14-example-post.md",
-            :sha => "d735c3364cacbda4a9631af085227ce200589676",
-          }
-        ]
-      }))
+  stub_request(:get, %r{api.github.com/search/code})
+    .to_return(status: 200, body: JSON.generate(total_count: 1,
+                                                items: [
+                                                  {
+                                                    name: 'example-post.md',
+                                                    path: '_post/2010-01-14-example-post.md',
+                                                    sha: 'd735c3364cacbda4a9631af085227ce200589676'
+                                                  }
+                                                ]))
 end
 
 def stub_silo_pub
-  stub_request(:post, "https://silo.pub/micropub").
-    with(body: {content: /.*/, url: /.*/}, headers: {'Authorization'=>'Bearer 0987654321', 'Content-Type'=>'application/x-www-form-urlencoded'}).
-      to_return(status: 200, body: '{"id_str": "12344321"}', headers: {})
+  stub_request(:post, 'https://silo.pub/micropub')
+    .with(body: { content: /.*/, url: /.*/ }, headers: { 'Authorization' => 'Bearer 0987654321', 'Content-Type' => 'application/x-www-form-urlencoded' })
+    .to_return(status: 200, body: '{"id_str": "12344321"}', headers: {})
 end
