@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
+
 # Spec: https://www.w3.org/TR/micropub
 require 'rubygems'
 require 'bundler/setup'
