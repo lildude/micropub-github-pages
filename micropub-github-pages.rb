@@ -27,7 +27,7 @@ config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#
 module AppHelpers
   # https://www.w3.org/TR/micropub/#error-response
   def error(error, description = nil)
-    JSON.generate({:error => error, :error_description => description })
+    JSON.generate(error: error, error_description: description)
   end
 
   def verify_token
@@ -35,10 +35,8 @@ module AppHelpers
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.port == 443)
     request = Net::HTTP::Get.new(uri.request_uri)
-    request.initialize_http_header({
-      'Content-type' => 'application/x-www-form-urlencoded',
-      'Authorization' => "Bearer #{@access_token}"
-    })
+    request.initialize_http_header('Content-type' => 'application/x-www-form-urlencoded',
+      'Authorization' => "Bearer #{@access_token}")
 
     resp = http.request(request)
     decoded_resp = URI.decode_www_form(resp.body).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
@@ -62,15 +60,15 @@ module AppHelpers
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    @location = "#{settings.sites[params[:site]]['site_url']}".dup
+    @location = (settings.sites[params[:site]]['site_url']).to_s.dup
     @location << create_permalink(params)
 
     # Verify the repo exists
     halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-    content = Liquid::Template.parse(File.read("templates/#{params[:type].to_s}.liquid")).render(params.stringify_keys)
+    content = Liquid::Template.parse(File.read("templates/#{params[:type]}.liquid")).render(params.stringify_keys)
 
-    if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", content)
+    if client.create_contents(repo.to_s, "_posts/#{filename}", "New #{params[:type]}: #{filename}", content)
       status 201
       headers 'Location' => @location.to_s
       body content if ENV['RACK_ENV'] == 'test'
@@ -135,12 +133,12 @@ module AppHelpers
   # appears in the repository.
   def get_post(url)
     fuzzy_filename = url.split('/').last
-    client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
     code = client.search_code("filename:#{fuzzy_filename} repo:#{repo}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
-    code = JSON.parse(code, :symbolize_names => true) if ENV['RACK_ENV'] == 'test'
-    content = client.contents(repo, :path => code[:items][0][:path]) if code[:total_count] == 1
+    code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
+    content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post_to_json decoded_content
@@ -148,8 +146,8 @@ module AppHelpers
 
   def jekyll_post_to_json(content)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
-    if content =~ %r!\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)!m
-      content = $'  # $POSTMATCH doesn't work for some reason
+    if content =~ %r{\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)}m
+      content = $' # $POSTMATCH doesn't work for some reason
       front_matter = SafeYAML.load(Regexp.last_match(1))
     end
 
@@ -224,40 +222,38 @@ module AppHelpers
     logger.info "Asked to syndicate to: #{dest}" unless ENV['RACK_ENV'] == 'test'
     return if dest.nil?
 
-    dest_entry = destinations.find {|d| d["uid"] == dest}
+    dest_entry = destinations.find { |d| d['uid'] == dest }
     return if dest_entry.nil?
 
-    silo_pub_token = dest_entry["silo_pub_token"]
-    uri = URI.parse("https://silo.pub/micropub")
+    silo_pub_token = dest_entry['silo_pub_token']
+    uri = URI.parse('https://silo.pub/micropub')
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.port == 443)
     request = Net::HTTP::Post.new(uri.request_uri)
-    request.initialize_http_header({
-      'Authorization' => "Bearer #{silo_pub_token}"
-    })
+    request.initialize_http_header('Authorization' => "Bearer #{silo_pub_token}")
 
     form_data = {}
-    form_data["name"] = params[:name] if params[:name]
-    form_data["url"] = @location
-    form_data["content"] = params[:content]
+    form_data['name'] = params[:name] if params[:name]
+    form_data['url'] = @location
+    form_data['content'] = params[:content]
 
     request.set_form_data(form_data)
     resp = http.request(request)
     logger.info "Syndicated to #{dest}" unless ENV['RACK_ENV'] == 'test'
-    JSON.parse(resp.body)["id_str"] if ENV['RACK_ENV'] == 'test'
+    JSON.parse(resp.body)['id_str'] if ENV['RACK_ENV'] == 'test'
   end
 
   # Process and clean up params for use later
   def process_params(post_params)
     # Bump off the standard Sinatra params we don't use
-    post_params.reject!{ |key,_v| key =~ /^splat|captures|site/i }
+    post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
 
     halt 400, error('invalid_request', 'Invalid request') if post_params.empty?
 
     # JSON-specific processing
-    if env["CONTENT_TYPE"] == "application/json"
+    if env['CONTENT_TYPE'] == 'application/json'
       if post_params[:type][0]
-        post_params[:h] = post_params[:type][0].tr("h-",'')
+        post_params[:h] = post_params[:type][0].tr('h-', '')
         post_params.delete(:type)
       end
       post_params.merge!(post_params.delete(:properties))
@@ -269,21 +265,21 @@ module AppHelpers
       end
     else
       # Convert all keys to symbols from form submission
-      post_params = post_params.each_with_object({}){|(k,v), h| h[k.to_sym] = v}
+      post_params = post_params.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
       post_params[:photo] = [*post_params[:photo]] if post_params[:photo]
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
     # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
     first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
-    if !first_line.nil? and !post_params[:name]
+    if !first_line.nil? && !post_params[:name]
       post_params[:name] = first_line[1].to_s.strip
       post_params[:content].sub!(first_line[0], '')
     end
 
     # Add in a few more params if they're not set
     # Spec says we should use h-entry if no type provided.
-    post_params[:h] = "entry" unless post_params.include? :h
+    post_params[:h] = 'entry' unless post_params.include? :h
     # It's nice to honour the client's published date, if set, else set one.
     post_params[:published] = Time.now.to_s unless post_params.include? :published
 
@@ -373,7 +369,7 @@ post '/micropub/:site' do |site|
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  halt 400, error('invalid_request', "I don't know what you want me to do.") unless post_params.any? { |k, _v| [:h, :q, :action].include? k }
+  halt 400, error('invalid_request', "I don't know what you want me to do.") unless post_params.any? { |k, _v| %i[h q action].include? k }
 
   # Determine the template to use based on various params received.
   post_params[:type] = post_type(post_params)
