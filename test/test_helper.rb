@@ -47,27 +47,27 @@ def stub_get_github_request
 end
 
 def stub_put_github_request
-  stub_request(:put, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/.*\/.*\.[a-z]{2,}/)
+  stub_request(:put, %r{api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/.*\/.*\.[a-z]{2,}})
     .to_return(status: 201, body: '{ json here }')
 end
 
 def stub_get_photo
-  stub_request(:get, /.*instagram.*\/t51.2885-15\/e35\/\d+_\d+_\d+_n.jpg/)
+  stub_request(:get, %r{.*instagram.*\/t51.2885-15\/e35\/\d+_\d+_\d+_n.jpg})
     .to_return(status: 200, body: open('test/fixtures/photo.jpg', 'rb'))
 end
 
 def stub_cant_get_photo
-  stub_request(:get, /.*instagram.*\/t51.2885-15\/e35\/\d+_\d+_\d+_nope.jpg/)
+  stub_request(:get, %r{.*instagram.*\/t51.2885-15\/e35\/\d+_\d+_\d+_nope.jpg})
     .to_return(status: 404, body: '')
 end
 
 def stub_non_existant_github_file
-  stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/.*\/\d+_\d+_\d+_n.jpg/)
+  stub_request(:get, %r{api.github.com\/repos\/lildude\/micropub-github-pages\/contents\/.*\/\d+_\d+_\d+_n.jpg})
     .to_return(status: 404, body: '404 - Not Found')
 end
 
 def stub_existing_github_file
-  stub_request(:get, /api.github.com\/repos\/lildude\/micropub-github-pages\/contents/)
+  stub_request(:get, %r{api.github.com\/repos\/lildude\/micropub-github-pages\/contents})
     .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: JSON.generate(sha: 'd735c3364cacbda4a9631af085227ce200589676',
                                                                                                    content: 'LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9zdA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9vIA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3QtcG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBUYWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQgX19pdGFsaWNfXyBtYXJrZG93bg=='))
 end
