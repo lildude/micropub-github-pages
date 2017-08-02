@@ -69,8 +69,6 @@ module AppHelpers
     # Authenticate
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
 
-    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
-
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
     params[:slug] = create_slug(params)
@@ -84,13 +82,13 @@ module AppHelpers
     repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
     error('invalid_repo') unless client.repository?(repo)
 
-    content = Liquid::Template.parse(File.read("templates/#{params[:type]}.liquid")).render(params.stringify_keys)
+    template = File.read("templates/#{params[:type]}.liquid")
+    content = Liquid::Template.parse(template).render(params.stringify_keys)
 
-    if client.create_contents(repo.to_s, "_posts/#{filename}", "New #{params[:type]}: #{filename}", content)
-      status 201
-      headers 'Location' => @location.to_s
-      body content if ENV['RACK_ENV'] == 'test'
-    end
+    client.create_contents(repo.to_s, "_posts/#{filename}", "New #{params[:type]}: #{filename}", content)
+    status 201
+    headers 'Location' => @location.to_s
+    body content if ENV['RACK_ENV'] == 'test'
   end
 
   # Download the photo and add to GitHub repo if config allows
@@ -99,7 +97,10 @@ module AppHelpers
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
   def download_photo(params)
     # TODO: Per-repo settings take pref over global. Global only at the mo
-    if settings.download_photos === true
+    if settings.download_photos
+      client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
+      repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+
       params[:photo].each_with_index do |photo, i|
         alt = photo.is_a?(String) ? '' : photo[:alt]
         url = photo.is_a?(String) ? photo : photo[:value]
@@ -108,7 +109,7 @@ module AppHelpers
           begin
             retries ||= 0
             file = open(url).read
-          rescue Exception => e
+          rescue IOError => e
             unless ENV['RACK_ENV'] == 'test'
               logger.info "#{e} - Download attempt #{retries}"
               sleep 2
@@ -119,22 +120,21 @@ module AppHelpers
 
           filename = url.split('/').last
 
-          client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-          repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+          upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+          photo_path = ''.dup
 
-          # Verify the repo exists
-          error('invalid_repo') unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
-
-          photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? (settings.sites[params[:site]]['site_url']).to_s : ''
-          photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+          if settings.sites[params[:site]]['full_image_urls']
+            photo_path << settings.sites[params[:site]]['site_url']
+          end
+          photo_path << "/#{upload_path}"
 
           # Return URL early if file already exists in the repo
           # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
           begin
-            client.contents(repo.to_s, path: "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
+            client.contents(repo.to_s, path: upload_path)
           rescue Octokit::NotFound
             # Add the file if it doesn't exist
-            client.create_contents(repo.to_s, "#{settings.sites[params[:site]]['image_dir']}/#{filename}", 'Added new photo', file)
+            client.create_contents(repo.to_s, upload_path, 'Added new photo', file)
           end
           params[:photo][i] = { 'url' => photo_path, 'alt' => alt }
         rescue
@@ -157,14 +157,16 @@ module AppHelpers
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
-    decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
+    unless content.nil?
+      decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode
+    end
 
     jekyll_post_to_json decoded_content
   end
 
   def jekyll_post_to_json(content)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
-    if content =~ %r{\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)}m
+    if content =~ /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m
       content = $' # $POSTMATCH doesn't work for some reason
       front_matter = SafeYAML.load(Regexp.last_match(1))
     end
@@ -175,7 +177,9 @@ module AppHelpers
     data[:properties][:published] = [front_matter['date']]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
     data[:properties][:slug] = [front_matter['permalink']] unless front_matter['permalink'].nil?
-    data[:properties][:category] = front_matter['tags'] unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    unless front_matter['tags'].nil? || front_matter['tags'].empty?
+      data[:properties][:category] = front_matter['tags']
+    end
 
     JSON.generate(data)
   end
@@ -213,7 +217,7 @@ module AppHelpers
       ':categories' => ''
     }
 
-    permalink_style.gsub(/(:[a-z_]+)/, template_variables).gsub(/(\/\/)/, '/')
+    permalink_style.gsub(/(:[a-z_]+)/, template_variables).gsub(%r{(//)}, '/')
   end
 
   def slugify(text)
@@ -276,11 +280,14 @@ module AppHelpers
       end
       post_params.merge!(post_params.delete(:properties))
       if post_params[:content]
-        post_params[:content] = (post_params[:content][0].is_a? Hash) ? post_params[:content][0][:html] : post_params[:content][0]
+        post_params[:content] =
+          if post_params[:content][0].is_a?(Hash)
+            post_params[:content][0][:html]
+          else
+            post_params[:content][0]
+          end
       end
-      if post_params[:name]
-        post_params[:name] = post_params[:name][0]
-      end
+      post_params[:name] = post_params[:name][0] if post_params[:name]
     else
       # Convert all keys to symbols from form submission
       post_params = post_params.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
@@ -288,7 +295,8 @@ module AppHelpers
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
-    # Secret functionality: We may receive markdown in the content. If the first line is a header, set the name with it
+    # Secret functionality: We may receive markdown in the content.
+    # If the first line is a header, set the name with it
     first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
     if !first_line.nil? && !post_params[:name]
       post_params[:name] = first_line[1].to_s.strip
@@ -362,11 +370,14 @@ get '/micropub/:site' do |site|
   when /config/
     status 200
     headers 'Content-type' => 'application/json'
-    body JSON.generate({}) # TODO: Populate this with media-endpoint and syndicate-to when supported. Until then, empty object is fine.
+    # TODO: Populate this with media-endpoint and syndicate-to when supported.
+    #       Until then, empty object is fine.
+    body JSON.generate({})
   when /source/
     status 200
     headers 'Content-type' => 'application/json'
-    # body JSON.generate("response": get_post(params[:url]))  # TODO: Determine what goes in here
+    # body JSON.generate("response": get_post(params[:url]))
+    # TODO: Determine what goes in here
     body get_post(params[:url])
   when /syndicate-to/
     status 200
@@ -379,7 +390,12 @@ post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
 
   # Normalise params
-  post_params = env['CONTENT_TYPE'] == 'application/json' ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
+  post_params =
+    if env['CONTENT_TYPE'] == 'application/json'
+      JSON.parse(request.body.read.to_s, symbolize_names: true)
+    else
+      params
+    end
   post_params = process_params(post_params)
   post_params[:site] = site
 
