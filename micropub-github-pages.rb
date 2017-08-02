@@ -30,8 +30,22 @@ config_file config_yml
 # Put helper functions in a module for easy testing.
 module AppHelpers
   # https://www.w3.org/TR/micropub/#error-response
-  def error(error, description = nil)
-    JSON.generate(error: error, error_description: description)
+  def error(error)
+    description = nil
+    case error
+    when 'invalid_request'
+      code = 400
+      description = 'Invalid request'
+    when 'insufficient_scope'
+      code = 401
+      description = 'Insufficient scope information provided.'
+    when 'invalid_repo'
+      code = 422
+      description = "repository doesn't exit."
+    when 'unauthorized'
+      code = 401
+    end
+    halt code, JSON.generate(error: error, error_description: description)
   end
 
   def verify_token
@@ -46,7 +60,7 @@ module AppHelpers
     decoded_resp = URI.decode_www_form(resp.body).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
     unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
       logger.info 'Received response without scope or me'
-      halt 401, error('insufficient_scope', 'Insufficient scope information provided.')
+      error('insufficient_scope')
     end
 
     decoded_resp
@@ -68,7 +82,8 @@ module AppHelpers
     @location << create_permalink(params)
 
     # Verify the repo exists
-    halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
+    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+    error('invalid_repo') unless client.repository?(repo)
 
     content = Liquid::Template.parse(File.read("templates/#{params[:type]}.liquid")).render(params.stringify_keys)
 
@@ -109,7 +124,7 @@ module AppHelpers
           repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
 
           # Verify the repo exists
-          halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
+          error('invalid_repo') unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
           photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? (settings.sites[params[:site]]['site_url']).to_s : ''
           photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
@@ -252,7 +267,7 @@ module AppHelpers
     # Bump off the standard Sinatra params we don't use
     post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
 
-    halt 400, error('invalid_request', 'Invalid request') if post_params.empty?
+    error('invalid_request') if post_params.empty?
 
     # JSON-specific processing
     if env['CONTENT_TYPE'] == 'application/json'
@@ -329,7 +344,7 @@ before do
     @access_token = params['access_token']
   else
     logger.info 'Received request without a token'
-    halt 401, error('unauthorized')
+    error('unauthorized')
   end
 
   # Remove the access_token to prevent any accidental exposure later
@@ -373,7 +388,7 @@ post '/micropub/:site' do |site|
   # h = create entry
   # q = query the endpoint
   # action = update, delete, undelete etc.
-  halt 400, error('invalid_request', "I don't know what you want me to do.") unless post_params.any? { |k, _v| %i[h q action].include? k }
+  error('invalid_request') unless post_params.any? { |k, _v| %i[h q action].include? k }
 
   # Determine the template to use based on various params received.
   post_params[:type] = post_type(post_params)
