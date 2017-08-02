@@ -15,8 +15,8 @@ require 'base64'
 require 'open-uri'
 require 'safe_yaml'
 require 'liquid'
-require "sinatra/reloader" if development?
-require './env' if File.exists?('env.rb')
+require 'sinatra/reloader' if development?
+require './env' if File.exist?('env.rb')
 
 SafeYAML::OPTIONS[:default_mode] = :safe
 
@@ -41,9 +41,9 @@ module AppHelpers
     })
 
     resp = http.request(request)
-    decoded_resp = URI.decode_www_form(resp.body).each_with_object({}){|(k,v), h| h[k.to_sym] = v}
+    decoded_resp = URI.decode_www_form(resp.body).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
     unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
-      logger.info "Received response without scope or me"
+      logger.info 'Received response without scope or me'
       halt 401, error('insufficient_scope', 'Insufficient scope information provided.')
     end
 
@@ -52,12 +52,12 @@ module AppHelpers
 
   def publish_post(params)
     # Authenticate
-    client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
+    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
 
-    repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
+    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
 
     date = DateTime.parse(params[:published])
-    filename = date.strftime("%F")
+    filename = date.strftime('%F')
     params[:slug] = create_slug(params)
     filename << "-#{params[:slug]}.md"
 
@@ -72,7 +72,7 @@ module AppHelpers
 
     if client.create_contents("#{repo}", "_posts/#{filename}", "New #{params[:type].to_s}: #{filename}", content)
       status 201
-      headers "Location" => "#{@location}"
+      headers 'Location' => @location.to_s
       body content if ENV['RACK_ENV'] == 'test'
     end
   end
@@ -84,7 +84,7 @@ module AppHelpers
   def download_photo(params)
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos === true
-      params[:photo].each_with_index do | photo, i |
+      params[:photo].each_with_index do |photo, i|
         alt = photo.is_a?(String) ? '' : photo[:alt]
         url = photo.is_a?(String) ? photo : photo[:value]
 
@@ -103,27 +103,27 @@ module AppHelpers
 
           filename = url.split('/').last
 
-          client = Octokit::Client.new(:access_token => ENV['GITHUB_ACCESS_TOKEN'])
-          repo = "#{settings.github_username}/#{settings.sites[params[:site]]["github_repo"]}"
+          client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
+          repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
 
           # Verify the repo exists
           halt 422, error('invalid_request', "repository #{settings.github_username}/#{settings.sites[params[:site]]['github_repo']} doesn't exit.") unless client.repository?("#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}")
 
-          photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? "#{settings.sites[params[:site]]['site_url']}" : ''
+          photo_path_prefix = settings.sites[params[:site]]['full_image_urls'] === true ? (settings.sites[params[:site]]['site_url']).to_s : ''
           photo_path = "#{photo_path_prefix}/#{settings.sites[params[:site]]['image_dir']}/#{filename}"
 
           # Return URL early if file already exists in the repo
           # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
           begin
-            client.contents("#{repo}", :path => "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
+            client.contents(repo.to_s, path: "#{settings.sites[params[:site]]['image_dir']}/#{filename}")
           rescue Octokit::NotFound
             # Add the file if it doesn't exist
-            client.create_contents("#{repo}", "#{settings.sites[params[:site]]['image_dir']}/#{filename}", "Added new photo", file)
+            client.create_contents(repo.to_s, "#{settings.sites[params[:site]]['image_dir']}/#{filename}", 'Added new photo', file)
           end
-          params[:photo][i] = {'url' => photo_path, 'alt' => alt}
+          params[:photo][i] = { 'url' => photo_path, 'alt' => alt }
         rescue
           # Fall back to orig url if we can't download
-          params[:photo][i] = {'url' => url, 'alt' => alt}
+          params[:photo][i] = { 'url' => url, 'alt' => alt }
         end
       end
     end
@@ -166,14 +166,14 @@ module AppHelpers
 
   def create_slug(params)
     # Use the provided slug
-    if params.include? :slug and !params[:slug].nil?
+    if params.include?(:slug) && !params[:slug].nil?
       slug = params[:slug]
     # If there's a name, use that
-    elsif params.include? :name and !params[:name].nil?
+    elsif params.include?(:name) && !params[:name].nil?
       slug = slugify params[:name]
     else
-    # Else generate a slug based on the published date.
-      slug = DateTime.parse(params[:published]).strftime("%s").to_i % (24 * 60 * 60)
+      # Else generate a slug based on the published date.
+      slug = DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
     end
     slug.to_s
   end
@@ -184,17 +184,17 @@ module AppHelpers
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
     template_variables = {
-      ":year" => date.strftime("%Y"),
-      ":month" => date.strftime("%m"),
-      ":i_month" => date.strftime("%-m"),
-      ":day" => date.strftime("%d"),
-      ":i_day" => date.strftime("%-d"),
-      ":short_year" => date.strftime("%y"),
-      ":hour" => date.strftime("%H"),
-      ":minute" => date.strftime("%M"),
-      ":second" => date.strftime("%S"),
-      ":title" => params[:slug],
-      ":categories" => ''
+      ':year' => date.strftime('%Y'),
+      ':month' => date.strftime('%m'),
+      ':i_month' => date.strftime('%-m'),
+      ':day' => date.strftime('%d'),
+      ':i_day' => date.strftime('%-d'),
+      ':short_year' => date.strftime('%y'),
+      ':hour' => date.strftime('%H'),
+      ':minute' => date.strftime('%M'),
+      ':second' => date.strftime('%S'),
+      ':title' => params[:slug],
+      ':categories' => ''
     }
 
     permalink_style.gsub(/(:[a-z_]+)/, template_variables).gsub(/(\/\/)/, '/')
@@ -216,7 +216,7 @@ module AppHelpers
     destinations = Sinatra::Application.settings.syndicate_to.values
     clean_dests = []
     destinations.each do |e|
-      clean_dests << e.select {|k| k != "silo_pub_token"}
+      clean_dests << e.reject { |k| k == 'silo_pub_token' }
     end
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
@@ -291,7 +291,7 @@ module AppHelpers
   end
 
   def post_type(post_params)
-    if post_params[:h] == "entry"
+    if post_params[:h] == 'entry'
       if post_params.include? :name
         :article
       elsif post_params.include? :in_reply_to
@@ -306,10 +306,10 @@ module AppHelpers
         # Dump all params into this template as it doesn't fit any other type.
         :dump_all
       end
-    elsif post_params[:h] == "event"
-        :event
-    elsif post_params[:h] == "cite"
-        :cite
+    elsif post_params[:h] == 'event'
+      :event
+    elsif post_params[:h] == 'cite'
+      :cite
     end
   end
 end
@@ -325,15 +325,15 @@ before do
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
     @access_token = env['HTTP_AUTHORIZATION'].match(/Bearer (.*)$/)[1]
-  elsif params["access_token"]
-    @access_token = params["access_token"]
+  elsif params['access_token']
+    @access_token = params['access_token']
   else
-    logger.info "Received request without a token"
+    logger.info 'Received request without a token'
     halt 401, error('unauthorized')
   end
 
   # Remove the access_token to prevent any accidental exposure later
-  params.delete("access_token")
+  params.delete('access_token')
 
   # Verify the token
   verify_token unless ENV['RACK_ENV'] == 'development'
@@ -342,31 +342,30 @@ end
 # Query
 get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
-  halt 404 unless params.include? "q"
+  halt 404 unless params.include? 'q'
 
-  case params["q"]
+  case params['q']
   when /config/
     status 200
-    headers "Content-type" => "application/json"
-    body JSON.generate({})  # TODO: Populate this with media-endpoint and syndicate-to when supported. Until then, empty object is fine.
+    headers 'Content-type' => 'application/json'
+    body JSON.generate({}) # TODO: Populate this with media-endpoint and syndicate-to when supported. Until then, empty object is fine.
   when /source/
     status 200
-    headers "Content-type" => "application/json"
-    #body JSON.generate("response": get_post(params[:url]))  # TODO: Determine what goes in here
+    headers 'Content-type' => 'application/json'
+    # body JSON.generate("response": get_post(params[:url]))  # TODO: Determine what goes in here
     body get_post(params[:url])
   when /syndicate-to/
     status 200
-    headers "Content-type" => "application/json"
+    headers 'Content-type' => 'application/json'
     body syndicate_to
   end
-
 end
 
 post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
 
   # Normalise params
-  post_params = env["CONTENT_TYPE"] == "application/json" ? JSON.parse(request.body.read.to_s, :symbolize_names => true) : params
+  post_params = env['CONTENT_TYPE'] == 'application/json' ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
   post_params = process_params(post_params)
   post_params[:site] = site
 
