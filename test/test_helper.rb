@@ -75,24 +75,37 @@ end
 
 def stub_existing_github_file
   stub_request(:get, %r{api.github.com/repos/.*/.*/contents})
-    .to_return(status: 200, headers: { 'Content-Type' => 'application/json' }, body: JSON.generate(sha: 'd735c3364cacbda4a9631af085227ce200589676',
-                                                                                                   content: 'LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9zdA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9vIA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3QtcG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBUYWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQgX19pdGFsaWNfXyBtYXJrZG93bg=='))
+    .to_return(
+      status: 200, headers: { 'Content-Type' => 'application/json' },
+      body: JSON.generate(
+        sha: 'd735c3364cacbda4a9631af085227ce200589676',
+        content: 'LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9z'\
+                 'dA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9v'\
+                 'IA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3Qt'\
+                 'cG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBU'\
+                 'YWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQg'\
+                 'X19pdGFsaWNfXyBtYXJrZG93bg=='
+      )
+    )
 end
 
 def stub_github_search
   stub_request(:get, %r{api.github.com/search/code})
-    .to_return(status: 200, body: JSON.generate(total_count: 1,
-                                                items: [
-                                                  {
-                                                    name: 'example-post.md',
-                                                    path: '_post/2010-01-14-example-post.md',
-                                                    sha: 'd735c3364cacbda4a9631af085227ce200589676'
-                                                  }
-                                                ]))
+    .to_return(status: 200,
+               body: JSON.generate(
+                 total_count: 1,
+                 items: [{
+                   name: 'example-post.md',
+                   path: '_post/2010-01-14-example-post.md',
+                   sha: 'd735c3364cacbda4a9631af085227ce200589676'
+                 }]
+               ))
 end
 
 def stub_silo_pub
   stub_request(:post, 'https://silo.pub/micropub')
-    .with(body: { content: /.*/, url: /.*/ }, headers: { 'Authorization' => 'Bearer 0987654321', 'Content-Type' => 'application/x-www-form-urlencoded' })
+    .with(body: { content: /.*/, url: /.*/ },
+          headers: { 'Authorization' => 'Bearer 0987654321',
+                     'Content-Type' => 'application/x-www-form-urlencoded' })
     .to_return(status: 200, body: '{"id_str": "12344321"}', headers: {})
 end
