@@ -62,7 +62,7 @@ module AppHelpers
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    @location = "#{settings.sites[params[:site]]['site_url']}"
+    @location = "#{settings.sites[params[:site]]['site_url']}".dup
     @location << create_permalink(params)
 
     # Verify the repo exists
