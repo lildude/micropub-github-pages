@@ -21,7 +21,11 @@ require './env' if File.exist?('env.rb')
 SafeYAML::OPTIONS[:default_mode] = :safe
 
 configure { set :server, :puma }
-config_file (test? ? "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{::File.dirname(__FILE__)}/config.yml")
+
+config_yml = "#{::File.dirname(__FILE__)}/config.yml"
+config_yml = "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
+
+config_file config_yml
 
 # Put helper functions in a module for easy testing.
 module AppHelpers
