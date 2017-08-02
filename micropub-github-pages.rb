@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Spec: https://www.w3.org/TR/micropub
 require 'rubygems'
 require 'bundler/setup'
 require 'sinatra'
@@ -28,8 +27,8 @@ config_yml = "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
 config_file config_yml
 
 # Put helper functions in a module for easy testing.
+# https://www.w3.org/TR/micropub/#error-response
 module AppHelpers
-  # https://www.w3.org/TR/micropub/#error-response
   def error(error)
     description = nil
     case error
@@ -75,72 +74,85 @@ module AppHelpers
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    @location = (settings.sites[params[:site]]['site_url']).to_s.dup
+    @location = settings.sites[params[:site]]['site_url'].dup
     @location << create_permalink(params)
 
     # Verify the repo exists
     repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
     error('invalid_repo') unless client.repository?(repo)
 
+    files = {}
+
+    # Download any photos we want to include in the commit
+    # TODO: Per-repo settings take pref over global. Global only at the mo
+    if settings.download_photos
+      params[:photo] = download_photos(params)
+      params[:photo].each do |photo|
+        files.merge!(photo.delete('content')) if photo['content']
+      end
+    end
+    logger.info params[:photo]
+
     template = File.read("templates/#{params[:type]}.liquid")
     content = Liquid::Template.parse(template).render(params.stringify_keys)
 
-    client.create_contents(repo.to_s, "_posts/#{filename}", "New #{params[:type]}: #{filename}", content)
-    status 201
-    headers 'Location' => @location.to_s
-    body content if ENV['RACK_ENV'] == 'test'
+    ref = 'heads/master'
+    sha_latest_commit = client.ref(repo, ref).object.sha
+    sha_base_tree = client.commit(repo, sha_latest_commit).commit.tree.sha
+
+    files["_posts/#{filename}"] = Base64.encode64(content)
+
+    new_tree = files.map do |path, new_content|
+      Hash(
+        path: path,
+        mode: '100644',
+        type: 'blob',
+        sha: client.create_blob(repo, new_content, 'base64')
+      )
+    end
+
+    sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
+    commit_message = "New #{params[:type]}"
+    sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
+    updated_ref = client.update_ref(repo, ref, sha_new_commit)
+    updated_ref
   end
 
   # Download the photo and add to GitHub repo if config allows
   #
   # WARNING: the handling of alt in JSON may change in the future.
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
-  def download_photo(params)
-    # TODO: Per-repo settings take pref over global. Global only at the mo
-    if settings.download_photos
-      client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-      repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
-
-      params[:photo].each_with_index do |photo, i|
-        alt = photo.is_a?(String) ? '' : photo[:alt]
-        url = photo.is_a?(String) ? photo : photo[:value]
-
+  def download_photos(params)
+    params[:photo].each_with_index do |photo, i|
+      alt = photo.is_a?(String) ? '' : photo[:alt]
+      url = photo.is_a?(String) ? photo : photo[:value]
+      begin
         begin
-          begin
-            retries ||= 0
-            file = open(url).read
-          rescue IOError => e
-            unless ENV['RACK_ENV'] == 'test'
-              logger.info "#{e} - Download attempt #{retries}"
-              sleep 2
-            end
-            retry if (retries += 1) < 5
-            raise
+          retries ||= 0
+          file = open(url).read
+        rescue IOError => e
+          unless ENV['RACK_ENV'] == 'test'
+            logger.info "#{e} - Download attempt #{retries}"
+            sleep 2
           end
-
-          filename = url.split('/').last
-
-          upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
-          photo_path = ''.dup
-
-          if settings.sites[params[:site]]['full_image_urls']
-            photo_path << settings.sites[params[:site]]['site_url']
-          end
-          photo_path << "/#{upload_path}"
-
-          # Return URL early if file already exists in the repo
-          # TODO: Allow for over-writing files upon request - we'll need the SHA from this request
-          begin
-            client.contents(repo.to_s, path: upload_path)
-          rescue Octokit::NotFound
-            # Add the file if it doesn't exist
-            client.create_contents(repo.to_s, upload_path, 'Added new photo', file)
-          end
-          params[:photo][i] = { 'url' => photo_path, 'alt' => alt }
-        rescue
-          # Fall back to orig url if we can't download
-          params[:photo][i] = { 'url' => url, 'alt' => alt }
+          retry if (retries += 1) < 5
+          raise
         end
+
+        filename = url.split('/').last
+        upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+        photo_path =
+          if settings.sites[params[:site]]['full_image_urls']
+            settings.sites[params[:site]]['site_url']
+          end
+
+        photo_path << "/#{upload_path}"
+
+        content = { upload_path => Base64.encode64(file) }
+        params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
+      rescue
+        # Fall back to orig url if we can't download
+        params[:photo][i] = { 'url' => url, 'alt' => alt }
       end
     end
     params[:photo]
@@ -409,7 +421,7 @@ post '/micropub/:site' do |site|
   post_params[:type] = post_type(post_params)
 
   # If there's a photo, "download" it to the GitHub repo and return the new URL
-  post_params[:photo] = download_photo(post_params) if post_params[:photo]
+  #post_params[:photo] = download_photo(post_params) if post_params[:photo]
 
   logger.info post_params unless ENV['RACK_ENV'] == 'test'
   # Publish the post
