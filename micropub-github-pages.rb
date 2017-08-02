@@ -48,20 +48,19 @@ module AppHelpers
     halt code, JSON.generate(error: error, error_description: description)
   end
 
-  def verify_token
-    uri = URI.parse(Sinatra::Application.settings.micropub[:token_endpoint])
+  def get(url, headers = {})
+    uri = URI.parse(url)
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = (uri.port == 443)
-    request = Net::HTTP::Get.new(uri.request_uri)
-    request.initialize_http_header('Content-type' => 'application/x-www-form-urlencoded',
-      'Authorization' => "Bearer #{@access_token}")
+    request = Net::HTTP::Get.new(uri.request_uri, headers)
+    http.request(request).body
+  end
 
-    resp = http.request(request)
-    decoded_resp = URI.decode_www_form(resp.body).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
-    unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
-      logger.info 'Received response without scope or me'
-      error('insufficient_scope')
-    end
+  def verify_token
+    resp = get(Sinatra::Application.settings.micropub[:token_endpoint],
+               'Content-type' => 'application/x-www-form-urlencoded',
+               'Authorization' => "Bearer #{@access_token}")
+    decoded_resp = URI.decode_www_form(resp).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+    error('insufficient_scope') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
     decoded_resp
   end
