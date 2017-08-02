@@ -1,19 +1,19 @@
 source 'https://rubygems.org'
 ruby '~> 2.4.0'
 
-gem 'sinatra'
-gem 'sinatra-contrib'
+gem 'liquid'
 gem 'octokit'
 gem 'puma'
-gem 'liquid'
 gem 'safe_yaml'
+gem 'sinatra'
+gem 'sinatra-contrib'
 
 group :test do
+  gem 'coveralls'
   gem 'minitest'
   gem 'rack-test'
-  gem 'simplecov'
-  gem 'coveralls'
-  gem 'webmock'
   gem 'rake'
   gem 'rubocop', require: false
+  gem 'simplecov'
+  gem 'webmock'
 end
