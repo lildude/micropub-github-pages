@@ -113,7 +113,7 @@ module AppHelpers
     sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
     commit_message = "New #{params[:type]}"
     sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
-    updated_ref = client.update_ref(repo, ref, sha_new_commit)
+    client.update_ref(repo, ref, sha_new_commit)
 
     status 201
     headers 'Location' => @location.to_s
