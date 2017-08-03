@@ -326,25 +326,14 @@ module AppHelpers
   end
 
   def post_type(post_params)
-    if post_params[:h] == 'entry'
-      if post_params.include? :name
-        :article
-      elsif post_params.include? :in_reply_to
-        :reply
-      elsif post_params.include? :repost_of
-        :repost
-      elsif post_params.include? :bookmark_of
-        :bookmark
-      elsif post_params.include? :content
-        :note
-      else
-        # Dump all params into this template as it doesn't fit any other type.
-        :dump_all
-      end
-    elsif post_params[:h] == 'event'
-      :event
-    elsif post_params[:h] == 'cite'
-      :cite
+    case post_params[:h]
+    when 'entry'
+      mapping = {name: :article,in_reply_to: :reply,repost_of: :repost,bookmark_of: :bookmark,content: :note}
+      mapping.each { |key, type| return type if post_params.include?(key) }
+      # Dump all params into this template as it doesn't fit any other type.
+      :dump_all
+    else
+      post_params[:h].to_sym
     end
   end
 end
