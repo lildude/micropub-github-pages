@@ -198,15 +198,16 @@ module AppHelpers
 
   def create_slug(params)
     # Use the provided slug
-    if params.include?(:slug) && !params[:slug].nil?
-      slug = params[:slug]
-    # If there's a name, use that
-    elsif params.include?(:name) && !params[:name].nil?
-      slug = slugify params[:name]
-    else
-      # Else generate a slug based on the published date.
-      slug = DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
-    end
+    slug =
+      if params.include?(:slug) && !params[:slug].nil?
+        params[:slug]
+      # If there's a name, use that
+      elsif params.include?(:name) && !params[:name].nil?
+        slugify params[:name]
+      else
+        # Else generate a slug based on the published date.
+        DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
+      end
     slug.to_s
   end
 
