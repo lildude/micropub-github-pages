@@ -243,12 +243,10 @@ module AppHelpers
     end
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
-    dest = params.key?(:"syndicate-to") ? params[:"syndicate-to"][0] : nil
-    logger.info "Asked to syndicate to: #{dest}" unless ENV['RACK_ENV'] == 'test'
-    return if dest.nil?
-
-    dest_entry = destinations.find { |d| d['uid'] == dest }
-    return if dest_entry.nil?
+    dest_entry = destinations.find { |d|
+      dest = params[:"syndicate-to"][0] if params.key?(:"syndicate-to")
+      d['uid'] == dest
+    } || return
 
     silo_pub_token = dest_entry['silo_pub_token']
     uri = URI.parse('https://silo.pub/micropub')
@@ -264,7 +262,6 @@ module AppHelpers
 
     request.set_form_data(form_data)
     resp = http.request(request)
-    logger.info "Syndicated to #{dest}" unless ENV['RACK_ENV'] == 'test'
     JSON.parse(resp.body)['id_str'] if ENV['RACK_ENV'] == 'test'
   end
 
