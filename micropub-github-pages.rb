@@ -85,13 +85,12 @@ module AppHelpers
 
     # Download any photos we want to include in the commit
     # TODO: Per-repo settings take pref over global. Global only at the mo
-    if settings.download_photos
+    if settings.download_photos && !params[:photo].nil?
       params[:photo] = download_photos(params)
       params[:photo].each do |photo|
         files.merge!(photo.delete('content')) if photo['content']
       end
     end
-    logger.info params[:photo]
 
     template = File.read("templates/#{params[:type]}.liquid")
     content = Liquid::Template.parse(template).render(params.stringify_keys)
@@ -115,7 +114,10 @@ module AppHelpers
     commit_message = "New #{params[:type]}"
     sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
     updated_ref = client.update_ref(repo, ref, sha_new_commit)
-    updated_ref
+
+    status 201
+    headers 'Location' => @location.to_s
+    body content if ENV['RACK_ENV'] == 'test'
   end
 
   # Download the photo and add to GitHub repo if config allows
@@ -141,13 +143,9 @@ module AppHelpers
 
         filename = url.split('/').last
         upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
-        photo_path =
-          if settings.sites[params[:site]]['full_image_urls']
-            settings.sites[params[:site]]['site_url']
-          end
-
+        photo_path = ''.dup
+        photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
         photo_path << "/#{upload_path}"
-
         content = { upload_path => Base64.encode64(file) }
         params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
       rescue
