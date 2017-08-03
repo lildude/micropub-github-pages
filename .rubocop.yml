@@ -1,8 +1,13 @@
 AllCops:
   TargetRubyVersion: 2.4.0
+  DisplayCopNames: true
+  DisplayStyleGuide: true
+  ExtraDetails: true
+  Exclude:
+    - 'script/*'
 
 Metrics/MethodLength:
   Max: 15
 
 Metrics/LineLength:
-  Max: 105
+  Max: 100
