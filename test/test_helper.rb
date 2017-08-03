@@ -48,14 +48,51 @@ def stub_unauthed_token
                ))
 end
 
+# Handles all GET API requests - this is a fudged reponse to satisfy all requests
+# and does match an actual GitHub API response
 def stub_get_github_request
   stub_request(:get, %r{api.github.com/repos/.*/micropub-github-pages})
-    .to_return(status: 200, body: '{ json here }')
+    .to_return(
+      status: 200, headers: { 'Content-Type' => 'application/json' },
+      body: JSON.generate(
+        object: { sha: 'aa218f56b14c9653891f9e74264a383fa43fefbd' },
+        commit: {
+          tree: { sha: '6dcb09b5b57875f334f61aebed695e2e4193db5e' }
+        },
+        sha: 'd735c3364cacbda4a9631af085227ce200589676',
+        content: 'LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9z'\
+                 'dA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9v'\
+                 'IA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3Qt'\
+                 'cG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBU'\
+                 'YWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQg'\
+                 'X19pdGFsaWNfXyBtYXJrZG93bg==',
+        total_count: 1,
+        items: [{
+          name: 'example-post.md',
+          path: '_post/2010-01-14-example-post.md',
+          sha: 'd735c3364cacbda4a9631af085227ce200589676'
+        }]
+      ))
 end
 
-def stub_put_github_request
-  stub_request(:put, %r{api.github.com/repos/.*/contents/.*\.[a-z]{2,}})
-    .to_return(status: 201, body: '{ json here }')
+def stub_post_github_request
+  stub_request(:post, %r{api.github.com/repos/.*/git/.*})
+    .to_return(
+      status: 201, headers: { 'Content-Type' => 'application/json' },
+      body: JSON.generate(
+        sha: 'd735c3364cacbda4a9631af085227ce200589676'
+      )
+    )
+end
+
+def stub_patch_github_request
+  stub_request(:patch, %r{api.github.com/repos/.*/git/.*})
+    .to_return(
+      status: 201, headers: { 'Content-Type' => 'application/json' },
+      body: JSON.generate(
+        sha: 'd735c3364cacbda4a9631af085227ce200589676'
+      )
+    )
 end
 
 def stub_get_photo
@@ -66,27 +103,6 @@ end
 def stub_cant_get_photo
   stub_request(:get, %r{.*instagram.*/t51.2885-15/e35/\d+_\d+_\d+_nope.jpg})
     .to_return(status: 404, body: '')
-end
-
-def stub_non_existant_github_file
-  stub_request(:get, %r{api.github.com/.*/contents/.*/\d+_\d+_\d+_n.jpg})
-    .to_return(status: 404, body: '404 - Not Found')
-end
-
-def stub_existing_github_file
-  stub_request(:get, %r{api.github.com/repos/.*/.*/contents})
-    .to_return(
-      status: 200, headers: { 'Content-Type' => 'application/json' },
-      body: JSON.generate(
-        sha: 'd735c3364cacbda4a9631af085227ce200589676',
-        content: 'LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9z'\
-                 'dA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9v'\
-                 'IA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3Qt'\
-                 'cG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBU'\
-                 'YWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQg'\
-                 'X19pdGFsaWNfXyBtYXJrZG93bg=='
-      )
-    )
 end
 
 def stub_github_search

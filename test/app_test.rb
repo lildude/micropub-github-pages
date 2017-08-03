@@ -132,7 +132,7 @@ class MainAppTest < Minitest::Test
   def test_get_source
     stub_token
     stub_github_search
-    stub_existing_github_file
+    stub_get_github_request
     get '/micropub/testsite?q=source&url=https://example.com/2010/01/14/example-post', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?, "Expected 200 but got #{last_response.status}"
     assert JSON.parse(last_response.body)
@@ -147,7 +147,7 @@ class MainAppTest < Minitest::Test
     skip('TODO: not yet implemented')
     stub_token
     stub_github_search
-    stub_existing_github_file
+    stub_get_github_request
     get '/micropub/testsite?q=source&properties[]=content&properties[]=category&url=https://example.com/2010/01/14/example-post', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?, "Expected 200 but got #{last_response.status}"
     assert_equal '{"type":["h-entry"],"properties":{"published":["2017-01-28 16:52:30 +0000"],"content":["![](https://lildude.github.io//media/sunset.jpg)\n\nMicropub test of creating a photo referenced by URL"],"category":["foo","bar"]}}', last_response.body
@@ -204,7 +204,8 @@ class MainAppTest < Minitest::Test
   def test_new_note_with_syndication_everything_and_unrecognised_params
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
            :h => 'entry',
@@ -229,7 +230,8 @@ class MainAppTest < Minitest::Test
   def test_new_entry
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
            :h => 'entry',
@@ -246,7 +248,8 @@ class MainAppTest < Minitest::Test
   def test_new_note_with_title_in_markdown_content_becomes_article
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
            h: 'entry',
@@ -266,8 +269,8 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
-    stub_non_existant_github_file
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     post('/micropub/testsite', {
            h: 'entry',
            content: 'Adding a new photo',
@@ -293,7 +296,8 @@ class MainAppTest < Minitest::Test
   def test_new_note_json_syntax
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
       type: ['h-entry'],
@@ -312,7 +316,8 @@ class MainAppTest < Minitest::Test
   def test_new_note_with_html_json
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     post('/micropub/testsite', {
       type: ['h-entry'],
       properties: {
@@ -328,7 +333,8 @@ class MainAppTest < Minitest::Test
   def test_new_note_with_title_in_markdown_content_becomes_article_json
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
       type: ['h-entry'],
@@ -349,7 +355,8 @@ class MainAppTest < Minitest::Test
   def test_new_note_with_title_in_markdown_and_name_becomes_article_with_name_as_title
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
       type: ['h-entry'],
@@ -372,8 +379,8 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
-    stub_non_existant_github_file
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     post('/micropub/testsite', {
       type: ['h-entry'],
       properties: {
@@ -390,8 +397,8 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_cant_get_photo
     stub_get_github_request
-    stub_non_existant_github_file
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     post('/micropub/testsite', {
       type: ['h-entry'],
       properties: {
@@ -408,8 +415,8 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
-    stub_non_existant_github_file
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     post('/micropub/testsite', {
       type: ['h-entry'],
       properties: {
@@ -427,8 +434,8 @@ class MainAppTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
-    stub_non_existant_github_file
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     post('/micropub/testsite', {
       type: ['h-entry'],
       properties: {
@@ -441,14 +448,15 @@ class MainAppTest < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
+    assert last_response.body.include?('/img/12716713_162835967431386_291746593_n.jpg'), "Body contains #{last_response.body}"
     assert last_response.body.include? 'Instagram photo'
   end
 
   def test_h_entry_with_nested_object
     stub_token
     stub_get_github_request
-    stub_put_github_request
+    stub_post_github_request
+    stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
       type: ['h-entry'],
