@@ -129,18 +129,8 @@ module AppHelpers
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
       begin
-        begin
-          retries ||= 0
-          file = open(url).read
-        rescue IOError => e
-          unless ENV['RACK_ENV'] == 'test'
-            logger.info "#{e} - Download attempt #{retries}"
-            sleep 2
-          end
-          retry if (retries += 1) < 5
-          raise
-        end
-
+        retries ||= 0
+        file = open(url).read
         filename = url.split('/').last
         upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
         photo_path = ''.dup
