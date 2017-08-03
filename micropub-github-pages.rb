@@ -144,7 +144,9 @@ module AppHelpers
         filename = url.split('/').last
         upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
         photo_path = ''.dup
-        photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
+        if settings.sites[params[:site]]['full_image_urls']
+          photo_path << settings.sites[params[:site]]['site_url']
+        end
         photo_path << "/#{upload_path}"
         content = { upload_path => Base64.encode64(file) }
         params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
