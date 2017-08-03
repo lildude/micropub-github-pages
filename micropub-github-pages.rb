@@ -421,9 +421,6 @@ post '/micropub/:site' do |site|
   # Determine the template to use based on various params received.
   post_params[:type] = post_type(post_params)
 
-  # If there's a photo, "download" it to the GitHub repo and return the new URL
-  #post_params[:photo] = download_photo(post_params) if post_params[:photo]
-
   logger.info post_params unless ENV['RACK_ENV'] == 'test'
   # Publish the post
   publish_post post_params
