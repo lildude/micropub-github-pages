@@ -2,6 +2,17 @@
 
 ENV['RACK_ENV'] = 'test'
 
+require 'simplecov'
+require 'coveralls'
+SimpleCov.formatters = [
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start do
+  add_filter 'vendor'
+  add_filter 'test'
+end
+
 require 'minitest/autorun'
 require 'rack/test'
 require 'webmock/minitest'
