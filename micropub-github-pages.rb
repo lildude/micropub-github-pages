@@ -93,7 +93,7 @@ module AppHelpers
     end
 
     template = File.read("templates/#{params[:type]}.liquid")
-    content = Liquid::Template.parse(template).render(params.stringify_keys)
+    content = Liquid::Template.parse(template).render(stringify_keys(params))
 
     ref = 'heads/master'
     sha_latest_commit = client.ref(repo, ref).object.sha
@@ -225,6 +225,10 @@ module AppHelpers
 
   def slugify(text)
     text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-').chomp('-')
+  end
+
+  def stringify_keys(h)
+    h.is_a?(Hash) ? h.collect{|k,v| [k.to_s, stringify_keys(v)]}.to_h : h
   end
 
   # Syndicate to destinations supported by silo.pub as that's what we use
