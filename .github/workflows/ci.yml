@@ -1,0 +1,31 @@
+name: Continuous Integration
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache Ruby Gems
+      uses: actions/cache@v1
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gem-
+    - name: Set up Ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.6
+    - name: Install Dependencies
+      run: |
+        gem install bundler --no-document
+        bundle config set deployment 'true'
+        bundle install --jobs 4 --local
+    - name: Run tests
+      run: script/test
+    - name: Rubocop Linter Action
+      uses: andrewmcodes/rubocop-linter-action@v3.1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
