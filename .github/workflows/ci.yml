@@ -25,7 +25,7 @@ jobs:
         bundle install --jobs 4 --local
     - name: Run tests
       run: script/test
-    - name: Rubocop
-      uses: gimenete/rubocop-action@1.0
+    - name: Rubocop Linter Action
+      uses: andrewmcodes/rubocop-linter-action@v3.1.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
