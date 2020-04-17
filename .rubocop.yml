@@ -5,10 +5,10 @@ AllCops:
   ExtraDetails: true
   Exclude:
     - 'script/*'
-    - 'vendor/*'
+    - 'env.rb'
 
 Metrics/MethodLength:
   Max: 15
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 100
