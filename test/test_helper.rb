@@ -17,7 +17,7 @@ require 'minitest/pride'
 require 'minitest/autorun'
 require 'rack/test'
 require 'webmock/minitest'
-require_relative '../micropub-github-pages'
+require_relative '../app'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -84,7 +84,8 @@ def stub_get_github_request
           path: '_post/2010-01-14-example-post.md',
           sha: 'd735c3364cacbda4a9631af085227ce200589676'
         }]
-      ))
+      )
+    )
 end
 
 def stub_post_github_request

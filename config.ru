@@ -5,5 +5,5 @@ require 'bundler'
 
 Bundler.require
 
-require './micropub-github-pages'
+require './app'
 run Sinatra::Application
