@@ -5,7 +5,7 @@ require 'sinatra/config_file'
 require 'sinatra/content_for'
 require 'uri'
 require 'octokit'
-require 'net/https'
+require 'httparty'
 require 'json'
 require 'base64'
 require 'open-uri'
@@ -44,17 +44,13 @@ module AppHelpers
     halt code, JSON.generate(error: error, error_description: description)
   end
 
-  def get(url, headers = {})
-    uri = URI.parse(url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    request = Net::HTTP::Get.new(uri.request_uri, headers)
-    http.request(request).body
-  end
-
   def verify_token
-    resp = get(Sinatra::Application.settings.micropub[:token_endpoint],
-               'Content-type' => 'application/x-www-form-urlencoded',
-               'Authorization' => "Bearer #{@access_token}")
+    resp = HTTParty.get(Sinatra::Application.settings.micropub[:token_endpoint], {
+                          headers: {
+                            'Content-type' => 'application/x-www-form-urlencoded',
+                            'Authorization' => "Bearer #{@access_token}"
+                          }
+                        })
     decoded_resp = URI.decode_www_form(resp).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
     error('insufficient_scope') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
