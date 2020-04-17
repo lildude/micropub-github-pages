@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path '../test_helper.rb', __FILE__
+require File.expand_path 'test_helper.rb', __dir__
 
 class MainAppTest < Minitest::Test
   include Rack::Test::Methods

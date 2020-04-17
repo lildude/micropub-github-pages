@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 ruby '~> 2.6'
 
+gem 'httparty'
 gem 'liquid'
 gem 'octokit'
 gem 'puma'
