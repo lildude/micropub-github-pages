@@ -32,8 +32,3 @@ jobs:
         bundle install --jobs 4 --local
     - name: Run tests
       run: script/test
-    - name: Coveralls
-      uses: coverallsapp/github-action@v1.0.1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: coverage/.resultset.json
