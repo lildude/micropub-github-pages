@@ -122,14 +122,19 @@ module AppHelpers
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
       begin
-        # retries ||= 0
-        file = open(url).read
         filename = url.split('/').last
         upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
         photo_path = ''.dup
         photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
         photo_path << "/#{upload_path}"
-        content = { upload_path => Base64.encode64(file) }
+        tmpfile = Tempfile.new(filename)
+        File.open(tmpfile, 'wb') do |f|
+          resp = HTTParty.get(url, stream_body: true, follow_redirects: true)
+          raise unless resp.success?
+
+          f.write resp.body
+        end
+        content = { upload_path => Base64.encode64(tmpfile.read) }
         params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
       rescue StandardError
         # Fall back to orig url if we can't download
