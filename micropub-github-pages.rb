@@ -1,8 +1,5 @@
-#!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'rubygems'
-require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/config_file'
 require 'sinatra/content_for'
@@ -95,7 +92,7 @@ module AppHelpers
     template = File.read("templates/#{params[:type]}.liquid")
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
-    ref = 'heads/master'
+    ref = 'heads/master' # TODO: Use API to determine pages branch or use override
     sha_latest_commit = client.ref(repo, ref).object.sha
     sha_base_tree = client.commit(repo, sha_latest_commit).commit.tree.sha
 
