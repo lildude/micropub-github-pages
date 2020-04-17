@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Tests
 
 on:
   pull_request:
@@ -9,21 +9,22 @@ on:
       - master
 
 jobs:
-  build:
+  test:
+    name: Tests Action
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
     steps:
     - uses: actions/checkout@v2
-    - name: Cache Ruby Gems
-      uses: actions/cache@v1
+    - name: Set up Ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.6.x
+    - uses: actions/cache@v1.1.2
       with:
         path: vendor/bundle
         key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-gem-
-    - name: Set up Ruby
-      uses: actions/setup-ruby@v1
-      with:
-        ruby-version: 2.6
     - name: Install Dependencies
       run: |
         gem install bundler --no-document
@@ -31,7 +32,3 @@ jobs:
         bundle install --jobs 4 --local
     - name: Run tests
       run: script/test
-    #- name: Rubocop Linter Action
-    #  uses: andrewmcodes/rubocop-linter-action@v3.1.0
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
