@@ -126,18 +126,16 @@ module AppHelpers
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
       begin
-        retries ||= 0
+        # retries ||= 0
         file = open(url).read
         filename = url.split('/').last
         upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
         photo_path = ''.dup
-        if settings.sites[params[:site]]['full_image_urls']
-          photo_path << settings.sites[params[:site]]['site_url']
-        end
+        photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
         photo_path << "/#{upload_path}"
         content = { upload_path => Base64.encode64(file) }
         params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
-      rescue
+      rescue StandardError
         # Fall back to orig url if we can't download
         params[:photo][i] = { 'url' => url, 'alt' => alt }
       end
@@ -156,9 +154,7 @@ module AppHelpers
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
-    unless content.nil?
-      decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode
-    end
+    decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post_to_json decoded_content
   end
@@ -176,9 +172,7 @@ module AppHelpers
     data[:properties][:published] = [front_matter['date']]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
     data[:properties][:slug] = [front_matter['permalink']] unless front_matter['permalink'].nil?
-    unless front_matter['tags'].nil? || front_matter['tags'].empty?
-      data[:properties][:category] = front_matter['tags']
-    end
+    data[:properties][:category] = front_matter['tags'] unless front_matter['tags'].nil? || front_matter['tags'].empty?
 
     JSON.generate(data)
   end
@@ -224,8 +218,8 @@ module AppHelpers
     text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-').chomp('-')
   end
 
-  def stringify_keys(h)
-    h.is_a?(Hash) ? h.collect{|k,v| [k.to_s, stringify_keys(v)]}.to_h : h
+  def stringify_keys(hash)
+    hash.is_a?(Hash) ? hash.collect { |k, v| [k.to_s, stringify_keys(v)] }.to_h : h
   end
 
   # Syndicate to destinations supported by silo.pub as that's what we use
@@ -244,10 +238,10 @@ module AppHelpers
     end
     return JSON.generate("syndicate-to": clean_dests) if params.nil?
 
-    dest_entry = destinations.find { |d|
+    dest_entry = destinations.find do |d|
       dest = params[:"syndicate-to"][0] if params.key?(:"syndicate-to")
       d['uid'] == dest
-    } || return
+    end || return
 
     silo_pub_token = dest_entry['silo_pub_token']
     uri = URI.parse('https://silo.pub/micropub')
@@ -316,7 +310,7 @@ module AppHelpers
   def post_type(post_params)
     case post_params[:h]
     when 'entry'
-      mapping = {name: :article,in_reply_to: :reply,repost_of: :repost,bookmark_of: :bookmark,content: :note}
+      mapping = { name: :article, in_reply_to: :reply, repost_of: :repost, bookmark_of: :bookmark, content: :note }
       mapping.each { |key, type| return type if post_params.include?(key) }
       # Dump all params into this template as it doesn't fit any other type.
       :dump_all
