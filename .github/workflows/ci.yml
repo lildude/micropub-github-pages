@@ -26,4 +26,4 @@ jobs:
     - name: Run tests
       run: script/test
     - name: Rubocop
-      run: bundle exec rake rubocop
+      uses: gimenete/rubocop-action@1.0
