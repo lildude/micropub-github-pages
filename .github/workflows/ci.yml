@@ -27,3 +27,5 @@ jobs:
       run: script/test
     - name: Rubocop
       uses: gimenete/rubocop-action@1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
