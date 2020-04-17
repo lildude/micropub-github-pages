@@ -1,4 +1,3 @@
 coverage/
-vendor/
 env.rb
 /config.yml
