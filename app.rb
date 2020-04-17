@@ -215,7 +215,7 @@ module AppHelpers
   end
 
   def stringify_keys(hash)
-    hash.is_a?(Hash) ? hash.collect { |k, v| [k.to_s, stringify_keys(v)] }.to_h : h
+    hash.is_a?(Hash) ? hash.collect { |k, v| [k.to_s, stringify_keys(v)] }.to_h : hash
   end
 
   # Syndicate to destinations supported by silo.pub as that's what we use
