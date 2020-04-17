@@ -11,7 +11,7 @@ gem 'sinatra'
 gem 'sinatra-contrib'
 
 group :test do
-  gem 'coveralls'
+  gem 'coveralls', '~> 0.8'
   gem 'minitest'
   gem 'rack-test'
   gem 'rake'
