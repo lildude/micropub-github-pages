@@ -1,6 +1,12 @@
 name: Continuous Integration
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -21,11 +27,11 @@ jobs:
     - name: Install Dependencies
       run: |
         gem install bundler --no-document
-        bundle config set deployment 'true'
+        bundle config path vendor/bundle
         bundle install --jobs 4 --local
     - name: Run tests
       run: script/test
-    - name: Rubocop Linter Action
-      uses: andrewmcodes/rubocop-linter-action@v3.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #- name: Rubocop Linter Action
+    #  uses: andrewmcodes/rubocop-linter-action@v3.1.0
+    #  env:
+    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
