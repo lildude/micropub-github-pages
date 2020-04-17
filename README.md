@@ -27,7 +27,7 @@ Copy `config-example.yml` to `config.yml` and customise to your :heart:'s conten
 
 ## Syndication
 
-To limit the scope of this, we rely on https://silo.pub to syndicate posts to the destinations supported by them, like Twitter etc.
+TBC
 
 ## Testing
 
@@ -35,4 +35,13 @@ Run `script/test` to run through the full test suite.
 
 ## License
 
-Micropub to GitHub Pages is licensed under the MIT License - see the LICENSE.md file for details
+Micropub to GitHub Pages is licensed under the MIT License.
+
+---
+
+### TODOs
+
+- [ ] Determine pages branch via API or use override if using repo but not Pages
+- [ ] Add integration tests from micropub.rocks
+- [ ] Use GitHub App for access instead of PAT
+
