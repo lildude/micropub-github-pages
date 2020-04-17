@@ -1,2 +1,6 @@
 # See https://rubocop-linter-action.readthedocs.io/en/v3.0.0/configuration/ for more details
 check_name: 'Rubocop'
+versions:
+  - rubocop
+  - rubocop-minitest
+  - rubocop-performance
