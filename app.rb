@@ -303,8 +303,11 @@ module AppHelpers
     # Spec says we should use h-entry if no type provided.
     post_params[:h] = 'entry' unless post_params.include? :h
     # It's nice to honour the client's published date, if set, else set one.
-    post_params[:published] = Time.now.to_s unless post_params.include? :published
-
+    post_params[:published] = if post_params.include? :published
+                                post_params[:published].first
+                              else
+                                Time.now.to_s
+                              end
     post_params
   end
 
@@ -398,5 +401,5 @@ post '/micropub/:site' do |site|
   publish_post post_params
 
   # Syndicate the post
-  syndicate_to post_params
+  #syndicate_to post_params
 end

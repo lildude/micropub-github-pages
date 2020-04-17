@@ -201,7 +201,7 @@ class MainAppTest < Minitest::Test
            :h => 'entry',
            :content => 'This is the content',
            :category => %w[tag1 tag2],
-           :published => now.to_s,
+           :published => [now.to_s],
            :slug => 'this-is-the-content-slug',
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
            :unrecog_param => 'foo',
