@@ -4,6 +4,7 @@ AllCops:
   DisplayStyleGuide: true
   ExtraDetails: true
   Exclude:
+    - 'vendor/**/*'
     - 'env.rb'
 
 Metrics/MethodLength:
