@@ -1,11 +1,15 @@
 sites:
   mysite:
-    github_repo:
+    github_repo: my-website
     permalink_style: "/:categories/:year/:month/:title/"
-    site_url:
+    site_url: "https://example.com"
+    full_image_urls: false # Include site_url in img paths
+    image_dir: "images"
+
+download_photos: true # Ensure linked images are added to repo
 
 github:
-  token:
+  token:  # Personal access token with all repo permissions
   username:
 
 micropub:
