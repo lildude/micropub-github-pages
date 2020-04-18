@@ -167,7 +167,7 @@ module AppHelpers
   def jekyll_post_to_json(content)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
     if content =~ /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m
-      content = $' # $POSTMATCH doesn't work for some reason
+      content = $POSTMATCH
       front_matter = SafeYAML.load(Regexp.last_match(1))
     end
 
