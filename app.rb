@@ -38,9 +38,12 @@ module AppHelpers
     when 'insufficient_scope'
       code = 401
       description ||= 'Insufficient scope information provided.'
+    when 'forbidden'
+      code = 403
+      description ||= 'Forbidden'
     when 'invalid_repo'
       code = 422
-      description ||= "repository doesn't exit."
+      description ||= "Repository doesn't exit."
     when 'unauthorized'
       code = 401
     end
