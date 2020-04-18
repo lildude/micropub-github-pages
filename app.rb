@@ -77,8 +77,12 @@ module AppHelpers
     @location << create_permalink(params)
 
     # Verify the repo exists
-    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
-    error('invalid_repo') unless client.repository?(repo)
+    begin
+      repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+      client.repository?(repo)
+    rescue Octokit::UnprocessableEntity
+      error('invalid_repo')
+    end
 
     files = {}
 

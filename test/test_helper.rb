@@ -62,10 +62,10 @@ end
 
 # Handles all GET API requests - this is a fudged reponse to satisfy all requests
 # and does match an actual GitHub API response
-def stub_get_github_request
+def stub_get_github_request(code: 200)
   stub_request(:get, %r{api.github.com/repos/.*/micropub-github-pages})
     .to_return(
-      status: 200, headers: { 'Content-Type' => 'application/json' },
+      status: code, headers: { 'Content-Type' => 'application/json' },
       body: JSON.generate(
         object: { sha: 'aa218f56b14c9653891f9e74264a383fa43fefbd' },
         commit: {

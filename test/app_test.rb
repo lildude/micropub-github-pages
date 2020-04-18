@@ -199,6 +199,24 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? 'invalid_request'
   end
 
+  def test_422_if_repo_not_found
+    stub_token
+    stub_get_github_request(code: 422)
+    now = Time.now
+    post('/micropub/testsite', {
+           :h => 'entry',
+           :content => 'This is the content',
+           :category => %w[tag1 tag2],
+           :published => [now.to_s],
+           :slug => 'this-is-the-content-slug',
+           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
+           :unrecog_param => 'foo',
+           :ano_unrecog_param => 'bar'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_repo'
+    refute last_response.created?
+  end
+
   def test_new_note_with_syndication_everything_and_unrecognised_params
     stub_token
     stub_get_github_request
