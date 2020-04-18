@@ -1,9 +1,13 @@
-# This dumps all the variables we know about in our testing
+---
 layout: {{ h }}
 date: {{ published }}
 name: {{ name }}
 site: {{ site }}
 content: {{ content }}
 summary: {{ summary }}
-# TODO: Process this so we can access each item in this template
 x-weight: {{ x-weight }}
+---
+
+This is is a dump of all the variables we know about in our testing
+
+TODO: Iterate over everything passed in blindly so we don't have to know the names.
