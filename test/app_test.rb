@@ -91,7 +91,7 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? 'unauthorized'
   end
 
-  def test_404_if_get_known_site
+  def test_401_if_get_known_site_without_token
     get '/micropub/testsite'
     assert last_response.unauthorized?
     assert last_response.body.include? 'unauthorized'
