@@ -24,8 +24,8 @@ config_yml = "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
 config_file config_yml
 
 # Default settings if not set in config
-configure { set :download_photos => false } unless settings.respond_to?(:download_photos)
-configure { set :syndicate_to => {} } unless settings.respond_to?(:syndicate_to)
+configure { set download_photos: false } unless settings.respond_to?(:download_photos)
+configure { set syndicate_to: {} } unless settings.respond_to?(:syndicate_to)
 
 # Put helper functions in a module for easy testing.
 # https://www.w3.org/TR/micropub/#error-response
@@ -57,7 +57,7 @@ module AppHelpers
                             'Authorization' => "Bearer #{@access_token}"
                           }
                         })
-    decoded_resp = URI.decode_www_form(resp).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+    decoded_resp = Hash[URI.decode_www_form(resp)].transform_keys(&:to_sym)
     error('insufficient_scope') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
     decoded_resp
@@ -161,7 +161,7 @@ module AppHelpers
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     # Error if we can't find the post
-    error('invalid_request', 'The post with the requested URL was not found') if code[:total_count] == 0
+    error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
 
     content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
@@ -294,7 +294,7 @@ module AppHelpers
       post_params[:name] = post_params[:name][0] if post_params[:name]
     else
       # Convert all keys to symbols from form submission
-      post_params = post_params.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+      post_params = Hash[post_params].transform_keys(&:to_sym)
       post_params[:photo] = [*post_params[:photo]] if post_params[:photo]
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
@@ -409,5 +409,5 @@ post '/micropub/:site' do |site|
   publish_post post_params
 
   # Syndicate the post
-  #syndicate_to post_params
+  # syndicate_to post_params
 end
