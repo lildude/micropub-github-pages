@@ -133,6 +133,14 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? '["This is a test post with:\\r\n\\r\n- Tags,\\r\n- a permalink\\r\n- and some **bold** and __italic__ markdown"]'
   end
 
+  def test_400_get_source_not_found
+    stub_token
+    stub_github_search(count: 0)
+    get '/micropub/testsite?q=source&url=https://example.com/2010/01/14/example-post', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert JSON.parse(last_response.body)
+    assert last_response.body.include? 'invalid_request'
+  end
+
   def test_get_specific_props_from_source
     skip('TODO: not yet implemented')
     stub_token
