@@ -233,7 +233,7 @@ module AppHelpers
     # TODO Add the response URL to the post meta data
     # Note: need to use Sinatra::Application.syndicate_to here until we move to
     # modular approach so the settings can be accessed when testing.
-    destinations = settings.syndicate_to.values
+    destinations = Sinatra::Application.settings.syndicate_to.values
     clean_dests = []
     destinations.each do |e|
       clean_dests << e.reject { |k| k == 'silo_pub_token' }
