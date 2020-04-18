@@ -30,18 +30,17 @@ configure { set :syndicate_to => {} } unless settings.respond_to?(:syndicate_to)
 # Put helper functions in a module for easy testing.
 # https://www.w3.org/TR/micropub/#error-response
 module AppHelpers
-  def error(error)
-    description = nil
+  def error(error, description = nil)
     case error
     when 'invalid_request'
       code = 400
-      description = 'Invalid request'
+      description ||= 'Invalid request'
     when 'insufficient_scope'
       code = 401
-      description = 'Insufficient scope information provided.'
+      description ||= 'Insufficient scope information provided.'
     when 'invalid_repo'
       code = 422
-      description = "repository doesn't exit."
+      description ||= "repository doesn't exit."
     when 'unauthorized'
       code = 401
     end
