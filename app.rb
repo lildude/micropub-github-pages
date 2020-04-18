@@ -23,6 +23,10 @@ config_yml = "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
 
 config_file config_yml
 
+# Default settings if not set in config
+configure { set :download_photos => false } unless settings.respond_to?(:download_photos)
+configure { set :syndicate_to => {} } unless settings.respond_to?(:syndicate_to)
+
 # Put helper functions in a module for easy testing.
 # https://www.w3.org/TR/micropub/#error-response
 module AppHelpers
@@ -232,7 +236,7 @@ module AppHelpers
     # TODO Add the response URL to the post meta data
     # Note: need to use Sinatra::Application.syndicate_to here until we move to
     # modular approach so the settings can be accessed when testing.
-    destinations = Sinatra::Application.settings.syndicate_to.values
+    destinations = settings.syndicate_to.values
     clean_dests = []
     destinations.each do |e|
       clean_dests << e.reject { |k| k == 'silo_pub_token' }
