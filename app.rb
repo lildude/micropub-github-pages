@@ -166,11 +166,9 @@ module AppHelpers
 
   def jekyll_post_to_json(content)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
-    if content =~ /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m
-      content = $POSTMATCH
-      front_matter = SafeYAML.load(Regexp.last_match(1))
-    end
-
+    matches = content.match(/\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)(.*)/m)
+    front_matter = SafeYAML.load(matches[1])
+    content = matches[4]
     data = {}
     data[:type] = ['h-entry'] # TODO: Handle other types.
     data[:properties] = {}
