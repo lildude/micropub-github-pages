@@ -23,21 +23,27 @@ config_yml = "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
 
 config_file config_yml
 
+# Default settings if not set in config
+configure { set download_photos: false } unless settings.respond_to?(:download_photos)
+configure { set syndicate_to: {} } unless settings.respond_to?(:syndicate_to)
+
 # Put helper functions in a module for easy testing.
 # https://www.w3.org/TR/micropub/#error-response
 module AppHelpers
-  def error(error)
-    description = nil
+  def error(error, description = nil)
     case error
     when 'invalid_request'
       code = 400
-      description = 'Invalid request'
+      description ||= 'Invalid request'
     when 'insufficient_scope'
       code = 401
-      description = 'Insufficient scope information provided.'
+      description ||= 'Insufficient scope information provided.'
+    when 'forbidden'
+      code = 403
+      description ||= 'Forbidden'
     when 'invalid_repo'
       code = 422
-      description = "repository doesn't exit."
+      description ||= "Repository doesn't exit."
     when 'unauthorized'
       code = 401
     end
@@ -51,7 +57,7 @@ module AppHelpers
                             'Authorization' => "Bearer #{@access_token}"
                           }
                         })
-    decoded_resp = URI.decode_www_form(resp).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+    decoded_resp = Hash[URI.decode_www_form(resp)].transform_keys(&:to_sym)
     error('insufficient_scope') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
     decoded_resp
@@ -71,8 +77,12 @@ module AppHelpers
     @location << create_permalink(params)
 
     # Verify the repo exists
-    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
-    error('invalid_repo') unless client.repository?(repo)
+    begin
+      repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+      client.repository?(repo)
+    rescue Octokit::UnprocessableEntity
+      error('invalid_repo')
+    end
 
     files = {}
 
@@ -154,6 +164,9 @@ module AppHelpers
     code = client.search_code("filename:#{fuzzy_filename} repo:#{repo}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
+    # Error if we can't find the post
+    error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
+
     content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
@@ -162,11 +175,9 @@ module AppHelpers
 
   def jekyll_post_to_json(content)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
-    if content =~ /\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)/m
-      content = $' # $POSTMATCH doesn't work for some reason
-      front_matter = SafeYAML.load(Regexp.last_match(1))
-    end
-
+    matches = content.match(/\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)(.*)/m)
+    front_matter = SafeYAML.load(matches[1])
+    content = matches[4]
     data = {}
     data[:type] = ['h-entry'] # TODO: Handle other types.
     data[:properties] = {}
@@ -262,6 +273,7 @@ module AppHelpers
   end
 
   # Process and clean up params for use later
+  # TODO: Need to .to_yaml nested objects for easy access in the template
   def process_params(post_params)
     # Bump off the standard Sinatra params we don't use
     post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
@@ -286,7 +298,7 @@ module AppHelpers
       post_params[:name] = post_params[:name][0] if post_params[:name]
     else
       # Convert all keys to symbols from form submission
-      post_params = post_params.each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
+      post_params = Hash[post_params].transform_keys(&:to_sym)
       post_params[:photo] = [*post_params[:photo]] if post_params[:photo]
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
@@ -303,8 +315,11 @@ module AppHelpers
     # Spec says we should use h-entry if no type provided.
     post_params[:h] = 'entry' unless post_params.include? :h
     # It's nice to honour the client's published date, if set, else set one.
-    post_params[:published] = Time.now.to_s unless post_params.include? :published
-
+    post_params[:published] = if post_params.include? :published
+                                post_params[:published].first
+                              else
+                                Time.now.to_s
+                              end
     post_params
   end
 
@@ -398,5 +413,5 @@ post '/micropub/:site' do |site|
   publish_post post_params
 
   # Syndicate the post
-  syndicate_to post_params
+  # syndicate_to post_params
 end

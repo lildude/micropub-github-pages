@@ -62,10 +62,10 @@ end
 
 # Handles all GET API requests - this is a fudged reponse to satisfy all requests
 # and does match an actual GitHub API response
-def stub_get_github_request
+def stub_get_github_request(code: 200)
   stub_request(:get, %r{api.github.com/repos/.*/micropub-github-pages})
     .to_return(
-      status: 200, headers: { 'Content-Type' => 'application/json' },
+      status: code, headers: { 'Content-Type' => 'application/json' },
       body: JSON.generate(
         object: { sha: 'aa218f56b14c9653891f9e74264a383fa43fefbd' },
         commit: {
@@ -118,11 +118,11 @@ def stub_cant_get_photo
     .to_return(status: 404, body: '')
 end
 
-def stub_github_search
+def stub_github_search(count: 1)
   stub_request(:get, %r{api.github.com/search/code})
     .to_return(status: 200,
                body: JSON.generate(
-                 total_count: 1,
+                 total_count: count,
                  items: [{
                    name: 'example-post.md',
                    path: '_post/2010-01-14-example-post.md',

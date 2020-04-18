@@ -91,7 +91,7 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? 'unauthorized'
   end
 
-  def test_404_if_get_known_site
+  def test_401_if_get_known_site_without_token
     get '/micropub/testsite'
     assert last_response.unauthorized?
     assert last_response.body.include? 'unauthorized'
@@ -131,6 +131,14 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? '"category":["foo","bar"]'
     assert last_response.body.include? '"slug":["/2017/01/this-is-a-test-post"]'
     assert last_response.body.include? '["This is a test post with:\\r\n\\r\n- Tags,\\r\n- a permalink\\r\n- and some **bold** and __italic__ markdown"]'
+  end
+
+  def test_400_get_source_not_found
+    stub_token
+    stub_github_search(count: 0)
+    get '/micropub/testsite?q=source&url=https://example.com/2010/01/14/example-post', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert JSON.parse(last_response.body)
+    assert last_response.body.include? 'invalid_request'
   end
 
   def test_get_specific_props_from_source
@@ -191,6 +199,24 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? 'invalid_request'
   end
 
+  def test_422_if_repo_not_found
+    stub_token
+    stub_get_github_request(code: 422)
+    now = Time.now
+    post('/micropub/testsite', {
+           :h => 'entry',
+           :content => 'This is the content',
+           :category => %w[tag1 tag2],
+           :published => [now.to_s],
+           :slug => 'this-is-the-content-slug',
+           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
+           :unrecog_param => 'foo',
+           :ano_unrecog_param => 'bar'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_repo'
+    refute last_response.created?
+  end
+
   def test_new_note_with_syndication_everything_and_unrecognised_params
     stub_token
     stub_get_github_request
@@ -201,7 +227,7 @@ class MainAppTest < Minitest::Test
            :h => 'entry',
            :content => 'This is the content',
            :category => %w[tag1 tag2],
-           :published => now.to_s,
+           :published => [now.to_s],
            :slug => 'this-is-the-content-slug',
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
            :unrecog_param => 'foo',
