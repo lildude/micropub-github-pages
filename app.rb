@@ -266,6 +266,7 @@ module AppHelpers
   end
 
   # Process and clean up params for use later
+  # TODO: Need to .to_yaml nested objects for easy access in the template
   def process_params(post_params)
     # Bump off the standard Sinatra params we don't use
     post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
