@@ -118,11 +118,11 @@ def stub_cant_get_photo
     .to_return(status: 404, body: '')
 end
 
-def stub_github_search
+def stub_github_search(count: 1)
   stub_request(:get, %r{api.github.com/search/code})
     .to_return(status: 200,
                body: JSON.generate(
-                 total_count: 1,
+                 total_count: count,
                  items: [{
                    name: 'example-post.md',
                    path: '_post/2010-01-14-example-post.md',
