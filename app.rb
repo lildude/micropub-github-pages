@@ -88,7 +88,7 @@ module AppHelpers
 
     # Download any photos we want to include in the commit
     # TODO: Per-repo settings take pref over global. Global only at the mo
-    if settings.download_photos && !params[:photo].nil?
+    if settings.download_photos && (!params[:photo].nil? && !params[:photo].empty?)
       params[:photo] = download_photos(params)
       params[:photo].each do |photo|
         files.merge!(photo.delete('content')) if photo['content']
@@ -128,24 +128,29 @@ module AppHelpers
   # WARNING: the handling of alt in JSON may change in the future.
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
   def download_photos(params)
-    params[:photo].each_with_index do |photo, i|
+    params[:photo].flatten.each_with_index do |photo, i|
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
+      # If we have a tempfile property, this is a multipart upload
+      tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       begin
-        filename = url.split('/').last
+        filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
         upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
         photo_path = ''.dup
         photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
         photo_path << "/#{upload_path}"
-        tmpfile = Tempfile.new(filename)
-        File.open(tmpfile, 'wb') do |f|
-          resp = HTTParty.get(url, stream_body: true, follow_redirects: true)
-          raise unless resp.success?
+        unless tmpfile
+          tmpfile = Tempfile.new(filename)
+          File.open(tmpfile, 'wb') do |f|
+            resp = HTTParty.get(url, stream_body: true, follow_redirects: true)
+            raise unless resp.success?
 
-          f.write resp.body
+            f.write resp.body
+          end
         end
         content = { upload_path => Base64.encode64(tmpfile.read) }
         params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
+        # TODO: This is too greedy and hides legit problems
       rescue StandardError
         # Fall back to orig url if we can't download
         params[:photo][i] = { 'url' => url, 'alt' => alt }
@@ -299,7 +304,7 @@ module AppHelpers
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
-      post_params[:photo] = [*post_params[:photo]] if post_params[:photo]
+      post_params[:photo] = [post_params[:photo]] if post_params[:photo]
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 

@@ -65,8 +65,8 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 ### Creating Posts (Multipart)
 
-- [ ] 300 Create an h-entry with a photo (multipart)  
-- [ ] 301 Create an h-entry with two photos (multipart)  
+✅ 300 Create an h-entry with a photo (multipart)  
+✅ 301 Create an h-entry with two photos (multipart)  
 
 ### Updates
 
