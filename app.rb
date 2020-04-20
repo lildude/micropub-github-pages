@@ -287,20 +287,22 @@ module AppHelpers
 
     # JSON-specific processing
     if env['CONTENT_TYPE'] == 'application/json'
-      if post_params[:type][0]
-        post_params[:h] = post_params[:type][0].tr('h-', '')
-        post_params.delete(:type)
+      unless post_params.include? :action
+        if post_params[:type][0]
+          post_params[:h] = post_params[:type][0].tr('h-', '')
+          post_params.delete(:type)
+        end
+        post_params.merge!(post_params.delete(:properties))
+        if post_params[:content]
+          post_params[:content] =
+            if post_params[:content][0].is_a?(Hash)
+              post_params[:content][0][:html]
+            else
+              post_params[:content][0]
+            end
+        end
+        post_params[:name] = post_params[:name][0] if post_params[:name]
       end
-      post_params.merge!(post_params.delete(:properties))
-      if post_params[:content]
-        post_params[:content] =
-          if post_params[:content][0].is_a?(Hash)
-            post_params[:content][0][:html]
-          else
-            post_params[:content][0]
-          end
-      end
-      post_params[:name] = post_params[:name][0] if post_params[:name]
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
@@ -317,14 +319,16 @@ module AppHelpers
     end
 
     # Add in a few more params if they're not set
-    # Spec says we should use h-entry if no type provided.
-    post_params[:h] = 'entry' unless post_params.include? :h
-    # It's nice to honour the client's published date, if set, else set one.
-    post_params[:published] = if post_params.include? :published
-                                post_params[:published].first
-                              else
-                                Time.now.to_s
-                              end
+    unless post_params.include?(:action)
+      # Spec says we should use h-entry if no type provided.
+      post_params[:h] = 'entry' unless post_params.include?(:h)
+      # It's nice to honour the client's published date, if set, else set one.
+      post_params[:published] = if post_params.include? :published
+                                  post_params[:published].first
+                                else
+                                  Time.now.to_s
+                                end
+    end
     post_params
   end
 
@@ -338,6 +342,17 @@ module AppHelpers
     else
       post_params[:h].to_sym
     end
+  end
+
+  def delete_post(post_params)
+  end
+
+  def undelete_post(post_params)
+    true
+  end
+
+  def update_post(post_params)
+    true
   end
 end
 
@@ -410,13 +425,27 @@ post '/micropub/:site' do |site|
   # action = update, delete, undelete etc.
   error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
-  # Determine the template to use based on various params received.
-  post_params[:type] = post_type(post_params)
+  if post_params.key?(:h)
+    # Determine the template to use based on various params received.
+    post_params[:type] = post_type(post_params)
 
-  logger.info post_params unless ENV['RACK_ENV'] == 'test'
-  # Publish the post
-  publish_post post_params
+    logger.info post_params unless ENV['RACK_ENV'] == 'test'
+    # Publish the post
+    publish_post post_params
 
-  # Syndicate the post
-  # syndicate_to post_params
+    # Syndicate the post
+    # syndicate_to post_params
+  end
+
+  if post_params.key?(:action)
+    error('invalid_request') unless %w[update delete undelete].include? post_params[:action]
+    case post_params[:action]
+    when 'delete'
+      delete_post post_params
+    when 'undelete'
+      undelete_post post_params
+    when 'update'
+      update post_params
+    end
+  end
 end

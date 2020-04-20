@@ -199,6 +199,15 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include? 'invalid_request'
   end
 
+  def test_invalid_request_if_action_not_valid
+    stub_token
+    post('/micropub/testsite', {
+           action: 'foobar',
+           url: 'http://example.com'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include?('invalid_request'), "Got #{last_response.body}"
+  end
+
   def test_422_if_repo_not_found
     stub_token
     stub_get_github_request(code: 422)
@@ -338,6 +347,15 @@ class MainAppTest < Minitest::Test
   end
 
   #----:[ JSON tests ]:----#
+
+  def test_invalid_request_if_action_not_valid_json
+    stub_token
+    post('/micropub/testsite', {
+      action: 'foobar',
+      url: 'http://example.com'
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include?('invalid_request'), "Got #{last_response.body}"
+  end
 
   def test_new_note_json_syntax
     stub_token
