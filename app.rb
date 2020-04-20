@@ -406,9 +406,8 @@ post '/micropub/:site' do |site|
 
   # Check for reserved params which tell us what to do:
   # h = create entry
-  # q = query the endpoint
   # action = update, delete, undelete etc.
-  error('invalid_request') unless post_params.any? { |k, _v| %i[h q action].include? k }
+  error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
   # Determine the template to use based on various params received.
   post_params[:type] = post_type(post_params)
