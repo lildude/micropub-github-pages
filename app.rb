@@ -296,24 +296,22 @@ module AppHelpers
     error('invalid_request') if post_params.empty?
 
     # JSON-specific processing
-    if @is_json
-      unless post_params.include? :action
-        if post_params[:type][0]
-          post_params[:h] = post_params[:type][0].tr('h-', '')
-          post_params.delete(:type)
-        end
-        post_params.merge!(post_params.delete(:properties))
-        if post_params[:content]
-          post_params[:content] =
-            if post_params[:content][0].is_a?(Hash)
-              post_params[:content][0][:html]
-            else
-              post_params[:content][0]
-            end
-        end
-        post_params[:name] = post_params[:name][0] if post_params[:name]
-        post_params[:slug] = post_params[:slug][0] if post_params[:slug]
+    if @is_json && !post_params.key?(:action)
+      if post_params[:type][0]
+        post_params[:h] = post_params[:type][0].tr('h-', '')
+        post_params.delete(:type)
       end
+      post_params.merge!(post_params.delete(:properties))
+      if post_params[:content]
+        post_params[:content] =
+          if post_params[:content][0].is_a?(Hash)
+            post_params[:content][0][:html]
+          else
+            post_params[:content][0]
+          end
+      end
+      post_params[:name] = post_params[:name][0] if post_params[:name]
+      post_params[:slug] = post_params[:slug][0] if post_params[:slug]
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
@@ -444,7 +442,7 @@ post '/micropub/:site' do |site|
 
     logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
-    publish_post post_params
+    return publish_post post_params
 
     # Syndicate the post
     # syndicate_to post_params
