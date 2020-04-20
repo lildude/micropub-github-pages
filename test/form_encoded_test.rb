@@ -222,43 +222,20 @@ class FormEncodedTest < Minitest::Test
     assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
-  #----:[ HTTP Multipart ]:----#
-
-  def test_new_entry_with_photo_multipart
+  def test_delete_post
+    skip('TODO: not yet implemented - requires update support first')
     stub_token
-    stub_get_photo
+    stub_github_search
     stub_get_github_request
-    stub_post_github_request
-    stub_patch_github_request
-    photo = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg'))
     post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: photo
+           action: 'delete',
+           url: 'https://example.com/2010/01/14/example-post'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/photo.jpg')
+    assert last_response.ok?, "Expected 200 but got #{last_response.status}"
+    # assert JSON.parse(last_response.body)
   end
 
-  def test_new_entry_with_two_photos_multipart
-    stub_token
-    stub_get_photo
-    stub_get_github_request
-    stub_post_github_request
-    stub_patch_github_request
-    photo = [
-      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg')),
-      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo2.jpg'))
-    ]
-    post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: photo
-         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/photo.jpg')
-    assert last_response.body.include?('/img/photo2.jpg')
+  def test_undelete_post
+    skip('TODO: not yet implemented - requires update support first')
   end
 end

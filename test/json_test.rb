@@ -201,4 +201,16 @@ class JsonTest < Minitest::Test
     assert last_response.body.include?('70.64'), 'Body did not include "70.64"'
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
   end
+
+  def test_update_post_json
+    skip('TODO: not yet implemented')
+  end
+
+  def test_delete_post_json
+    skip('TODO: not yet implemented - requires update support first')
+  end
+
+  def test_undelete_post_json
+    skip('TODO: not yet implemented - requires update support first')
+  end
 end
