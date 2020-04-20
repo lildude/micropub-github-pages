@@ -84,6 +84,8 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 - [ ] 502 Undelete a post (form-encoded)  
 - [ ] 503 Undelete a post (JSON)  
 
+**Note** Deleting doesn't remove the post, it just adds/toggles the `published` property
+
 ### Query
 
 ✅ 600 Configuration Query  
