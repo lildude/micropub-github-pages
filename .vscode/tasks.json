@@ -42,6 +42,19 @@
         "panel": "shared",
         "clear": true
       }
+    },
+    {
+      "label": "Run Rubocop",
+      "type": "shell",
+      "command": "bundle exec rake rubocop",
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "focus": false,
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
     }
   ]
 }

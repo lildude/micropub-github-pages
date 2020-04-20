@@ -1,13 +1,6 @@
 #!/bin/bash
 set -e
 
-REALPATH=$(cd "$(dirname "$0")/.." && pwd)
-
 export RACK_ENV="test"
 
 bundle exec rake test
-
-# If we're not running under GitHub Actions, exit else run rubocop too
-[ -n "$GITHUB_WORKSPACE" ] && exit
-
-bundle exec rubocop --cache false --enable-pending-cops
