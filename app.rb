@@ -73,12 +73,12 @@ module AppHelpers
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    @location = settings.sites[params[:site]]['site_url'].dup
+    @location = settings.sites[@site]['site_url'].dup
     @location << create_permalink(params)
 
     # Verify the repo exists
     begin
-      repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+      repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
       client.repository?(repo)
     rescue Octokit::UnprocessableEntity
       error('invalid_repo')
@@ -135,9 +135,9 @@ module AppHelpers
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       begin
         filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
-        upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+        upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
         photo_path = ''.dup
-        photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
+        photo_path << settings.sites[@site]['site_url'] if settings.sites[@site]['full_image_urls']
         photo_path << "/#{upload_path}"
         unless tmpfile
           tmpfile = Tempfile.new(filename)
@@ -165,7 +165,7 @@ module AppHelpers
   def get_post(url)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+    repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
     code = client.search_code("filename:#{fuzzy_filename} repo:#{repo}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
@@ -210,7 +210,7 @@ module AppHelpers
   end
 
   def create_permalink(params)
-    permalink_style = params[:permalink_style] || settings.sites[params[:site]]['permalink_style']
+    permalink_style = params[:permalink_style] || settings.sites[@site]['permalink_style']
     date = DateTime.parse(params[:published])
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
@@ -370,6 +370,7 @@ end
 get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
   halt 404 unless params.include? 'q'
+  @site ||= site
 
   case params['q']
   when /config/
@@ -393,6 +394,7 @@ end
 
 post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
+  @site ||= site
 
   # Normalise params
   post_params =
@@ -402,7 +404,6 @@ post '/micropub/:site' do |site|
       params
     end
   post_params = process_params(post_params)
-  post_params[:site] = site
 
   # Check for reserved params which tell us what to do:
   # h = create entry
