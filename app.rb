@@ -162,7 +162,7 @@ module AppHelpers
   # Grab the contents of the file referenced by the URL received from the client
   # This assumes the final part of the URL contains part of the filename as it
   # appears in the repository.
-  def get_post(url)
+  def get_post(url, json: true)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
@@ -175,23 +175,33 @@ module AppHelpers
     content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
-    jekyll_post_to_json decoded_content
+    jekyll_post_to_json(decoded_content, json: json)
   end
 
-  def jekyll_post_to_json(content)
+  def jekyll_post_to_json(content, json: true)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
     matches = content.match(/\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)(.*)/m)
     front_matter = SafeYAML.load(matches[1])
+    front_matter.delete('layout')
     content = matches[4]
     data = {}
     data[:type] = ['h-entry'] # TODO: Handle other types.
     data[:properties] = {}
-    data[:properties][:published] = [front_matter['date']]
+    # Map Jekyll Frontmatter fields back to microformat h-entry field names
+    data[:properties][:name] = [front_matter.delete('title')] unless front_matter['title'].nil?
+    data[:properties][:published] = [front_matter.delete('date')]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
-    data[:properties][:slug] = [front_matter['permalink']] unless front_matter['permalink'].nil?
-    data[:properties][:category] = front_matter['tags'] unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    # TODO: This should prob be url, but need to chec the behaviour of the various clients first
+    data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
+    data[:properties][:category] = front_matter.delete('tags') unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    # For everything else, map directly onto fm_* properties
+    front_matter.each do |k, v|
+      data[:properties][:"fm_#{k}"] = [v]
+    end
 
-    JSON.generate(data)
+    return JSON.generate(data) if json
+
+    data
   end
 
   def create_slug(params)
@@ -279,14 +289,14 @@ module AppHelpers
 
   # Process and clean up params for use later
   # TODO: Need to .to_yaml nested objects for easy access in the template
-  def process_params(post_params)
+  def process_params(post_params, is_json)
     # Bump off the standard Sinatra params we don't use
     post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
 
     error('invalid_request') if post_params.empty?
 
     # JSON-specific processing
-    if env['CONTENT_TYPE'] == 'application/json'
+    if is_json
       unless post_params.include? :action
         if post_params[:type][0]
           post_params[:h] = post_params[:type][0].tr('h-', '')
@@ -302,6 +312,7 @@ module AppHelpers
             end
         end
         post_params[:name] = post_params[:name][0] if post_params[:name]
+        post_params[:slug] = post_params[:slug][0] if post_params[:slug]
       end
     else
       # Convert all keys to symbols from form submission
@@ -345,6 +356,10 @@ module AppHelpers
   end
 
   def delete_post(post_params)
+    post = get_post(post_params[:url], json: false)
+    post[:properties][:fm_published] = [false]
+    updated_props = process_params(post, true)
+    publish_post updated_props
   end
 
   def undelete_post(post_params)
@@ -412,13 +427,10 @@ post '/micropub/:site' do |site|
   @site ||= site
 
   # Normalise params
-  post_params =
-    if env['CONTENT_TYPE'] == 'application/json'
-      JSON.parse(request.body.read.to_s, symbolize_names: true)
-    else
-      params
-    end
-  post_params = process_params(post_params)
+  # TODO: use an instance variable to simplify access elsewhere
+  is_json = env['CONTENT_TYPE'] == 'application/json'
+  post_params = is_json ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
+  post_params = process_params(post_params, is_json)
 
   # Check for reserved params which tell us what to do:
   # h = create entry
