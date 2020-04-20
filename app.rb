@@ -289,14 +289,14 @@ module AppHelpers
 
   # Process and clean up params for use later
   # TODO: Need to .to_yaml nested objects for easy access in the template
-  def process_params(post_params, is_json)
+  def process_params(post_params)
     # Bump off the standard Sinatra params we don't use
     post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
 
     error('invalid_request') if post_params.empty?
 
     # JSON-specific processing
-    if is_json
+    if @is_json
       unless post_params.include? :action
         if post_params[:type][0]
           post_params[:h] = post_params[:type][0].tr('h-', '')
@@ -358,7 +358,7 @@ module AppHelpers
   def delete_post(post_params)
     post = get_post(post_params[:url], json: false)
     post[:properties][:fm_published] = [false]
-    updated_props = process_params(post, true)
+    updated_props = process_params(post)
     publish_post updated_props
   end
 
@@ -400,6 +400,7 @@ end
 get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
   halt 404 unless params.include? 'q'
+
   @site ||= site
 
   case params['q']
@@ -424,13 +425,13 @@ end
 
 post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
+
   @site ||= site
+  @is_json = env['CONTENT_TYPE'] == 'application/json'
 
   # Normalise params
-  # TODO: use an instance variable to simplify access elsewhere
-  is_json = env['CONTENT_TYPE'] == 'application/json'
-  post_params = is_json ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
-  post_params = process_params(post_params, is_json)
+  post_params = @is_json ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
+  post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
   # h = create entry
