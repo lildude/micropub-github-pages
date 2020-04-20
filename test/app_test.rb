@@ -208,6 +208,23 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include?('invalid_request'), "Got #{last_response.body}"
   end
 
+  def test_delete_post
+    skip('TODO: not yet implemented - requires update support first')
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    post('/micropub/testsite', {
+           action: 'delete',
+           url: 'https://example.com/2010/01/14/example-post'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.ok?, "Expected 200 but got #{last_response.status}"
+    # assert JSON.parse(last_response.body)
+  end
+
+  def test_undelete_post
+    skip('TODO: not yet implemented - requires update support first')
+  end
+
   def test_422_if_repo_not_found
     stub_token
     stub_get_github_request(code: 422)
@@ -540,5 +557,17 @@ class MainAppTest < Minitest::Test
     assert last_response.body.include?('Weighed 70.64 kg'), "Body did not include 'Weighed 70.64 kg'\n#{last_response.body}"
     assert last_response.body.include?('70.64'), 'Body did not include "70.64"'
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
+  end
+
+  def test_update_post_json
+    skip('TODO: not yet implemented')
+  end
+
+  def test_delete_post_json
+    skip('TODO: not yet implemented - requires update support first')
+  end
+
+  def test_undelete_post_json
+    skip('TODO: not yet implemented - requires update support first')
   end
 end
