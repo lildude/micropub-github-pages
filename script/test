@@ -5,7 +5,7 @@ REALPATH=$(cd "$(dirname "$0")/.." && pwd)
 
 export RACK_ENV="test"
 
-bundle exec ruby "${REALPATH}/test/app_test.rb" "$@"
+bundle exec rake test
 
 # If we're not running under GitHub Actions, exit else run rubocop too
 [ -n "$GITHUB_WORKSPACE" ] && exit
