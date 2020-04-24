@@ -216,7 +216,22 @@ class JsonTest < Minitest::Test
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/#{now.strftime('%s').to_i % (24 * 60 * 60)}", last_response.header['Location']
+
+  def test_add_to_property
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    stub_patch_github_request
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      add: {
+        category: ["tag99"]
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal 'https://example.com/2017/01/this-is-a-test-post', last_response.header['Location']
   end
 
   def test_delete_post_json

@@ -369,7 +369,13 @@ module AppHelpers
 
   def update_post(post_params)
     post = get_post(post_params[:url], json: false)
-    post[:properties].merge!(post_params[:replace])
+    if post_params.key? :replace
+      post[:properties].merge!(post_params[:replace])
+    elsif post_params.key? :add
+      post_params[:add].each do |k, v|
+        post[:properties][k] += v
+      end
+    end
     updated_props = process_params(post)
     publish_post updated_props
   end
