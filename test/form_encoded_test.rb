@@ -230,16 +230,7 @@ class FormEncodedTest < Minitest::Test
     stub_post_github_request
     # Explicitly mock so we can confirm we're getting the modified content as expected
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
-                                slug: '/2017/01/this-is-a-test-post',
-                                category: %w[foo bar],
-                                fm_published: 'false',
-                              })
+                        .with(has_entry(fm_published: 'false'))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'delete',
@@ -255,24 +246,15 @@ class FormEncodedTest < Minitest::Test
                         .returns(
                           { type: ['h-entry'],
                             properties: {
-                              name: ['This is a Test Post'],
                               published: ['2017-01-20 10:01:48 +0000'],
                               content: ['Micropub update test.'],
-                              slug: ['/2017/01/this-is-a-test-post'],
                               fm_published: 'false',
                             } }
                         )
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm we're not getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: 'Micropub update test.',
-                                slug: '/2017/01/this-is-a-test-post',
-                              })
+                        .with(Not(has_key(:fm_published)))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'undelete',

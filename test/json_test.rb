@@ -208,17 +208,9 @@ class JsonTest < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm we're getting the modified category entries
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: 'This is the updated text. If you can see this you passed the test!',
-                                slug: '/2017/01/this-is-a-test-post',
-                                category: %w[foo bar]
-                              })
+                        .with(has_entry(category: %w[foo bar]))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
@@ -234,17 +226,9 @@ class JsonTest < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm we're getting the category modified
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
-                                slug: '/2017/01/this-is-a-test-post',
-                                category: %w[foo bar tag99]
-                              })
+                        .with(has_entry(category: %w[foo bar tag99]))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
@@ -263,24 +247,14 @@ class JsonTest < Minitest::Test
                         .returns(
                           { type: ['h-entry'],
                             properties: {
-                              name: ['This is a Test Post'],
                               published: ['2017-01-20 10:01:48 +0000'],
                               content: ['Micropub update test.'],
-                              slug: ['/2017/01/this-is-a-test-post']
                             } }
                         )
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm we're getting the category property added
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: 'Micropub update test.',
-                                slug: '/2017/01/this-is-a-test-post',
-                                category: ['tag99']
-                              })
+                        .with(has_entry(category: ['tag99']))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
@@ -322,16 +296,9 @@ class JsonTest < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm the category propery has been removed
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
-                                slug: '/2017/01/this-is-a-test-post'
-                              })
+                        .with(Not(has_key(:category)))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
@@ -373,18 +340,9 @@ class JsonTest < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm we're getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
-                                slug: '/2017/01/this-is-a-test-post',
-                                category: %w[foo bar],
-                                fm_published: 'false',
-                              })
+                        .with(has_entry(fm_published: 'false'))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'delete',
@@ -400,24 +358,15 @@ class JsonTest < Minitest::Test
                         .returns(
                           { type: ['h-entry'],
                             properties: {
-                              name: ['This is a Test Post'],
                               published: ['2017-01-20 10:01:48 +0000'],
                               content: ['Micropub update test.'],
-                              slug: ['/2017/01/this-is-a-test-post'],
                               fm_published: 'false',
                             } }
                         )
     stub_post_github_request
-    # Explicitly mock so we can confirm we're getting the modified content as expected
+    # Explicitly stub so we can confirm we're not getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with({
-                                type: :article,
-                                h: 'entry',
-                                name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: 'Micropub update test.',
-                                slug: '/2017/01/this-is-a-test-post',
-                              })
+                        .with(Not(has_key(:fm_published)))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'undelete',
