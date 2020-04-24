@@ -13,3 +13,9 @@ end
 RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ['--enable-pending-cops']
 end
+
+desc 'run irb console'
+task :console, :environment do |t, args|
+  ENV['RACK_ENV'] = args[:environment] || 'development'
+  exec 'pry -r ./app.rb -e "App = Sinatra::Application.new"'
+end

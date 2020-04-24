@@ -14,6 +14,7 @@ gem 'sinatra-contrib'
 group :test do
   gem 'coveralls', '~> 0.8'
   gem 'minitest'
+  gem 'pry'
   gem 'rack-test'
   gem 'rake'
   gem 'rubocop', require: false
