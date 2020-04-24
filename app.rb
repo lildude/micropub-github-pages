@@ -354,11 +354,11 @@ module AppHelpers
     end
   end
 
+  # Delete post doesn't delete the file. Instead it sets "publised: false".
+  # This allows for undeletion later as we simply remove the property.
   def delete_post(post_params)
-    post = get_post(post_params[:url], json: false)
-    post[:properties][:fm_published] = [false]
-    updated_props = process_params(post)
-    publish_post updated_props
+    post_params[:replace] = { fm_published: 'false' }
+    update_post(post_params)
   end
 
   def undelete_post(_post_params)
@@ -473,8 +473,10 @@ post '/micropub/:site' do |site|
     @action = post_params[:action]
 
     error('invalid_request') unless %w[update delete undelete].include? @action
-    error('invalid_request') unless post_params.any? do |k, v|
-      %i[add replace delete].include?(k) && v.respond_to?(:each)
+    if @action == 'update'
+      error('invalid_request') unless post_params.any? do |k, v|
+        %i[add replace delete].include?(k) && v.respond_to?(:each)
+      end
     end
 
     case @action
