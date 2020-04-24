@@ -342,6 +342,32 @@ class JsonTest < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 
+  def test_action_operation_is_valid
+    stub_token
+    # foobar is not a valid action
+    post('/micropub/testsite', {
+      action: 'foobar',
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include?('invalid_request')
+    # update operation must be present
+    post('/micropub/testsite', {
+      action: 'update',
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_request'
+    # update operation must be add, replace or delete
+    post('/micropub/testsite', {
+      action: 'update',
+      foobar: {},
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_request'
+    # update operation must be an Enumerable
+    post('/micropub/testsite', {
+      action: 'update',
+      delete: 'foo',
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_request'
+  end
+
   def test_delete_post_json
     skip('TODO: not yet implemented - requires update support first')
   end

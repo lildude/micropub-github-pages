@@ -473,6 +473,10 @@ post '/micropub/:site' do |site|
     @action = post_params[:action]
 
     error('invalid_request') unless %w[update delete undelete].include? @action
+    error('invalid_request') unless post_params.any? do |k, v|
+      %i[add replace delete].include?(k) && v.respond_to?(:each)
+    end
+
     case @action
     when 'delete'
       delete_post post_params
