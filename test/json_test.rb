@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require File.expand_path 'test_helper.rb', __dir__
+require 'mocha/setup'
 
 class JsonTest < Minitest::Test
   include Rack::Test::Methods
@@ -200,5 +201,176 @@ class JsonTest < Minitest::Test
     assert last_response.body.include?('Weighed 70.64 kg'), "Body did not include 'Weighed 70.64 kg'\n#{last_response.body}"
     assert last_response.body.include?('70.64'), 'Body did not include "70.64"'
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
+  end
+
+  def test_update_property
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    # Explicitly stub so we can confirm we're getting the modified category entries
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(has_entry(category: %w[foo bar]))
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      replace: {
+        content: ['This is the updated text. If you can see this you passed the test!']
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
+  def test_add_to_property
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    # Explicitly stub so we can confirm we're getting the category modified
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(has_entry(category: %w[foo bar tag99]))
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      add: {
+        category: ['tag99']
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
+  def test_add_to_non_existent_property
+    stub_token
+    stub_github_search
+    # Stub a specific response without any tags/categories
+    Sinatra::Application.any_instance.expects(:get_post)
+                        .returns(
+                          { type: ['h-entry'],
+                            properties: {
+                              published: ['2017-01-20 10:01:48 +0000'],
+                              content: ['Micropub update test.']
+                            } }
+                        )
+    stub_post_github_request
+    # Explicitly stub so we can confirm we're getting the category property added
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(has_entry(category: ['tag99']))
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      add: {
+        category: ['tag99']
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
+  def test_remove_value_from_property
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
+                                slug: '/2017/01/this-is-a-test-post',
+                                category: %w[foo]
+                              })
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      delete: {
+        category: ['bar']
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
+  def test_remove_property
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    # Explicitly stub so we can confirm the category propery has been removed
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(Not(has_key(:category)))
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      delete: [
+        'category'
+      ]
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
+  def test_action_operation_is_valid
+    stub_token
+    # foobar is not a valid action
+    post('/micropub/testsite', {
+      action: 'foobar'
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include?('invalid_request')
+    # update operation must be present
+    post('/micropub/testsite', {
+      action: 'update'
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_request'
+    # update operation must be add, replace or delete
+    post('/micropub/testsite', {
+      action: 'update',
+      foobar: {}
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_request'
+    # update operation must be an Enumerable
+    post('/micropub/testsite', {
+      action: 'update',
+      delete: 'foo'
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.body.include? 'invalid_request'
+  end
+
+  def test_delete_post
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    # Explicitly stub so we can confirm we're getting the fm_published key
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(has_entry(fm_published: 'false'))
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'delete',
+      url: 'https://example.com/2017/01/this-is-a-test-post/'
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
+  def test_undelete_post_json
+    stub_token
+    stub_github_search
+    # Stub a specific response with fm_published: false
+    Sinatra::Application.any_instance.expects(:get_post)
+                        .returns(
+                          { type: ['h-entry'],
+                            properties: {
+                              published: ['2017-01-20 10:01:48 +0000'],
+                              content: ['Micropub update test.'],
+                              fm_published: 'false'
+                            } }
+                        )
+    stub_post_github_request
+    # Explicitly stub so we can confirm we're not getting the fm_published key
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(Not(has_key(:fm_published)))
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'undelete',
+      url: 'https://example.com/2017/01/this-is-a-test-post/'
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 end

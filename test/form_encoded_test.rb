@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require File.expand_path 'test_helper.rb', __dir__
+require 'mocha/setup'
 
 class FormEncodedTest < Minitest::Test
   include Rack::Test::Methods
@@ -222,43 +223,42 @@ class FormEncodedTest < Minitest::Test
     assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
   end
 
-  #----:[ HTTP Multipart ]:----#
-
-  def test_new_entry_with_photo_multipart
+  def test_delete_post
     stub_token
-    stub_get_photo
+    stub_github_search
     stub_get_github_request
     stub_post_github_request
-    stub_patch_github_request
-    photo = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg'))
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(has_entry(fm_published: 'false'))
+                        .returns(true) # We don't care about the status
     post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: photo
+           action: 'delete',
+           url: 'https://example.com/2017/01/this-is-a-test-post/'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/photo.jpg')
   end
 
-  def test_new_entry_with_two_photos_multipart
+  def test_undelete_post
     stub_token
-    stub_get_photo
-    stub_get_github_request
+    stub_github_search
+    # Stub a specific response with fm_published: false
+    Sinatra::Application.any_instance.expects(:get_post)
+                        .returns(
+                          { type: ['h-entry'],
+                            properties: {
+                              published: ['2017-01-20 10:01:48 +0000'],
+                              content: ['Micropub update test.'],
+                              fm_published: 'false'
+                            } }
+                        )
     stub_post_github_request
-    stub_patch_github_request
-    photo = [
-      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg')),
-      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo2.jpg'))
-    ]
+    # Explicitly stub so we can confirm we're not getting the fm_published key
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with(Not(has_key(:fm_published)))
+                        .returns(true) # We don't care about the status
     post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: photo
+           action: 'undelete',
+           url: 'https://example.com/2017/01/this-is-a-test-post/'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/photo.jpg')
-    assert last_response.body.include?('/img/photo2.jpg')
   end
 end

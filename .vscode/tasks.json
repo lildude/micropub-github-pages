@@ -7,7 +7,7 @@
     {
       "label": "Run current test",
       "type": "shell",
-      "command": "bundle exec rake test TEST=${relativeFile}:${lineNumber}",
+      "command": "bundle exec m ${relativeFile}:${lineNumber}",
       "group": "build",
       "problemMatcher": [],
       "presentation": {

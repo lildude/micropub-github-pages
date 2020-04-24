@@ -73,12 +73,12 @@ module AppHelpers
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
-    @location = settings.sites[params[:site]]['site_url'].dup
+    @location = settings.sites[@site]['site_url'].dup
     @location << create_permalink(params)
 
     # Verify the repo exists
     begin
-      repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+      repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
       client.repository?(repo)
     rescue Octokit::UnprocessableEntity
       error('invalid_repo')
@@ -114,7 +114,8 @@ module AppHelpers
     end
 
     sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
-    commit_message = "New #{params[:type]}"
+    @action ||= 'new'
+    commit_message = "#{@action.capitalize} #{params[:type]}"
     sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
     client.update_ref(repo, ref, sha_new_commit)
 
@@ -135,9 +136,9 @@ module AppHelpers
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       begin
         filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
-        upload_path = "#{settings.sites[params[:site]]['image_dir']}/#{filename}"
+        upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
         photo_path = ''.dup
-        photo_path << settings.sites[params[:site]]['site_url'] if settings.sites[params[:site]]['full_image_urls']
+        photo_path << settings.sites[@site]['site_url'] if settings.sites[@site]['full_image_urls']
         photo_path << "/#{upload_path}"
         unless tmpfile
           tmpfile = Tempfile.new(filename)
@@ -162,10 +163,10 @@ module AppHelpers
   # Grab the contents of the file referenced by the URL received from the client
   # This assumes the final part of the URL contains part of the filename as it
   # appears in the repository.
-  def get_post(url)
+  def get_post(url, json: true)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-    repo = "#{settings.github_username}/#{settings.sites[params[:site]]['github_repo']}"
+    repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
     code = client.search_code("filename:#{fuzzy_filename} repo:#{repo}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
@@ -175,30 +176,40 @@ module AppHelpers
     content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
-    jekyll_post_to_json decoded_content
+    jekyll_post_to_json(decoded_content, json: json)
   end
 
-  def jekyll_post_to_json(content)
+  def jekyll_post_to_json(content, json: true)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
     matches = content.match(/\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)(.*)/m)
     front_matter = SafeYAML.load(matches[1])
+    front_matter.delete('layout')
     content = matches[4]
     data = {}
     data[:type] = ['h-entry'] # TODO: Handle other types.
     data[:properties] = {}
-    data[:properties][:published] = [front_matter['date']]
+    # Map Jekyll Frontmatter fields back to microformat h-entry field names
+    data[:properties][:name] = [front_matter.delete('title')] unless front_matter['title'].nil?
+    data[:properties][:published] = [front_matter.delete('date').to_s]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
-    data[:properties][:slug] = [front_matter['permalink']] unless front_matter['permalink'].nil?
-    data[:properties][:category] = front_matter['tags'] unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    # TODO: This should prob be url, but need to chec the behaviour of the various clients first
+    data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
+    data[:properties][:category] = front_matter.delete('tags') unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    # For everything else, map directly onto fm_* properties
+    front_matter.each do |k, v|
+      data[:properties][:"fm_#{k}"] = [v]
+    end
 
-    JSON.generate(data)
+    return JSON.generate(data) if json
+
+    data
   end
 
   def create_slug(params)
     # Use the provided slug
     slug =
       if params.include?(:slug) && !params[:slug].nil?
-        params[:slug]
+        File.basename(params[:slug])
       # If there's a name, use that
       elsif params.include?(:name) && !params[:name].nil?
         slugify params[:name]
@@ -210,7 +221,7 @@ module AppHelpers
   end
 
   def create_permalink(params)
-    permalink_style = params[:permalink_style] || settings.sites[params[:site]]['permalink_style']
+    permalink_style = params[:permalink_style] || settings.sites[@site]['permalink_style']
     date = DateTime.parse(params[:published])
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
@@ -286,11 +297,8 @@ module AppHelpers
     error('invalid_request') if post_params.empty?
 
     # JSON-specific processing
-    if env['CONTENT_TYPE'] == 'application/json'
-      if post_params[:type][0]
-        post_params[:h] = post_params[:type][0].tr('h-', '')
-        post_params.delete(:type)
-      end
+    if post_params.key?(:type) && !post_params.key?(:action)
+      post_params[:h] = post_params[:type][0].tr('h-', '') if post_params[:type][0]
       post_params.merge!(post_params.delete(:properties))
       if post_params[:content]
         post_params[:content] =
@@ -301,6 +309,7 @@ module AppHelpers
           end
       end
       post_params[:name] = post_params[:name][0] if post_params[:name]
+      post_params[:slug] = post_params[:slug][0] if post_params[:slug]
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
@@ -316,15 +325,20 @@ module AppHelpers
       post_params[:content].sub!(first_line[0], '')
     end
 
+    # Determine the template to use based on various params received.
+    post_params[:type] = post_type(post_params) unless post_params.key? :action
+
     # Add in a few more params if they're not set
-    # Spec says we should use h-entry if no type provided.
-    post_params[:h] = 'entry' unless post_params.include? :h
-    # It's nice to honour the client's published date, if set, else set one.
-    post_params[:published] = if post_params.include? :published
-                                post_params[:published].first
-                              else
-                                Time.now.to_s
-                              end
+    unless post_params.include?(:action)
+      # Spec says we should use h-entry if no type provided.
+      post_params[:h] = 'entry' unless post_params.include?(:h)
+      # It's nice to honour the client's published date, if set, else set one.
+      post_params[:published] = if post_params.include? :published
+                                  post_params[:published].first
+                                else
+                                  Time.now.to_s
+                                end
+    end
     post_params
   end
 
@@ -338,6 +352,46 @@ module AppHelpers
     else
       post_params[:h].to_sym
     end
+  end
+
+  # Delete post doesn't delete the file. Instead it sets "publised: false".
+  # This allows for undeletion later as we simply remove the property.
+  def delete_post(post_params)
+    post_params[:replace] = { fm_published: 'false' }
+    update_post(post_params)
+  end
+
+  # Undelete assumes there is a "published" field in the front matter and removes it
+  def undelete_post(post_params)
+    post_params[:delete] = ['fm_published']
+    update_post(post_params)
+  end
+
+  def update_post(post_params)
+    post = get_post(post_params[:url], json: false)
+
+    if post_params.key? :replace
+      post[:properties].merge!(post_params[:replace])
+    elsif post_params.key? :add
+      post_params[:add].each do |k, v|
+        if post[:properties].key? k
+          post[:properties][k] += v
+        else
+          post[:properties][k] = v
+        end
+      end
+    elsif post_params.key? :delete
+      post_params[:delete].each do |k, v|
+        if k.is_a? String
+          post[:properties].delete(k.to_sym)
+        else
+          post[:properties][k] -= v
+        end
+      end
+    end
+
+    updated_props = process_params(post)
+    publish_post updated_props
   end
 end
 
@@ -371,6 +425,8 @@ get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
   halt 404 unless params.include? 'q'
 
+  @site ||= site
+
   case params['q']
   when /config/
     status 200
@@ -394,28 +450,43 @@ end
 post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
 
+  @site ||= site
+
   # Normalise params
-  post_params =
-    if env['CONTENT_TYPE'] == 'application/json'
-      JSON.parse(request.body.read.to_s, symbolize_names: true)
-    else
-      params
-    end
+  post_params = env['CONTENT_TYPE'] == 'application/json' ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
   post_params = process_params(post_params)
-  post_params[:site] = site
 
   # Check for reserved params which tell us what to do:
   # h = create entry
   # action = update, delete, undelete etc.
   error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
-  # Determine the template to use based on various params received.
-  post_params[:type] = post_type(post_params)
+  if post_params.key?(:h)
+    logger.info post_params unless ENV['RACK_ENV'] == 'test'
+    # Publish the post
+    return publish_post post_params
 
-  logger.info post_params unless ENV['RACK_ENV'] == 'test'
-  # Publish the post
-  publish_post post_params
+    # Syndicate the post
+    # syndicate_to post_params
+  end
 
-  # Syndicate the post
-  # syndicate_to post_params
+  if post_params.key?(:action)
+    @action = post_params[:action]
+
+    error('invalid_request') unless %w[update delete undelete].include? @action
+    if @action == 'update'
+      error('invalid_request') unless post_params.any? do |k, v|
+        %i[add replace delete].include?(k) && v.respond_to?(:each)
+      end
+    end
+
+    case @action
+    when 'delete'
+      delete_post post_params
+    when 'undelete'
+      undelete_post post_params
+    when 'update'
+      update_post post_params
+    end
+  end
 end
