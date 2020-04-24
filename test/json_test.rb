@@ -203,7 +203,20 @@ class JsonTest < Minitest::Test
   end
 
   def test_update_post_json
-    skip('TODO: not yet implemented')
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    stub_patch_github_request
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example/2010/01/14/example-post/',
+      replace: {
+        content: ["This is the updated text. If you can see this you passed the test!"]
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/#{now.strftime('%s').to_i % (24 * 60 * 60)}", last_response.header['Location']
   end
 
   def test_delete_post_json
