@@ -310,8 +310,6 @@ module AppHelpers
             post_params[:content][0]
           end
       end
-      # Determine the template to use based on various params received.
-      post_params[:type] = post_type(post_params)
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
     else
@@ -328,6 +326,9 @@ module AppHelpers
       post_params[:name] = first_line[1].to_s.strip
       post_params[:content].sub!(first_line[0], '')
     end
+
+    # Determine the template to use based on various params received.
+    post_params[:type] = post_type(post_params) unless post_params.key? :action
 
     # Add in a few more params if they're not set
     unless post_params.include?(:action)
