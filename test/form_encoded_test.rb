@@ -233,9 +233,9 @@ class FormEncodedTest < Minitest::Test
                         .with(has_entry(fm_published: 'false'))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
-      action: 'delete',
-      url: 'https://example.com/2017/01/this-is-a-test-post/'
-    }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+           action: 'delete',
+           url: 'https://example.com/2017/01/this-is-a-test-post/'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 
   def test_undelete_post
@@ -248,7 +248,7 @@ class FormEncodedTest < Minitest::Test
                             properties: {
                               published: ['2017-01-20 10:01:48 +0000'],
                               content: ['Micropub update test.'],
-                              fm_published: 'false',
+                              fm_published: 'false'
                             } }
                         )
     stub_post_github_request
@@ -257,8 +257,8 @@ class FormEncodedTest < Minitest::Test
                         .with(Not(has_key(:fm_published)))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
-      action: 'undelete',
-      url: 'https://example.com/2017/01/this-is-a-test-post/'
-    }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+           action: 'undelete',
+           url: 'https://example.com/2017/01/this-is-a-test-post/'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 end

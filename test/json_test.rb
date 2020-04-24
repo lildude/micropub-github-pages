@@ -248,7 +248,7 @@ class JsonTest < Minitest::Test
                           { type: ['h-entry'],
                             properties: {
                               published: ['2017-01-20 10:01:48 +0000'],
-                              content: ['Micropub update test.'],
+                              content: ['Micropub update test.']
                             } }
                         )
     stub_post_github_request
@@ -304,7 +304,7 @@ class JsonTest < Minitest::Test
       action: 'update',
       url: 'https://example.com/2017/01/this-is-a-test-post/',
       delete: [
-        'category',
+        'category'
       ]
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
@@ -313,24 +313,24 @@ class JsonTest < Minitest::Test
     stub_token
     # foobar is not a valid action
     post('/micropub/testsite', {
-      action: 'foobar',
+      action: 'foobar'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.body.include?('invalid_request')
     # update operation must be present
     post('/micropub/testsite', {
-      action: 'update',
+      action: 'update'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.body.include? 'invalid_request'
     # update operation must be add, replace or delete
     post('/micropub/testsite', {
       action: 'update',
-      foobar: {},
+      foobar: {}
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.body.include? 'invalid_request'
     # update operation must be an Enumerable
     post('/micropub/testsite', {
       action: 'update',
-      delete: 'foo',
+      delete: 'foo'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.body.include? 'invalid_request'
   end
@@ -346,7 +346,7 @@ class JsonTest < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'delete',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2017/01/this-is-a-test-post/'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 
@@ -360,7 +360,7 @@ class JsonTest < Minitest::Test
                             properties: {
                               published: ['2017-01-20 10:01:48 +0000'],
                               content: ['Micropub update test.'],
-                              fm_published: 'false',
+                              fm_published: 'false'
                             } }
                         )
     stub_post_github_request
@@ -370,7 +370,7 @@ class JsonTest < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'undelete',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2017/01/this-is-a-test-post/'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 end
