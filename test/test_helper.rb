@@ -13,6 +13,7 @@ SimpleCov.start do
   add_filter 'test'
 end
 
+require 'mocha/minitest'
 require 'minitest/pride'
 require 'minitest/autorun'
 require 'rack/test'

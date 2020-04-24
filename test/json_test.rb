@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require File.expand_path 'test_helper.rb', __dir__
+require 'mocha/setup'
 
 class JsonTest < Minitest::Test
   include Rack::Test::Methods
@@ -207,16 +208,25 @@ class JsonTest < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_post_github_request
-    stub_patch_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: 'This is the updated text. If you can see this you passed the test!',
+                                slug: '/2017/01/this-is-a-test-post',
+                                category: %w[foo bar]
+                              })
+                        .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
       url: 'https://example.com/2017/01/this-is-a-test-post/',
       replace: {
-        content: ["This is the updated text. If you can see this you passed the test!"]
+        content: ['This is the updated text. If you can see this you passed the test!']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal 'https://example.com/2017/01/this-is-a-test-post', last_response.header['Location']
   end
 
   def test_add_to_property
@@ -224,16 +234,61 @@ class JsonTest < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_post_github_request
-    stub_patch_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
+                                slug: '/2017/01/this-is-a-test-post',
+                                category: %w[foo bar tag99]
+                              })
+                        .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
       url: 'https://example.com/2017/01/this-is-a-test-post/',
       add: {
-        category: ["tag99"]
+        category: ['tag99']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal 'https://example.com/2017/01/this-is-a-test-post', last_response.header['Location']
+  end
+
+  def test_add_to_non_existent_property
+    stub_token
+    stub_github_search
+    # Stub a specific response without any tags/categories
+    Sinatra::Application.any_instance.expects(:get_post)
+                        .returns(
+                          { type: ['h-entry'],
+                            properties: {
+                              name: ['This is a Test Post'],
+                              published: ['2017-01-20 10:01:48 +0000'],
+                              content: ['Micropub update test.'],
+                              slug: ['/2017/01/this-is-a-test-post']
+                            } }
+                        )
+    stub_post_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: 'Micropub update test.',
+                                slug: '/2017/01/this-is-a-test-post',
+                                category: ['tag99']
+                              })
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      add: {
+        category: ['tag99']
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 
   def test_delete_post_json

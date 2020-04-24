@@ -373,7 +373,11 @@ module AppHelpers
       post[:properties].merge!(post_params[:replace])
     elsif post_params.key? :add
       post_params[:add].each do |k, v|
-        post[:properties][k] += v
+        if post[:properties].key? k
+          post[:properties][k] += v
+        else
+          post[:properties][k] = v
+        end
       end
     end
     updated_props = process_params(post)
