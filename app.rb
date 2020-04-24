@@ -190,7 +190,7 @@ module AppHelpers
     data[:properties] = {}
     # Map Jekyll Frontmatter fields back to microformat h-entry field names
     data[:properties][:name] = [front_matter.delete('title')] unless front_matter['title'].nil?
-    data[:properties][:published] = [front_matter.delete('date')]
+    data[:properties][:published] = [front_matter.delete('date').to_s]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
     # TODO: This should prob be url, but need to chec the behaviour of the various clients first
     data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
