@@ -114,7 +114,7 @@ module AppHelpers
     end
 
     sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
-    @action ||= "new"
+    @action ||= 'new'
     commit_message = "#{@action.capitalize} #{params[:type]}"
     sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
     client.update_ref(repo, ref, sha_new_commit)
@@ -298,9 +298,7 @@ module AppHelpers
 
     # JSON-specific processing
     if @is_json && !post_params.key?(:action)
-      if post_params[:type][0]
-        post_params[:h] = post_params[:type][0].tr('h-', '')
-      end
+      post_params[:h] = post_params[:type][0].tr('h-', '') if post_params[:type][0]
       post_params.merge!(post_params.delete(:properties))
       if post_params[:content]
         post_params[:content] =
@@ -363,7 +361,7 @@ module AppHelpers
     publish_post updated_props
   end
 
-  def undelete_post(post_params)
+  def undelete_post(_post_params)
     true
   end
 
