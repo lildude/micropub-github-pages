@@ -11,5 +11,8 @@ tags:
 permalink: {{ slug }}
 {% endif -%}
 date: {{ published }}
+{% if fm_published -%}
+published: {{ fm_published }}
+{% endif -%}
 ---
 {{ content }}
