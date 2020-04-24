@@ -380,7 +380,11 @@ module AppHelpers
       end
     elsif post_params.key? :delete
       post_params[:delete].each do |k, v|
-        post[:properties][k] -= v
+        if k.is_a? String
+          post[:properties].delete(k.to_sym)
+        else
+          post[:properties][k] -= v
+        end
       end
     end
 

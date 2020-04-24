@@ -317,6 +317,31 @@ class JsonTest < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 
+  def test_remove_property
+    stub_token
+    stub_github_search
+    stub_get_github_request
+    stub_post_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
+                                slug: '/2017/01/this-is-a-test-post'
+                              })
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'update',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      delete: [
+        'category',
+      ]
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+  end
+
   def test_delete_post_json
     skip('TODO: not yet implemented - requires update support first')
   end
