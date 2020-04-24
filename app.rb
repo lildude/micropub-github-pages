@@ -69,7 +69,7 @@ module AppHelpers
 
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
-    params[:slug] = create_slug(params)
+    params[:slug] ||= create_slug(params)
     filename << "-#{params[:slug]}.md"
 
     logger.info "Filename: #{filename}"
