@@ -300,7 +300,6 @@ module AppHelpers
     if @is_json && !post_params.key?(:action)
       if post_params[:type][0]
         post_params[:h] = post_params[:type][0].tr('h-', '')
-        post_params.delete(:type)
       end
       post_params.merge!(post_params.delete(:properties))
       if post_params[:content]
@@ -311,6 +310,8 @@ module AppHelpers
             post_params[:content][0]
           end
       end
+      # Determine the template to use based on various params received.
+      post_params[:type] = post_type(post_params)
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
     else
@@ -438,9 +439,6 @@ post '/micropub/:site' do |site|
   error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
   if post_params.key?(:h)
-    # Determine the template to use based on various params received.
-    post_params[:type] = post_type(post_params)
-
     logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
     return publish_post post_params
