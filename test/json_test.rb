@@ -202,7 +202,7 @@ class JsonTest < Minitest::Test
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
   end
 
-  def test_update_post_json
+  def test_update_property
     stub_token
     stub_github_search
     stub_get_github_request
@@ -210,12 +210,14 @@ class JsonTest < Minitest::Test
     stub_patch_github_request
     post('/micropub/testsite', {
       action: 'update',
-      url: 'https://example/2010/01/14/example-post/',
+      url: 'https://example.com/2017/01/this-is-a-test-post/',
       replace: {
         content: ["This is the updated text. If you can see this you passed the test!"]
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal 'https://example.com/2017/01/this-is-a-test-post', last_response.header['Location']
+  end
 
   def test_add_to_property
     stub_token
