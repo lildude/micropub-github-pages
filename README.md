@@ -70,19 +70,19 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 ### Updates
 
-- [ ] 400 Replace a property  
-- [ ] 401 Add a value to an existing property  
-- [ ] 402 Add a value to a non-existent property  
-- [ ] 403 Remove a value from a property  
-- [ ] 404 Remove a property  
-- [ ] 405 Reject the request if operation is not an array  
+✅ 400 Replace a property  
+✅ 401 Add a value to an existing property  
+✅ 402 Add a value to a non-existent property  
+✅ 403 Remove a value from a property  
+✅ 404 Remove a property  
+✅ 405 Reject the request if operation is not an array  
 
 ### Deletes
 
-- [ ] 500 Delete a post (form-encoded)  
-- [ ] 501 Delete a post (JSON)  
-- [ ] 502 Undelete a post (form-encoded)  
-- [ ] 503 Undelete a post (JSON)  
+✅ 500 Delete a post (form-encoded)  
+✅ 501 Delete a post (JSON)  
+✅ 502 Undelete a post (form-encoded)  
+✅ 503 Undelete a post (JSON)  
 
 **Note** Deleting doesn't remove the post, it just adds/toggles the `published` property
 
@@ -112,7 +112,6 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 ### TODOs
 
 - [ ] Determine pages branch via API or use override if using repo but not Pages
-- [ ] Add integration tests from micropub.rocks
 - [ ] Use GitHub App for access instead of PAT
 - [ ] Dockerise
 
