@@ -15,7 +15,7 @@ RuboCop::RakeTask.new(:rubocop) do |t|
 end
 
 desc 'run irb console'
-task :console, :environment do |t, args|
+task :console, :environment do |_, args|
   ENV['RACK_ENV'] = args[:environment] || 'development'
   exec 'pry -r ./app.rb -e "App = Sinatra::Application.new"'
 end
