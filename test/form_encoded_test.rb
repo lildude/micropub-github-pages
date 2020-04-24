@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require File.expand_path 'test_helper.rb', __dir__
+require 'mocha/setup'
 
 class FormEncodedTest < Minitest::Test
   include Rack::Test::Methods
@@ -223,16 +224,27 @@ class FormEncodedTest < Minitest::Test
   end
 
   def test_delete_post
-    skip('TODO: not yet implemented - requires update support first')
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_post_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
+                                slug: '/2017/01/this-is-a-test-post',
+                                category: %w[foo bar],
+                                fm_published: 'false',
+                              })
+                        .returns(true) # We don't care about the status
     post('/micropub/testsite', {
-           action: 'delete',
-           url: 'https://example.com/2010/01/14/example-post'
-         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-    assert last_response.ok?, "Expected 200 but got #{last_response.status}"
-    # assert JSON.parse(last_response.body)
+      action: 'delete',
+      url: 'https://example.com/2017/01/this-is-a-test-post/'
+    }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 
   def test_undelete_post

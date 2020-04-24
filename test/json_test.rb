@@ -390,7 +390,6 @@ class JsonTest < Minitest::Test
       action: 'delete',
       url: 'https://example.com/2017/01/this-is-a-test-post/',
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
-
   end
 
   def test_undelete_post_json

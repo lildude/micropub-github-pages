@@ -297,7 +297,7 @@ module AppHelpers
     error('invalid_request') if post_params.empty?
 
     # JSON-specific processing
-    if @is_json && !post_params.key?(:action)
+    if post_params.key?(:type) && !post_params.key?(:action)
       post_params[:h] = post_params[:type][0].tr('h-', '') if post_params[:type][0]
       post_params.merge!(post_params.delete(:properties))
       if post_params[:content]
@@ -449,10 +449,9 @@ post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
 
   @site ||= site
-  @is_json = env['CONTENT_TYPE'] == 'application/json'
 
   # Normalise params
-  post_params = @is_json ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
+  post_params = env['CONTENT_TYPE'] == 'application/json' ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
   post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
