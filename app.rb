@@ -367,7 +367,10 @@ module AppHelpers
   end
 
   def update_post(post_params)
-    true
+    post = get_post(post_params[:url], json: false)
+    post[:properties].merge!(post_params[:replace])
+    updated_props = process_params(post)
+    publish_post updated_props
   end
 end
 
