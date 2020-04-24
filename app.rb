@@ -114,7 +114,8 @@ module AppHelpers
     end
 
     sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
-    commit_message = "New #{params[:type]}"
+    @action ||= "new"
+    commit_message = "#{@action.capitalize} #{params[:type]}"
     sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
     client.update_ref(repo, ref, sha_new_commit)
 
@@ -449,14 +450,16 @@ post '/micropub/:site' do |site|
   end
 
   if post_params.key?(:action)
-    error('invalid_request') unless %w[update delete undelete].include? post_params[:action]
-    case post_params[:action]
+    @action = post_params[:action]
+
+    error('invalid_request') unless %w[update delete undelete].include? @action
+    case @action
     when 'delete'
       delete_post post_params
     when 'undelete'
       undelete_post post_params
     when 'update'
-      update post_params
+      update_post post_params
     end
   end
 end
