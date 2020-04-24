@@ -248,6 +248,35 @@ class FormEncodedTest < Minitest::Test
   end
 
   def test_undelete_post
-    skip('TODO: not yet implemented - requires update support first')
+    stub_token
+    stub_github_search
+    # Stub a specific response with fm_published: false
+    Sinatra::Application.any_instance.expects(:get_post)
+                        .returns(
+                          { type: ['h-entry'],
+                            properties: {
+                              name: ['This is a Test Post'],
+                              published: ['2017-01-20 10:01:48 +0000'],
+                              content: ['Micropub update test.'],
+                              slug: ['/2017/01/this-is-a-test-post'],
+                              fm_published: 'false',
+                            } }
+                        )
+    stub_post_github_request
+    # Explicitly mock so we can confirm we're getting the modified content as expected
+    Sinatra::Application.any_instance.expects(:publish_post)
+                        .with({
+                                type: :article,
+                                h: 'entry',
+                                name: 'This is a Test Post',
+                                published: '2017-01-20 10:01:48 +0000',
+                                content: 'Micropub update test.',
+                                slug: '/2017/01/this-is-a-test-post',
+                              })
+                        .returns(true) # We don't care about the status
+    post('/micropub/testsite', {
+      action: 'undelete',
+      url: 'https://example.com/2017/01/this-is-a-test-post/'
+    }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
   end
 end

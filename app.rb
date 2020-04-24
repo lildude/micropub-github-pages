@@ -361,8 +361,10 @@ module AppHelpers
     update_post(post_params)
   end
 
-  def undelete_post(_post_params)
-    true
+  # Undelete assumes there is a "published" field in the front matter and removes it
+  def undelete_post(post_params)
+    post_params[:delete] = ['fm_published']
+    update_post(post_params)
   end
 
   def update_post(post_params)
