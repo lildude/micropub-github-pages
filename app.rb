@@ -115,7 +115,12 @@ module AppHelpers
     sha_new_tree = client.create_tree(settings.sites[@site]['github_repo'], new_tree, base_tree: sha_base_tree).sha
     @action ||= 'new'
     commit_message = "#{@action.capitalize} #{params[:type]}"
-    sha_new_commit = client.create_commit(settings.sites[@site]['github_repo'], commit_message, sha_new_tree, sha_latest_commit).sha
+    sha_new_commit = client.create_commit(
+      settings.sites[@site]['github_repo'],
+      commit_message,
+      sha_new_tree,
+      sha_latest_commit
+    ).sha
     client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
 
     status 201
@@ -171,7 +176,9 @@ module AppHelpers
     # Error if we can't find the post
     error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
 
-    content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
+    if code[:total_count] == 1
+      content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path])
+    end
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post_to_json(decoded_content, json: json)
@@ -192,7 +199,9 @@ module AppHelpers
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
     # TODO: This should prob be url, but need to chec the behaviour of the various clients first
     data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
-    data[:properties][:category] = front_matter.delete('tags') unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    unless front_matter['tags'].nil? || front_matter['tags'].empty?
+      data[:properties][:category] = front_matter.delete('tags')
+    end
     # For everything else, map directly onto fm_* properties
     front_matter.each do |k, v|
       data[:properties][:"fm_#{k}"] = [v]
@@ -451,7 +460,11 @@ post '/micropub/:site' do |site|
   @site ||= site
 
   # Normalise params
-  post_params = env['CONTENT_TYPE'] == 'application/json' ? JSON.parse(request.body.read.to_s, symbolize_names: true) : params
+  post_params = if env['CONTENT_TYPE'] == 'application/json'
+                  JSON.parse(request.body.read.to_s, symbolize_names: true)
+                else
+                  params
+                end
   post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
