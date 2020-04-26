@@ -89,6 +89,18 @@ def stub_get_github_request(code: 200)
     )
 end
 
+def stub_get_pages_branch
+  stub_request(:get, %r{api.github.com/.*/pages})
+    .to_return(
+      status: 200, headers: { 'Content-Type' => 'application/json' },
+      body: JSON.generate(
+        source: {
+        branch: 'master',
+        directory: '/'
+      })
+    )
+end
+
 def stub_post_github_request
   stub_request(:post, %r{api.github.com/repos/.*/git/.*})
     .to_return(

@@ -13,6 +13,7 @@ class MultipartTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     photo = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg'))
@@ -30,6 +31,7 @@ class MultipartTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     photo = [

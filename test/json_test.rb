@@ -21,6 +21,7 @@ class JsonTest < Minitest::Test
   def test_new_note_json_syntax
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -41,6 +42,7 @@ class JsonTest < Minitest::Test
   def test_new_note_with_html_json
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     post('/micropub/testsite', {
@@ -58,6 +60,7 @@ class JsonTest < Minitest::Test
   def test_new_note_with_title_in_markdown_content_becomes_article_json
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -80,6 +83,7 @@ class JsonTest < Minitest::Test
   def test_new_note_with_title_in_markdown_and_name_becomes_article_with_name_as_title
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -104,6 +108,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     post('/micropub/testsite', {
@@ -122,6 +127,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_cant_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     post('/micropub/testsite', {
@@ -140,6 +146,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     post('/micropub/testsite', {
@@ -159,6 +166,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     post('/micropub/testsite', {
@@ -180,6 +188,7 @@ class JsonTest < Minitest::Test
   def test_h_entry_with_nested_object
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -207,6 +216,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're getting the modified category entries
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -225,6 +235,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're getting the category modified
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -251,6 +262,7 @@ class JsonTest < Minitest::Test
                               content: ['Micropub update test.']
                             } }
                         )
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're getting the category property added
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -269,6 +281,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly mock so we can confirm we're getting the modified content as expected
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -295,6 +308,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm the category propery has been removed
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -339,6 +353,7 @@ class JsonTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -363,6 +378,7 @@ class JsonTest < Minitest::Test
                               fm_published: 'false'
                             } }
                         )
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're not getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)

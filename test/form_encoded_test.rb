@@ -49,6 +49,7 @@ class FormEncodedTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     get '/micropub/testsite?q=source&url=https://example.com/2010/01/14/example-post', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?, "Expected 200 but got #{last_response.status}"
     assert JSON.parse(last_response.body)
@@ -146,6 +147,7 @@ class FormEncodedTest < Minitest::Test
   def test_new_note_with_syndication_everything_and_unrecognised_params
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -172,6 +174,7 @@ class FormEncodedTest < Minitest::Test
   def test_new_entry
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -190,6 +193,7 @@ class FormEncodedTest < Minitest::Test
   def test_new_note_with_title_in_markdown_content_becomes_article
     stub_token
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     now = Time.now
@@ -211,6 +215,7 @@ class FormEncodedTest < Minitest::Test
     stub_token
     stub_get_photo
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
     post('/micropub/testsite', {
@@ -227,6 +232,7 @@ class FormEncodedTest < Minitest::Test
     stub_token
     stub_github_search
     stub_get_github_request
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly mock so we can confirm we're getting the modified content as expected
     Sinatra::Application.any_instance.expects(:publish_post)
@@ -251,6 +257,7 @@ class FormEncodedTest < Minitest::Test
                               fm_published: 'false'
                             } }
                         )
+    stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're not getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)

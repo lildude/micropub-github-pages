@@ -97,7 +97,7 @@ module AppHelpers
     template = File.read("templates/#{params[:type]}.liquid")
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
-    ref = 'heads/master' # TODO: Use API to determine pages branch or use override
+    ref = client.pages(settings.sites[@site]['github_repo']).source.branch
     sha_latest_commit = client.ref(settings.sites[@site]['github_repo'], ref).object.sha
     sha_base_tree = client.commit(settings.sites[@site]['github_repo'], sha_latest_commit).commit.tree.sha
 
