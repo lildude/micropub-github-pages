@@ -138,28 +138,26 @@ module AppHelpers
       url = photo.is_a?(String) ? photo : photo[:value]
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
-      begin
-        filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
-        upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
-        photo_path = ''.dup
-        photo_path << settings.sites[@site]['site_url'] if settings.sites[@site]['full_image_urls']
-        photo_path << "/#{upload_path}"
-        unless tmpfile
-          tmpfile = Tempfile.new(filename)
-          File.open(tmpfile, 'wb') do |f|
-            resp = HTTParty.get(url, stream_body: true, follow_redirects: true)
-            raise unless resp.success?
+      filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
+      upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
+      photo_path = ''.dup
+      photo_path << settings.sites[@site]['site_url'] if settings.sites[@site]['full_image_urls']
+      photo_path << "/#{upload_path}"
+      unless tmpfile
+        tmpfile = Tempfile.new(filename)
+        File.open(tmpfile, 'wb') do |f|
+          resp = HTTParty.get(url, stream_body: true, follow_redirects: true)
+          raise unless resp.success?
 
-            f.write resp.body
-          end
+          f.write resp.body
         end
-        content = { upload_path => Base64.encode64(tmpfile.read) }
-        params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
-        # TODO: This is too greedy and hides legit problems
-      rescue StandardError
-        # Fall back to orig url if we can't download
-        params[:photo][i] = { 'url' => url, 'alt' => alt }
       end
+      content = { upload_path => Base64.encode64(tmpfile.read) }
+      params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
+      # TODO: This is too greedy and hides legit problems
+    rescue StandardError
+      # Fall back to orig url if we can't download
+      params[:photo][i] = { 'url' => url, 'alt' => alt }
     end
     params[:photo]
   end
@@ -176,9 +174,7 @@ module AppHelpers
     # Error if we can't find the post
     error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
 
-    if code[:total_count] == 1
-      content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path])
-    end
+    content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post_to_json(decoded_content, json: json)
@@ -199,9 +195,7 @@ module AppHelpers
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
     # TODO: This should prob be url, but need to chec the behaviour of the various clients first
     data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
-    unless front_matter['tags'].nil? || front_matter['tags'].empty?
-      data[:properties][:category] = front_matter.delete('tags')
-    end
+    data[:properties][:category] = front_matter.delete('tags') unless front_matter['tags'].nil? || front_matter['tags'].empty?
     # For everything else, map directly onto fm_* properties
     front_matter.each do |k, v|
       data[:properties][:"fm_#{k}"] = [v]
@@ -381,19 +375,11 @@ module AppHelpers
       post[:properties].merge!(post_params[:replace])
     elsif post_params.key? :add
       post_params[:add].each do |k, v|
-        if post[:properties].key? k
-          post[:properties][k] += v
-        else
-          post[:properties][k] = v
-        end
+        post[:properties].key?(k) ? post[:properties][k] += v : post[:properties][k] = v
       end
     elsif post_params.key? :delete
       post_params[:delete].each do |k, v|
-        if k.is_a? String
-          post[:properties].delete(k.to_sym)
-        else
-          post[:properties][k] -= v
-        end
+        k.is_a?(String) ? post[:properties].delete(k.to_sym) : post[:properties][k] -= v
       end
     end
 
