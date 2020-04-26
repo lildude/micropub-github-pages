@@ -190,7 +190,7 @@ module AppHelpers
     data[:type] = ['h-entry'] # TODO: Handle other types.
     data[:properties] = {}
     # Map Jekyll Frontmatter fields back to microformat h-entry field names
-    data[:properties][:name] = [front_matter.delete('title')] unless front_matter['title'].nil?
+    data[:properties][:name] = [front_matter.delete('title')] if front_matter['title']
     data[:properties][:published] = [front_matter.delete('date').to_s]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
     # TODO: This should prob be url, but need to chec the behaviour of the various clients first
