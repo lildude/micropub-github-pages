@@ -165,7 +165,7 @@ module AppHelpers
   # Grab the contents of the file referenced by the URL received from the client
   # This assumes the final part of the URL contains part of the filename as it
   # appears in the repository.
-  def get_post(url, json: true)
+  def get_post(url)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     code = client.search_code("filename:#{fuzzy_filename} repo:#{settings.sites[@site]['github_repo']}")
@@ -177,10 +177,10 @@ module AppHelpers
     content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
-    jekyll_post_to_json(decoded_content, json: json)
+    jekyll_post(decoded_content)
   end
 
-  def jekyll_post_to_json(content, json: true)
+  def jekyll_post(content)
     # Taken from Jekyll's Jekyll::Document YAML_FRONT_MATTER_REGEXP
     matches = content.match(/\A(---\s*\n.*?\n?)^((---|\.\.\.)\s*$\n?)(.*)/m)
     front_matter = SafeYAML.load(matches[1])
@@ -200,8 +200,6 @@ module AppHelpers
     front_matter.each do |k, v|
       data[:properties][:"fm_#{k}"] = [v]
     end
-
-    return JSON.generate(data) if json
 
     data
   end
@@ -369,7 +367,7 @@ module AppHelpers
   end
 
   def update_post(post_params)
-    post = get_post(post_params[:url], json: false)
+    post = get_post(post_params[:url])
 
     if post_params.key? :replace
       post[:properties].merge!(post_params[:replace])
@@ -432,7 +430,7 @@ get '/micropub/:site' do |site|
     headers 'Content-type' => 'application/json'
     # body JSON.generate("response": get_post(params[:url]))
     # TODO: Determine what goes in here
-    body get_post(params[:url])
+    body JSON.generate(get_post(params[:url]))
   when /syndicate-to/
     status 200
     headers 'Content-type' => 'application/json'
