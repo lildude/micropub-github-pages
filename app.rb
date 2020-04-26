@@ -18,9 +18,8 @@ SafeYAML::OPTIONS[:default_mode] = :safe
 
 configure { set :server, :puma }
 
-config_yml = "#{::File.dirname(__FILE__)}/config.yml"
-config_yml = "#{::File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
-
+config_yml = "#{File.dirname(__FILE__)}/config.yml"
+config_yml = "#{File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
 config_file config_yml
 
 # Default settings if not set in config
