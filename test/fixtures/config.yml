@@ -1,6 +1,6 @@
 sites:
   testsite:
-    github_repo: "micropub-github-pages"
+    github_repo: "lildude/micropub-github-pages"
     permalink_style: "/:categories/:year/:month/:title"
     site_url: "https://example.com"
     full_image_urls: false # Include site_url in img paths
@@ -9,7 +9,6 @@ sites:
 micropub:
   token_endpoint: "http://example.com/micropub/token"
 
-github_username: lildude
 download_photos: true
 
 syndicate_to:

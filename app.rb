@@ -78,8 +78,7 @@ module AppHelpers
 
     # Verify the repo exists
     begin
-      repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
-      client.repository?(repo)
+      client.repository?(settings.sites[@site]['github_repo'])
     rescue Octokit::UnprocessableEntity
       error('invalid_repo')
     end
@@ -99,8 +98,8 @@ module AppHelpers
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
     ref = 'heads/master' # TODO: Use API to determine pages branch or use override
-    sha_latest_commit = client.ref(repo, ref).object.sha
-    sha_base_tree = client.commit(repo, sha_latest_commit).commit.tree.sha
+    sha_latest_commit = client.ref(settings.sites[@site]['github_repo'], ref).object.sha
+    sha_base_tree = client.commit(settings.sites[@site]['github_repo'], sha_latest_commit).commit.tree.sha
 
     files["_posts/#{filename}"] = Base64.encode64(content)
 
@@ -109,15 +108,15 @@ module AppHelpers
         path: path,
         mode: '100644',
         type: 'blob',
-        sha: client.create_blob(repo, new_content, 'base64')
+        sha: client.create_blob(settings.sites[@site]['github_repo'], new_content, 'base64')
       )
     end
 
-    sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
+    sha_new_tree = client.create_tree(settings.sites[@site]['github_repo'], new_tree, base_tree: sha_base_tree).sha
     @action ||= 'new'
     commit_message = "#{@action.capitalize} #{params[:type]}"
-    sha_new_commit = client.create_commit(repo, commit_message, sha_new_tree, sha_latest_commit).sha
-    client.update_ref(repo, ref, sha_new_commit)
+    sha_new_commit = client.create_commit(settings.sites[@site]['github_repo'], commit_message, sha_new_tree, sha_latest_commit).sha
+    client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
 
     status 201
     headers 'Location' => @location.to_s
@@ -166,14 +165,13 @@ module AppHelpers
   def get_post(url, json: true)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-    repo = "#{settings.github_username}/#{settings.sites[@site]['github_repo']}"
-    code = client.search_code("filename:#{fuzzy_filename} repo:#{repo}")
+    code = client.search_code("filename:#{fuzzy_filename} repo:#{settings.sites[@site]['github_repo']}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     # Error if we can't find the post
     error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
 
-    content = client.contents(repo, path: code[:items][0][:path]) if code[:total_count] == 1
+    content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post_to_json(decoded_content, json: json)
