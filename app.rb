@@ -22,10 +22,9 @@ config_yml = "#{File.dirname(__FILE__)}/config.yml"
 config_yml = "#{File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
 
 # Override config file if CONFIG env var is set
-# Assumes valid YAML
-if ENV['CONFIG']
-  config_file = Tempfile.new('config-yml')
-  File.write(config_file, ENV['CONFIG'])
+if ENV['CONFIG'] && !ENV['CONFIG'].empty?
+  config_yml = Tempfile.new(['config-', '.yml'])
+  File.write(config_yml, JSON.parse(ENV['CONFIG']).to_yaml)
 end
 
 config_file config_yml
