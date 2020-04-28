@@ -2,7 +2,6 @@
 
 require 'sinatra'
 require 'sinatra/config_file'
-require 'sinatra/content_for'
 require 'uri'
 require 'octokit'
 require 'httparty'
