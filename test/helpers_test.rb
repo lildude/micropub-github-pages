@@ -29,7 +29,7 @@ class HelpersTest < Minitest::Test
 
   def test_jekyll_post
     content = "---\nlayout: post\ntags:\n- tag1\n- tag2\npermalink: \"/2017/07/foo-bar\"\ndate: 2017-07-22 10:56:22 +0100\n---\nThis is the content"
-    jekyll_hash = { type: ["h-entry"], properties: { published: ["2017-07-22 10:56:22 +0100"], content: ["This is the content"],slug: ["/2017/07/foo-bar"], category: ["tag1","tag2"] } }
+    jekyll_hash = { type: ['h-entry'], properties: { published: ['2017-07-22 10:56:22 +0100'], content: ['This is the content'], slug: ['/2017/07/foo-bar'], category: %w[tag1 tag2] } }
     assert_equal jekyll_hash, @helper.jekyll_post(content)
   end
 

@@ -95,9 +95,10 @@ def stub_get_pages_branch
       status: 200, headers: { 'Content-Type' => 'application/json' },
       body: JSON.generate(
         source: {
-        branch: 'master',
-        directory: '/'
-      })
+          branch: 'master',
+          directory: '/'
+        }
+      )
     )
 end
 
