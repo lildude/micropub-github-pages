@@ -63,7 +63,7 @@ module AppHelpers
                             'Authorization' => "Bearer #{@access_token}"
                           }
                         })
-    decoded_resp = Hash[URI.decode_www_form(resp)].transform_keys(&:to_sym)
+    decoded_resp = Hash[URI.decode_www_form(resp.body)].transform_keys(&:to_sym)
     error('insufficient_scope') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
     decoded_resp
