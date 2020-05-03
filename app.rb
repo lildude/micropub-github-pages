@@ -59,7 +59,7 @@ module AppHelpers
   def verify_token
     resp = HTTParty.get(Sinatra::Application.settings.micropub[:token_endpoint], {
                           headers: {
-                            'Content-type' => 'application/x-www-form-urlencoded',
+                            'Accept' => 'application/x-www-form-urlencoded',
                             'Authorization' => "Bearer #{@access_token}"
                           }
                         })

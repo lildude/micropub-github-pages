@@ -25,7 +25,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 def stub_token
   stub_request(:get, 'http://example.com/micropub/token')
     .with(headers: { 'Authorization' => 'Bearer 1234567890',
-                     'Content-Type' => 'application/x-www-form-urlencoded' })
+                     'Accept' => 'application/x-www-form-urlencoded' })
     .to_return(status: 200,
                body: URI.encode_www_form(
                  me: 'https://testsite.example.com',
@@ -38,7 +38,7 @@ end
 def stub_noscope_token_response
   stub_request(:get, 'http://example.com/micropub/token')
     .with(headers: { 'Authorization' => 'Bearer 1234567890',
-                     'Content-Type' => 'application/x-www-form-urlencoded' })
+                     'Accept' => 'application/x-www-form-urlencoded' })
     .to_return(status: 200,
                body: URI.encode_www_form(
                  me: 'https://testsite.example.com',
@@ -51,7 +51,7 @@ end
 def stub_unauthed_token
   stub_request(:get, 'http://example.com/micropub/token')
     .with(headers: { 'Authorization' => 'Bearer 1234567890',
-                     'Content-Type' => 'application/x-www-form-urlencoded' })
+                     'Accept' => 'application/x-www-form-urlencoded' })
     .to_return(status: 401,
                body: URI.encode_www_form(
                  me: 'https://testsite.example.com',
