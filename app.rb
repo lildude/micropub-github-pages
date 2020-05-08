@@ -75,9 +75,6 @@ module AppHelpers
   end
 
   def publish_post(params)
-    # Authenticate
-    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
     params[:slug] = create_slug(params)
@@ -86,13 +83,6 @@ module AppHelpers
     logger.info "Filename: #{filename}"
     @location = settings.sites[@site]['site_url'].dup
     @location << create_permalink(params)
-
-    # Verify the repo exists
-    begin
-      client.repository?(settings.sites[@site]['github_repo'])
-    rescue Octokit::UnprocessableEntity
-      error('invalid_repo')
-    end
 
     files = {}
 
@@ -108,11 +98,24 @@ module AppHelpers
     template = File.read("templates/#{params[:type]}.liquid")
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
+    files["_posts/#{filename}"] = Base64.encode64(content)
+
+    commit_to_github(files, params[:type])
+
+    status 201
+    headers 'Location' => @location.to_s
+    body content if ENV['RACK_ENV'] == 'test'
+  end
+
+  # Files should be an array of path and base64 encoded content
+  def commit_to_github(files, type)
+    # Authenticate
+    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
+    # Verify the repo exists
+    client.repository?(settings.sites[@site]['github_repo'])
     ref = client.pages(settings.sites[@site]['github_repo']).source.branch
     sha_latest_commit = client.ref(settings.sites[@site]['github_repo'], ref).object.sha
     sha_base_tree = client.commit(settings.sites[@site]['github_repo'], sha_latest_commit).commit.tree.sha
-
-    files["_posts/#{filename}"] = Base64.encode64(content)
 
     new_tree = files.map do |path, new_content|
       Hash(
@@ -133,10 +136,8 @@ module AppHelpers
       sha_latest_commit
     ).sha
     client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
-
-    status 201
-    headers 'Location' => @location.to_s
-    body content if ENV['RACK_ENV'] == 'test'
+    rescue Octokit::UnprocessableEntity
+      error('invalid_repo')
   end
 
   # Download the photo and add to GitHub repo if config allows
