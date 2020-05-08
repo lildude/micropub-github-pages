@@ -22,7 +22,7 @@ require_relative '../app'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
-def stub_token
+def stub_token(scope = 'create update delete undelete')
   stub_request(:get, 'http://example.com/micropub/token')
     .with(headers: { 'Authorization' => 'Bearer 1234567890',
                      'Accept' => 'application/x-www-form-urlencoded' })
@@ -31,7 +31,7 @@ def stub_token
                  me: 'https://testsite.example.com',
                  issued_by: 'http://localhost:4567/micropub/token',
                  client_id: 'http://testsite.example.com',
-                 issued_at: '123456789', scope: 'post', nonce: '0987654321'
+                 issued_at: '123456789', scope: scope, nonce: '0987654321'
                ))
 end
 
