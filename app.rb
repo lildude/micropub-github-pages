@@ -49,7 +49,7 @@ module AppHelpers
       description ||= 'Forbidden'
     when 'invalid_repo'
       code = 422
-      description ||= "Repository doesn't exit."
+      description ||= "Repository doesn't exist."
     when 'unauthorized'
       code = 401
     end
@@ -66,13 +66,10 @@ module AppHelpers
     decoded_resp = Hash[URI.decode_www_form(resp.body)].transform_keys(&:to_sym)
     error('forbidden') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
-    @scopes = decoded_resp[:scope].gsub(/post/, 'create').split(' ')
+    decoded_resp[:scope].gsub(/post/, 'create').split(' ')
   end
 
   def publish_post(params)
-    # Authenticate
-    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
     params[:slug] = create_slug(params)
@@ -81,13 +78,6 @@ module AppHelpers
     logger.info "Filename: #{filename}"
     @location = settings.sites[@site]['site_url'].dup
     @location << create_permalink(params)
-
-    # Verify the repo exists
-    begin
-      client.repository?(settings.sites[@site]['github_repo'])
-    rescue Octokit::UnprocessableEntity
-      error('invalid_repo')
-    end
 
     files = {}
 
@@ -103,11 +93,24 @@ module AppHelpers
     template = File.read("templates/#{params[:type]}.liquid")
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
-    ref = client.pages(settings.sites[@site]['github_repo']).source.branch
+    files["_posts/#{filename}"] = Base64.encode64(content)
+
+    commit_to_github(files, params[:type])
+
+    status 201
+    headers 'Location' => @location.to_s
+    body content if ENV['RACK_ENV'] == 'test'
+  end
+
+  # Files should be an array of path and base64 encoded content
+  def commit_to_github(files, type)
+    # Authenticate
+    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
+    # Verify the repo exists
+    client.repository?(settings.sites[@site]['github_repo'])
+    ref = "heads/#{client.pages(settings.sites[@site]['github_repo']).source.branch}"
     sha_latest_commit = client.ref(settings.sites[@site]['github_repo'], ref).object.sha
     sha_base_tree = client.commit(settings.sites[@site]['github_repo'], sha_latest_commit).commit.tree.sha
-
-    files["_posts/#{filename}"] = Base64.encode64(content)
 
     new_tree = files.map do |path, new_content|
       Hash(
@@ -120,7 +123,7 @@ module AppHelpers
 
     sha_new_tree = client.create_tree(settings.sites[@site]['github_repo'], new_tree, base_tree: sha_base_tree).sha
     @action ||= 'new'
-    commit_message = "#{@action.capitalize} #{params[:type]}"
+    commit_message = "#{@action.capitalize} #{type}"
     sha_new_commit = client.create_commit(
       settings.sites[@site]['github_repo'],
       commit_message,
@@ -128,10 +131,9 @@ module AppHelpers
       sha_latest_commit
     ).sha
     client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
-
-    status 201
-    headers 'Location' => @location.to_s
-    body content if ENV['RACK_ENV'] == 'test'
+    # TODO: this is too generic and hides other problems
+    rescue Octokit::UnprocessableEntity
+      error('invalid_repo')
   end
 
   # Download the photo and add to GitHub repo if config allows
@@ -413,8 +415,8 @@ before do
   # Remove the access_token to prevent any accidental exposure later
   params.delete('access_token')
 
-  # Verify the token
-  verify_token unless ENV['RACK_ENV'] == 'development'
+  # Verify the token and extract scopes
+  @scopes = verify_token unless ENV['RACK_ENV'] == 'development'
 end
 
 # Query
@@ -431,7 +433,10 @@ get '/micropub/:site' do |site|
     headers 'Content-type' => 'application/json'
     # TODO: Populate this with media-endpoint and syndicate-to when supported.
     #       Until then, empty object is fine.
-    body JSON.generate({})
+    # We are our own media-endpoint
+    body JSON.generate({
+      "media-endpoint": "#{request.base_url}#{request.path}/media"
+    })
   when /source/
     status 200
     headers 'Content-type' => 'application/json'
@@ -495,4 +500,23 @@ post '/micropub/:site' do |site|
       update_post post_params
     end
   end
+end
+
+post '/micropub/:site/media' do |site|
+  halt 404 unless settings.sites.include? site
+  error('insufficient_scope') unless @scopes.include?('create') || @scopes.include?('media')
+  @site ||= site
+
+  file = params[:file]
+  upload_path = "#{settings.sites[@site]['image_dir']}/#{file[:filename]}"
+  media_path = "#{settings.sites[@site]['site_url']}/#{upload_path}"
+
+  files = {}
+  files[upload_path] = Base64.encode64(file[:tempfile].read)
+
+  commit_to_github(files, 'media')
+
+  status 201
+  headers 'Location' => media_path
+  body nil
 end
