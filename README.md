@@ -95,9 +95,9 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 ### Media Endpoint
 
-- [ ] 700 Upload a jpg to the Media Endpoint  
-- [ ] 701 Upload a png to the Media Endpoint  
-- [ ] 702 Upload a gif to the Media Endpoint  
+✅ 700 Upload a jpg to the Media Endpoint  
+✅ 701 Upload a png to the Media Endpoint  
+✅ 702 Upload a gif to the Media Endpoint  
 
 ### Authentication
 
@@ -105,13 +105,12 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 ✅ 801 Accept access token in POST body  
 ✅ 802 Does not store access token property  
 ✅ 803 Rejects unauthenticated requests  
-- [ ] 804 Rejects unauthorized access tokens <small>* I think this passes, but holding off checkig until 💯</small>  
+✅ 804 Rejects unauthorized access tokens <small>* I think this passes, but holding off checkig until 💯</small>  
 
 ---
 
 ### TODOs
 
-- [ ] Determine pages branch via API or use override if using repo but not Pages
 - [ ] Use GitHub App for access instead of PAT
 - [ ] Dockerise
 
