@@ -504,7 +504,7 @@ end
 
 post '/micropub/:site/media' do |site|
   halt 404 unless settings.sites.include? site
-  error('insufficient_scope') unless has_scope?('create') || has_scope?('media')
+  error('insufficient_scope') unless @scopes.include?('create') || @scopes.include?('media')
   @site ||= site
 
   file = params[:file]

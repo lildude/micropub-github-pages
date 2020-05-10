@@ -29,12 +29,13 @@ class FormEncodedTest < Minitest::Test
     assert last_response.not_found?
   end
 
-  # TODO: update me when implementing a media-endpoint and syndicate-to
   def test_get_config_with_authorisation_header
     stub_token
     get '/micropub/testsite?q=config', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?
-    assert JSON.parse(last_response.body).empty?
+    parse_body = JSON.parse(last_response.body)
+    refute parse_body.empty?
+    assert_equal parse_body["media-endpoint"],  "http://example.org/micropub/testsite/media"
   end
 
   # TODO: update me when implementing syndicate-to
