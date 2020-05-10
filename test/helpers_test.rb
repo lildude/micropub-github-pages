@@ -31,15 +31,17 @@ class HelpersTest < Minitest::Test
   end
 
   def test_create_slug
-    assert_equal 'this-is-a-slug', @helper.create_slug(slug: 'this-is-a-slug')
-    assert_equal 'foobar', @helper.create_slug(slug: '/2017/07/foobar')
-    assert_equal 'foobar', @helper.create_slug(slug: '/2017/07/foobar/')
+    assert_equal 'this-is-a-slug', @helper.create_slug("mp-slug": 'this-is-a-slug')
+    assert_equal 'this-is-a-slug', @helper.create_slug("mp-slug": 'this is a slug')
+    assert_equal 'foobar', @helper.create_slug("mp-slug": '/2017/07/foobar')
+    assert_equal 'foobar', @helper.create_slug("mp-slug": '/2017/07/foobar/')
     assert_equal 'this-is-a-name-slug', @helper.create_slug(name: 'This is a name 😜 Slug')
     assert_equal '35782', @helper.create_slug(published: '2017-07-02 02:56:22 -0700')
   end
 
   def test_slugify
     assert_equal 'this-is-text', @helper.slugify('this is text')
+    assert_equal 'this-is-text', @helper.slugify('this-is-text')
     assert_equal 'this-is-1234-no-emoji-or-punc', @helper.slugify('this is 🍎 1234 no emoji ! or punc')
     assert_equal 'this-ends-in-emoji', @helper.slugify('tHis ends In emoji 🤡')
   end

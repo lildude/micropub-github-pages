@@ -57,6 +57,8 @@ module AppHelpers
   end
 
   def verify_token
+    return %w[create update delete undelete media] if ENV['RACK_ENV'] == 'development'
+
     resp = HTTParty.get(Sinatra::Application.settings.micropub[:token_endpoint], {
                           headers: {
                             'Accept' => 'application/x-www-form-urlencoded',
@@ -201,7 +203,6 @@ module AppHelpers
     data[:properties][:name] = [front_matter.delete('title')] if front_matter['title']
     data[:properties][:published] = [front_matter.delete('date').to_s]
     data[:properties][:content] = content.nil? ? [''] : [content.strip]
-    # TODO: This should prob be url, but need to chec the behaviour of the various clients first
     data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
     data[:properties][:category] = front_matter.delete('tags') unless front_matter['tags'].nil? || front_matter['tags'].empty?
     # For everything else, map directly onto fm_* properties
@@ -215,8 +216,8 @@ module AppHelpers
   def create_slug(params)
     # Use the provided slug
     slug =
-      if params.include?(:slug) && !params[:slug].nil?
-        File.basename(params[:slug])
+      if params.include?(:"mp-slug") && !params[:"mp-slug"].nil?
+        slugify File.basename(params[:"mp-slug"])
       # If there's a name, use that
       elsif params.include?(:name) && !params[:name].nil?
         slugify params[:name]
@@ -416,7 +417,7 @@ before do
   params.delete('access_token')
 
   # Verify the token and extract scopes
-  @scopes = verify_token unless ENV['RACK_ENV'] == 'development'
+  @scopes = verify_token
 end
 
 # Query
