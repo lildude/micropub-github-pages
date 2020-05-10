@@ -134,8 +134,8 @@ module AppHelpers
     ).sha
     client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
     # TODO: this is too generic and hides other problems
-    rescue Octokit::UnprocessableEntity
-      error('invalid_repo')
+  rescue Octokit::UnprocessableEntity
+    error('invalid_repo')
   end
 
   # Download the photo and add to GitHub repo if config allows
@@ -435,9 +435,7 @@ get '/micropub/:site' do |site|
     # TODO: Populate this with media-endpoint and syndicate-to when supported.
     #       Until then, empty object is fine.
     # We are our own media-endpoint
-    body JSON.generate({
-      "media-endpoint": "#{request.base_url}#{request.path}/media"
-    })
+    body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
   when /source/
     status 200
     headers 'Content-type' => 'application/json'

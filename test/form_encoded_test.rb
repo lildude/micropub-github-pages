@@ -35,7 +35,7 @@ class FormEncodedTest < Minitest::Test
     assert last_response.ok?
     parse_body = JSON.parse(last_response.body)
     refute parse_body.empty?
-    assert_equal parse_body["media-endpoint"],  "http://example.org/micropub/testsite/media"
+    assert_equal parse_body['media-endpoint'], 'http://example.org/micropub/testsite/media'
   end
 
   # TODO: update me when implementing syndicate-to
@@ -130,23 +130,23 @@ class FormEncodedTest < Minitest::Test
 
   def test_scopes_enforced
     stub_token('delete')
-    post '/micropub/testsite', {h: 'entry'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    post '/micropub/testsite', { h: 'entry' }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.body.include? 'insufficient_scope'
 
     stub_token('undelete')
-    post '/micropub/testsite', {h: 'entry'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    post '/micropub/testsite', { h: 'entry' }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.body.include? 'insufficient_scope'
 
     stub_token('media')
-    post '/micropub/testsite', {h: 'entry'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    post '/micropub/testsite', { h: 'entry' }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.body.include? 'insufficient_scope'
 
     stub_token('create')
-    post '/micropub/testsite', {action: 'delete'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    post '/micropub/testsite', { action: 'delete' }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.body.include? 'insufficient_scope'
 
     stub_token('create')
-    post '/micropub/testsite', {action: 'undelete'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    post '/micropub/testsite', { action: 'undelete' }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.body.include? 'insufficient_scope'
   end
 

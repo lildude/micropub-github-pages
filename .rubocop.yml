@@ -8,7 +8,7 @@ AllCops:
     - 'env.rb'
 
 Metrics/BlockLength:
-  Max: 30
+  Max: 40
 
 Metrics/MethodLength:
   Enabled: false
