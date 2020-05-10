@@ -66,12 +66,13 @@ module AppHelpers
     decoded_resp = Hash[URI.decode_www_form(resp.body)].transform_keys(&:to_sym)
     error('forbidden') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
-    @scope = decoded_resp[:scope].split(' ')
+    @scopes = decoded_resp[:scope].split(' ')
   end
 
   def has_scope?(scope)
+    return true if ENV['RACK_ENV'] == 'development'
     scope = 'create' if scope == 'post'
-    @scope.include?(scope)
+    @scopes.include?(scope)
   end
 
   def publish_post(params)
@@ -522,4 +523,5 @@ post '/micropub/:site/media' do |site|
 
   status 201
   headers 'Location' => media_path
+  body nil
 end
