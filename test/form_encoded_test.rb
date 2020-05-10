@@ -34,7 +34,7 @@ class FormEncodedTest < Minitest::Test
     stub_token
     get '/micropub/testsite?q=config', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?
-    #assert JSON.parse(last_response.body).empty?
+    assert JSON.parse(last_response.body).empty?
   end
 
   # TODO: update me when implementing syndicate-to
