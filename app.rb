@@ -66,7 +66,7 @@ module AppHelpers
     decoded_resp = Hash[URI.decode_www_form(resp.body)].transform_keys(&:to_sym)
     error('forbidden') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
-    @scopes = decoded_resp[:scope].gsub(/post/, 'create').split(' ')
+    decoded_resp[:scope].gsub(/post/, 'create').split(' ')
   end
 
   def publish_post(params)
@@ -415,8 +415,8 @@ before do
   # Remove the access_token to prevent any accidental exposure later
   params.delete('access_token')
 
-  # Verify the token
-  verify_token unless ENV['RACK_ENV'] == 'development'
+  # Verify the token and extract scopes
+  @scopes = verify_token unless ENV['RACK_ENV'] == 'development'
 end
 
 # Query
