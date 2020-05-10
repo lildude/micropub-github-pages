@@ -32,6 +32,7 @@ class HelpersTest < Minitest::Test
 
   def test_create_slug
     assert_equal 'this-is-a-slug', @helper.create_slug("mp-slug": 'this-is-a-slug')
+    assert_equal 'this-is-a-slug', @helper.create_slug("mp-slug": 'this is a slug')
     assert_equal 'foobar', @helper.create_slug("mp-slug": '/2017/07/foobar')
     assert_equal 'foobar', @helper.create_slug("mp-slug": '/2017/07/foobar/')
     assert_equal 'this-is-a-name-slug', @helper.create_slug(name: 'This is a name 😜 Slug')

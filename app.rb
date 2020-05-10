@@ -216,7 +216,7 @@ module AppHelpers
     # Use the provided slug
     slug =
       if params.include?(:"mp-slug") && !params[:"mp-slug"].nil?
-        File.basename(params[:"mp-slug"])
+        slugify File.basename(params[:"mp-slug"])
       # If there's a name, use that
       elsif params.include?(:name) && !params[:name].nil?
         slugify params[:name]
