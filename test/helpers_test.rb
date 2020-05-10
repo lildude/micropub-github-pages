@@ -18,19 +18,15 @@ class HelpersTest < Minitest::Test
   end
 
   def test_verify_token_valid
-    skip
     stub_token
     @helper.instance_variable_set(:@access_token, '1234567890')
     result = @helper.verify_token
-    assert result.include? :me
-    assert result.include? :issued_by
-    assert result.include? :client_id
-    assert_equal 'https://testsite.example.com', result[:me]
+    assert_equal %w[create update delete undelete], result
   end
 
   def test_jekyll_post
-    content = "---\nlayout: post\ntags:\n- tag1\n- tag2\npermalink: \"/2017/07/foo-bar\"\ndate: 2017-07-22 10:56:22 +0100\n---\nThis is the content"
-    jekyll_hash = { type: ['h-entry'], properties: { published: ['2017-07-22 10:56:22 +0100'], content: ['This is the content'], slug: ['/2017/07/foo-bar'], category: %w[tag1 tag2] } }
+    content = "---\nlayout: post\ntags:\n- tag1\n- tag2\npermalink: \"/2017/07/foo-bar\"\ndate: 2017-07-22 10:56:22 +0100\nfoo: \"bar\"\n---\nThis is the content"
+    jekyll_hash = { type: ['h-entry'], properties: { published: ['2017-07-22 10:56:22 +0100'], content: ['This is the content'], slug: ['/2017/07/foo-bar'], category: %w[tag1 tag2], fm_foo: ['bar'] } }
     assert_equal jekyll_hash, @helper.jekyll_post(content)
   end
 
