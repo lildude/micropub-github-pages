@@ -64,9 +64,9 @@ module AppHelpers
                           }
                         })
     decoded_resp = Hash[URI.decode_www_form(resp.body)].transform_keys(&:to_sym)
-    error('insufficient_scope') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
+    error('forbidden') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
-    decoded_resp
+    @scopes = decoded_resp[:scope].gsub(/post/, 'create').split(' ')
   end
 
   def publish_post(params)
@@ -425,6 +425,7 @@ get '/micropub/:site' do |site|
   @site ||= site
 
   case params['q']
+    # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
   when /config/
     status 200
     headers 'Content-type' => 'application/json'
@@ -463,6 +464,7 @@ post '/micropub/:site' do |site|
   error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
   if post_params.key?(:h)
+    error('insufficient_scope') unless @scopes.include?('create')
     logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
     return publish_post post_params
@@ -483,10 +485,13 @@ post '/micropub/:site' do |site|
 
     case @action
     when 'delete'
+      error('insufficient_scope') unless @scopes.include?('delete')
       delete_post post_params
     when 'undelete'
+      error('insufficient_scope') unless @scopes.include?('undelete')
       undelete_post post_params
     when 'update'
+      error('insufficient_scope') unless @scopes.include?('update')
       update_post post_params
     end
   end

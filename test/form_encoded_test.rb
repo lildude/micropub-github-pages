@@ -39,6 +39,7 @@ class FormEncodedTest < Minitest::Test
 
   # TODO: update me when implementing syndicate-to
   def test_get_syndicate_to
+    skip
     stub_token
     get '/micropub/testsite?q=syndicate-to', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?
@@ -100,12 +101,12 @@ class FormEncodedTest < Minitest::Test
     assert last_response.body.include? 'unauthorized'
   end
 
-  def test_authorized_if_access_token_response_has_no_scope
+  def test_forbidden_if_access_token_response_has_no_scope
     stub_noscope_token_response
     post '/micropub/testsite', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
-    assert last_response.unauthorized?
+    assert last_response.forbidden?
     assert JSON.parse(last_response.body)
-    assert last_response.body.include? 'insufficient_scope'
+    assert last_response.body.include? 'forbidden'
   end
 
   def test_authorized_if_auth_header_and_no_action
@@ -124,6 +125,28 @@ class FormEncodedTest < Minitest::Test
     assert last_response.bad_request?
     assert JSON.parse(last_response.body)
     assert last_response.body.include? 'invalid_request'
+  end
+
+  def test_scopes_enforced
+    stub_token('delete')
+    post '/micropub/testsite', {h: 'entry'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.body.include? 'insufficient_scope'
+
+    stub_token('undelete')
+    post '/micropub/testsite', {h: 'entry'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.body.include? 'insufficient_scope'
+
+    stub_token('media')
+    post '/micropub/testsite', {h: 'entry'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.body.include? 'insufficient_scope'
+
+    stub_token('create')
+    post '/micropub/testsite', {action: 'delete'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.body.include? 'insufficient_scope'
+
+    stub_token('create')
+    post '/micropub/testsite', {action: 'undelete'}, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.body.include? 'insufficient_scope'
   end
 
   def test_422_if_repo_not_found
