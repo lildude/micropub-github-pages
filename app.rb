@@ -425,6 +425,7 @@ get '/micropub/:site' do |site|
   @site ||= site
 
   case params['q']
+    # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
   when /config/
     status 200
     headers 'Content-type' => 'application/json'

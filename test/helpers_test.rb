@@ -18,14 +18,10 @@ class HelpersTest < Minitest::Test
   end
 
   def test_verify_token_valid
-    skip
     stub_token
     @helper.instance_variable_set(:@access_token, '1234567890')
     result = @helper.verify_token
-    assert result.include? :me
-    assert result.include? :issued_by
-    assert result.include? :client_id
-    assert_equal 'https://testsite.example.com', result[:me]
+    assert_equal %w[create update delete undelete], result
   end
 
   def test_jekyll_post
