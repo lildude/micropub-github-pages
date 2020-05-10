@@ -66,12 +66,7 @@ module AppHelpers
     decoded_resp = Hash[URI.decode_www_form(resp.body)].transform_keys(&:to_sym)
     error('forbidden') unless (decoded_resp.include? :scope) && (decoded_resp.include? :me)
 
-    @scope = decoded_resp[:scope].split(' ')
-  end
-
-  def has_scope?(scope)
-    scope = 'create' if scope == 'post'
-    @scope.include?(scope)
+    @scopes = decoded_resp[:scope].gsub(/post/, 'create').split(' ')
   end
 
   def publish_post(params)
@@ -468,7 +463,7 @@ post '/micropub/:site' do |site|
   error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
   if post_params.key?(:h)
-    error('insufficient_scope') unless has_scope?('create')
+    error('insufficient_scope') unless @scopes.include?('create')
     logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
     return publish_post post_params
@@ -489,13 +484,13 @@ post '/micropub/:site' do |site|
 
     case @action
     when 'delete'
-      error('insufficient_scope') unless has_scope?('delete')
+      error('insufficient_scope') unless @scopes.include?('delete')
       delete_post post_params
     when 'undelete'
-      error('insufficient_scope') unless has_scope?('undelete')
+      error('insufficient_scope') unless @scopes.include?('undelete')
       undelete_post post_params
     when 'update'
-      error('insufficient_scope') unless has_scope?('update')
+      error('insufficient_scope') unless @scopes.include?('update')
       update_post post_params
     end
   end
