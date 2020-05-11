@@ -420,6 +420,23 @@ before do
   @scopes = verify_token
 end
 
+# Multiple site query
+get '/micropub' do
+  halt 404 unless params.include? 'q'
+  if params['q'] == 'config'
+    status 200
+    headers 'Content-type' => 'application/json'
+    config = {}
+    config["destination"] = []
+    settings.sites.each do |site, opts|
+      config["destination"] << { uid: "#{request.base_url}/micropub/#{site}", name: opts['name'] || site }
+    end
+    body JSON.generate(config)
+  else
+    error('invalid_request')
+  end
+end
+
 # Query
 get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
@@ -432,14 +449,11 @@ get '/micropub/:site' do |site|
   when /config/
     status 200
     headers 'Content-type' => 'application/json'
-    # TODO: Populate this with media-endpoint and syndicate-to when supported.
-    #       Until then, empty object is fine.
     # We are our own media-endpoint
     body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
   when /source/
     status 200
     headers 'Content-type' => 'application/json'
-    # body JSON.generate("response": get_post(params[:url]))
     # TODO: Determine what goes in here
     body JSON.generate(get_post(params[:url]))
   when /syndicate-to/

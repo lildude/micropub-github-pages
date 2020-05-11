@@ -29,6 +29,20 @@ class FormEncodedTest < Minitest::Test
     assert last_response.not_found?
   end
 
+  def test_get_config_for_all_sites
+    stub_token
+    get '/micropub?q=config', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.ok?
+    parse_body = JSON.parse(last_response.body)
+    assert_equal parse_body['destination'].count, 1
+    assert_equal parse_body['destination'][0]['name'], 'Test Site'
+    assert_equal parse_body['destination'][0]['uid'], 'http://example.org/micropub/testsite'
+
+    get '/micropub?q=source', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    refute last_response.ok?
+    assert last_response.body.include? 'invalid_request'
+  end
+
   def test_get_config_with_authorisation_header
     stub_token
     get '/micropub/testsite?q=config', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
