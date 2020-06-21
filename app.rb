@@ -429,7 +429,7 @@ get '/micropub' do
     config = {}
     config["destination"] = []
     settings.sites.each do |site, opts|
-      config["destination"] << { uid: "#{request.base_url}/micropub/#{site}", name: opts['name'] || site }
+      config["destination"] << { uid: opts['site_url'], name: site }
     end
     body JSON.generate(config)
   else
