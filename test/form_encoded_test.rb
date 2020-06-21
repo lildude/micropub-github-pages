@@ -228,6 +228,27 @@ class FormEncodedTest < Minitest::Test
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
   end
 
+  # TODO: Not sure this works yet.
+  def test_new_entry_with_mp_destination
+    stub_token
+    stub_get_github_request
+    stub_get_pages_branch
+    stub_post_github_request
+    stub_patch_github_request
+    now = Time.now
+    post('/micropub', {
+           'mp-destination' => 'testsite',
+           :h => 'entry',
+           :name => 'This is a 😍 Post!!',
+           :content => 'This is the content',
+           :category => %w[tag1 tag2],
+           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
+    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
+  end
+
   def test_new_note_with_title_in_markdown_content_becomes_article
     stub_token
     stub_get_github_request

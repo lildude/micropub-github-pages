@@ -463,6 +463,13 @@ get '/micropub/:site' do |site|
   end
 end
 
+# Multisite publishing - assumes mp-destination=site_section_name as per the config.yml
+post '/micropub' do
+  halt 404 unless params.include? 'mp-destination'
+  site = params.delete('mp-destination')
+  call! env.merge("PATH_INFO" => "/micropub/#{site}")
+end
+
 post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
 
