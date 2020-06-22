@@ -29,6 +29,20 @@ class FormEncodedTest < Minitest::Test
     assert last_response.not_found?
   end
 
+  def test_get_config_for_all_sites
+    stub_token
+    get '/micropub?q=config', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    assert last_response.ok?
+    parse_body = JSON.parse(last_response.body)
+    assert_equal parse_body['destination'].count, 1
+    assert_equal parse_body['destination'][0]['name'], 'testsite'
+    assert_equal parse_body['destination'][0]['uid'], 'https://example.com'
+
+    get '/micropub?q=source', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
+    refute last_response.ok?
+    assert last_response.body.include? 'invalid_request'
+  end
+
   def test_get_config_with_authorisation_header
     stub_token
     get '/micropub/testsite?q=config', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
@@ -203,6 +217,27 @@ class FormEncodedTest < Minitest::Test
     stub_patch_github_request
     now = Time.now
     post('/micropub/testsite', {
+           :h => 'entry',
+           :name => 'This is a 😍 Post!!',
+           :content => 'This is the content',
+           :category => %w[tag1 tag2],
+           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
+    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
+  end
+
+  # TODO: Not sure this works yet.
+  def test_new_entry_with_mp_destination
+    stub_token
+    stub_get_github_request
+    stub_get_pages_branch
+    stub_post_github_request
+    stub_patch_github_request
+    now = Time.now
+    post('/micropub', {
+           'mp-destination' => 'testsite',
            :h => 'entry',
            :name => 'This is a 😍 Post!!',
            :content => 'This is the content',

@@ -420,6 +420,23 @@ before do
   @scopes = verify_token
 end
 
+# Multiple site query
+get '/micropub' do
+  halt 404 unless params.include? 'q'
+  if params['q'] == 'config'
+    status 200
+    headers 'Content-type' => 'application/json'
+    config = {}
+    config["destination"] = []
+    settings.sites.each do |site, opts|
+      config["destination"] << { uid: opts['site_url'], name: site }
+    end
+    body JSON.generate(config)
+  else
+    error('invalid_request')
+  end
+end
+
 # Query
 get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
@@ -432,14 +449,11 @@ get '/micropub/:site' do |site|
   when /config/
     status 200
     headers 'Content-type' => 'application/json'
-    # TODO: Populate this with media-endpoint and syndicate-to when supported.
-    #       Until then, empty object is fine.
     # We are our own media-endpoint
     body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
   when /source/
     status 200
     headers 'Content-type' => 'application/json'
-    # body JSON.generate("response": get_post(params[:url]))
     # TODO: Determine what goes in here
     body JSON.generate(get_post(params[:url]))
   when /syndicate-to/
@@ -447,6 +461,13 @@ get '/micropub/:site' do |site|
     headers 'Content-type' => 'application/json'
     body syndicate_to
   end
+end
+
+# Multisite publishing - assumes mp-destination=site_section_name as per the config.yml
+post '/micropub' do
+  halt 404 unless params.include? 'mp-destination'
+  site = params.delete('mp-destination')
+  call! env.merge("PATH_INFO" => "/micropub/#{site}")
 end
 
 post '/micropub/:site' do |site|
