@@ -427,9 +427,9 @@ get '/micropub' do
     status 200
     headers 'Content-type' => 'application/json'
     config = {}
-    config["destination"] = []
+    config['destination'] = []
     settings.sites.each do |site, opts|
-      config["destination"] << { uid: opts['site_url'], name: site }
+      config['destination'] << { uid: opts['site_url'], name: site }
     end
     body JSON.generate(config)
   else
@@ -467,7 +467,7 @@ end
 post '/micropub' do
   halt 404 unless params.include? 'mp-destination'
   site = params.delete('mp-destination')
-  call! env.merge("PATH_INFO" => "/micropub/#{site}")
+  call! env.merge('PATH_INFO' => "/micropub/#{site}")
 end
 
 post '/micropub/:site' do |site|
