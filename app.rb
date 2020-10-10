@@ -10,6 +10,7 @@ require 'base64'
 require 'open-uri'
 require 'safe_yaml'
 require 'liquid'
+require 'stringex'
 require 'sinatra/reloader' if development?
 require './env' if File.exist?('env.rb')
 
@@ -217,15 +218,18 @@ module AppHelpers
     # Use the provided slug
     slug =
       if params.include?(:"mp-slug") && !params[:"mp-slug"].nil?
-        slugify File.basename(params[:"mp-slug"])
+        File.basename(params[:"mp-slug"])
       # If there's a name, use that
       elsif params.include?(:name) && !params[:name].nil?
-        slugify params[:name]
+        params[:name].gsub(/[^\w\s-]/, '')
+      elsif params[:content]
+        # Else generate a slug based on the first 5 words of the content
+        params[:content].gsub(/[^\w\s-]/, '').split.first(5).join(' ')
       else
         # Else generate a slug based on the published date.
         DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
       end
-    slug.to_s
+    slug.to_s.to_url
   end
 
   def create_permalink(params)
@@ -248,10 +252,6 @@ module AppHelpers
     }
 
     permalink_style.gsub(/(:[a-z_]+)/, template_variables).gsub(%r{(//)}, '/')
-  end
-
-  def slugify(text)
-    text.downcase.gsub('/[\s.\/_]/', ' ').gsub(/[^\w\s-]/, '').squeeze(' ').tr(' ', '-').chomp('-')
   end
 
   def stringify_keys(hash)

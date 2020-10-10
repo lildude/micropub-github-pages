@@ -33,7 +33,7 @@ class JsonTest < Minitest::Test
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/#{now.strftime('%s').to_i % (24 * 60 * 60)}", last_response.header['Location']
+    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-json-content", last_response.header['Location']
     assert last_response.body.include? 'tag1'
     assert last_response.body.include? 'tag2'
     assert last_response.body.include? 'This is the JSON content'

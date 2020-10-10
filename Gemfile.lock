@@ -94,6 +94,7 @@ GEM
       rack-protection (= 2.0.8.1)
       sinatra (= 2.0.8.1)
       tilt (~> 2.0)
+    stringex (2.8.5)
     sync (0.5.0)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
@@ -129,6 +130,7 @@ DEPENDENCIES
   simplecov
   sinatra
   sinatra-contrib
+  stringex
   webmock
 
 RUBY VERSION

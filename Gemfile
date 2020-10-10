@@ -10,6 +10,7 @@ gem 'puma'
 gem 'safe_yaml'
 gem 'sinatra'
 gem 'sinatra-contrib'
+gem 'stringex'
 
 group :test do
   gem 'coveralls', '~> 0.8'
