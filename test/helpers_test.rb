@@ -39,6 +39,7 @@ class HelpersTest < Minitest::Test
     assert_equal 'this-is-1234-no-emoji-or-punc', @helper.create_slug(name: 'this is 🍎 1234 no Emoji ! or punc')
     assert_equal 'this-ends-in-emoji', @helper.create_slug(name: 'tHis ends In emoji 🤡')
     assert_equal 'no-triple-dots', @helper.create_slug(name: 'no… triple … dots…')
+    assert_equal 'this-is-the-title', @helper.create_slug(title: 'This is The TITLE')
     assert_equal 'slug-from-the-first-five', @helper.create_slug(content: 'Slug 😄 from   the first five words')
     assert_equal 'all-extra-spaces-removed', @helper.create_slug(content: 'all  extra    spaces-removed')
     assert_equal 'no-dup-hyphens', @helper.create_slug(content: 'no -🥵- dup hyphens')

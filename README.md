@@ -113,4 +113,5 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 - [ ] Use GitHub App for access instead of PAT
 - [ ] Dockerise
+- [ ] Switch to Rails ?
 
