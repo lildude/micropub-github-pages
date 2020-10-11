@@ -50,7 +50,7 @@ class JsonTest < Minitest::Test
     post('/micropub/testsite', {
       type: ['h-entry'],
       properties: {
-        content: ['This is the JSON content #tag1 #tag2'],
+        content: ['This is the JSON content #tag1 #tag2']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"

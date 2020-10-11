@@ -330,7 +330,7 @@ module AppHelpers
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
       # TODO: Parse hashtags from content
-      #post_params[:category] = parse_hashtags(post_params[:content]) unless post_params[:category]
+      # post_params[:category] = parse_hashtags(post_params[:content]) unless post_params[:category]
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
