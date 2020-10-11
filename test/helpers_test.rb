@@ -80,6 +80,7 @@ class HelpersTest < Minitest::Test
     assert_equal :repost, @helper.post_type(h: 'entry', repost_of: 'foo')
     assert_equal :bookmark, @helper.post_type(h: 'entry', bookmark_of: 'foo')
     assert_equal :note, @helper.post_type(h: 'entry', content: 'foo')
+    assert_equal :note, @helper.post_type(h: 'entry', name: '', content: 'foo')
     assert_equal :dump_all, @helper.post_type(h: 'entry', ano: 'foo')
     assert_equal :event, @helper.post_type(h: 'event', content: 'foo')
     assert_equal :cite, @helper.post_type(h: 'cite', content: 'foo')

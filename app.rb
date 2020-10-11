@@ -357,7 +357,7 @@ module AppHelpers
     case post_params[:h]
     when 'entry'
       mapping = { name: :article, in_reply_to: :reply, repost_of: :repost, bookmark_of: :bookmark, content: :note }
-      mapping.each { |key, type| return type if post_params.include?(key) }
+      mapping.each { |key, type| return type if post_params.include?(key) && !post_params[key].empty? }
       # Dump all params into this template as it doesn't fit any other type.
       :dump_all
     else
