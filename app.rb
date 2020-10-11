@@ -227,7 +227,7 @@ module AppHelpers
         params[:name].gsub(/[^\w\s-]/, '')
       elsif params[:content]
         # Else generate a slug based on the first 5 words of the first line of the content
-        strip_hashtags(params[:content]).split('\n').first.gsub(/[^\w\s-]/, '').split.first(5).join(' ')
+        strip_hashtags(params[:content]).split("\n").first.gsub(/[^\w\s-]/, '').split.first(5).join(' ')
       else
         # Else generate a slug based on the published date.
         DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
@@ -263,6 +263,10 @@ module AppHelpers
 
   def strip_hashtags(text)
     text.gsub(/\B#(\w+)/, '').squeeze(' ').strip
+  end
+
+  def parse_hashtags(text)
+    text.scan(/\B#(\w+)/).flatten
   end
 
   # Syndicate to destinations supported by silo.pub as that's what we use
@@ -325,6 +329,8 @@ module AppHelpers
       end
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
+      # TODO: Parse hashtags from content
+      #post_params[:category] = parse_hashtags(post_params[:content]) unless post_params[:category]
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)

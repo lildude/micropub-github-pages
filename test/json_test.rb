@@ -39,6 +39,27 @@ class JsonTest < Minitest::Test
     assert last_response.body.include? 'This is the JSON content'
   end
 
+  def test_new_note_json_syntax_with_hashtags
+    skip
+    stub_token
+    stub_get_github_request
+    stub_get_pages_branch
+    stub_post_github_request
+    stub_patch_github_request
+    now = Time.now
+    post('/micropub/testsite', {
+      type: ['h-entry'],
+      properties: {
+        content: ['This is the JSON content #tag1 #tag2'],
+      }
+    }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-json-content", last_response.header['Location']
+    assert last_response.body.include? 'tag1'
+    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? 'This is the JSON content'
+  end
+
   def test_new_note_with_html_json
     stub_token
     stub_get_github_request
