@@ -226,8 +226,8 @@ module AppHelpers
       elsif params.include?(:name) && !params[:name].nil? && !params[:name].empty?
         params[:name].gsub(/[^\w\s-]/, '')
       elsif params[:content]
-        # Else generate a slug based on the first 5 words of the content
-        params[:content].gsub(/[^\w\s-]/, '').split.first(5).join(' ')
+        # Else generate a slug based on the first 5 words of the first line of the content
+        strip_hashtags(params[:content]).split('\n').first.gsub(/[^\w\s-]/, '').split.first(5).join(' ')
       else
         # Else generate a slug based on the published date.
         DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
@@ -259,6 +259,10 @@ module AppHelpers
 
   def stringify_keys(hash)
     hash.is_a?(Hash) ? hash.collect { |k, v| [k.to_s, stringify_keys(v)] }.to_h : hash
+  end
+
+  def strip_hashtags(text)
+    text.gsub(/\B#(\w+)/, '').squeeze(' ').strip
   end
 
   # Syndicate to destinations supported by silo.pub as that's what we use
