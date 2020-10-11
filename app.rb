@@ -98,7 +98,7 @@ module AppHelpers
 
     files["_posts/#{filename}"] = Base64.encode64(content)
 
-    commit_to_github(files, params[:type])
+    commit_to_github(files, params[:type], params[:slug])
 
     status 201
     headers 'Location' => @location.to_s
@@ -106,7 +106,7 @@ module AppHelpers
   end
 
   # Files should be an array of path and base64 encoded content
-  def commit_to_github(files, type)
+  def commit_to_github(files, type, slug = nil)
     # Authenticate
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     # Verify the repo exists
@@ -126,7 +126,7 @@ module AppHelpers
 
     sha_new_tree = client.create_tree(settings.sites[@site]['github_repo'], new_tree, base_tree: sha_base_tree).sha
     @action ||= 'new'
-    commit_message = "#{@action.capitalize} #{type}"
+    commit_message = "#{@action.capitalize} #{type}: #{slug}"
     sha_new_commit = client.create_commit(
       settings.sites[@site]['github_repo'],
       commit_message,
