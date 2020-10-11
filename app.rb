@@ -215,8 +215,8 @@ module AppHelpers
   end
 
   def create_slug(params)
-    # Use the provided slug
     slug =
+      # Use the provided slug
       if params.include?(:"mp-slug") && !params[:"mp-slug"].nil?
         File.basename(params[:"mp-slug"])
       # If there's a title, use that
@@ -227,7 +227,7 @@ module AppHelpers
         params[:name].gsub(/[^\w\s-]/, '')
       elsif params[:content]
         # Else generate a slug based on the first 5 words of the first line of the content
-        strip_hashtags(params[:content]).split("\n").first.gsub(/[^\w\s-]/, '').split.first(5).join(' ')
+        strip_hashtags(params[:content]).split(/\r?\n/).first.gsub(/[^\w\s-]/, '').split.first(5).join(' ')
       else
         # Else generate a slug based on the published date.
         DateTime.parse(params[:published]).strftime('%s').to_i % (24 * 60 * 60)
