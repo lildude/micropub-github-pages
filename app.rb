@@ -539,7 +539,10 @@ post '/micropub/:site/media' do |site|
   halt 404 unless settings.sites.include? site
   error('insufficient_scope') unless @scopes.include?('create') || @scopes.include?('media')
   @site ||= site
+  logger.info params
 
+
+  # TODO: Prevent overwriting from clients that re-use the same filename
   file = params[:file]
   upload_path = "#{settings.sites[@site]['image_dir']}/#{file[:filename]}"
   media_path = "#{settings.sites[@site]['site_url']}/#{upload_path}"
