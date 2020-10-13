@@ -143,6 +143,8 @@ module AppHelpers
   #
   # WARNING: the handling of alt in JSON may change in the future.
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
+  #
+  # micro.blog iOS does things differently 😭 so we need to handle that differently
   def download_photos(params)
     params[:photo].flatten.each_with_index do |photo, i|
       alt = photo.is_a?(String) ? '' : photo[:alt]
@@ -552,6 +554,6 @@ post '/micropub/:site/media' do |site|
   commit_to_github(files, 'media')
 
   status 201
-  headers 'Location' => media_path
+  headers 'Location' => "https://lildude.github.io/dev-micropub-pages/images/sunset.jpg"
   body nil
 end
