@@ -10,6 +10,7 @@ require 'base64'
 require 'open-uri'
 require 'safe_yaml'
 require 'liquid'
+require 'securerandom'
 require 'stringex'
 require 'sinatra/reloader' if development?
 require './env' if File.exist?('env.rb')
@@ -547,9 +548,11 @@ post '/micropub/:site/media' do |site|
   @site ||= site
   logger.info params
 
-  # TODO: Prevent overwriting from clients that re-use the same filename
   file = params[:file]
-  upload_path = "#{settings.sites[@site]['image_dir']}/#{file[:filename]}"
+  ext = file[:filename].split('.').last
+  # micro.blog and Sunlit iOS apps always use 'image.jpg' at the mo - https://github.com/microdotblog/issues/issues/194 & https://github.com/microdotblog/sunlit/issues/131.
+  filename = file[:filename] == 'image.jpg' ? "#{SecureRandom.hex(6)}.#{ext}" : file[:filename]
+  upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
   media_path = "#{settings.sites[@site]['site_url']}/#{upload_path}"
 
   files = {}
