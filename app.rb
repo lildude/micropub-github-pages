@@ -144,7 +144,6 @@ module AppHelpers
   # WARNING: the handling of alt in JSON may change in the future.
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
   #
-  # FIXME: micro.blog iOS app doesn't use the above standard 😭
   def download_photos(params)
     params[:photo].flatten.each_with_index do |photo, i|
       alt = photo.is_a?(String) ? '' : photo[:alt]
@@ -337,6 +336,11 @@ module AppHelpers
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
       post_params[:photo] = [post_params[:photo]] if post_params[:photo]
+      p post_params[:photo].to_json if post_params[:photo]
+      # micro.blog iOS app uses mp-photo-alt for photo alt
+
+      #{:content=>"Another one", :h=>"entry", :photo=>[["https://lildude.github.io/dev-micropub-pages/images/image.jpg"]], :"mp-photo-alt"=>["desc here"], :name=>"", :type=>:note, :published=>"2020-10-14 10:22:44 +0000"}
+
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
