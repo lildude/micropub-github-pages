@@ -143,6 +143,8 @@ module AppHelpers
   #
   # WARNING: the handling of alt in JSON may change in the future.
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
+  #
+  # FIXME: micro.blog iOS app doesn't use the above standard 😭
   def download_photos(params)
     params[:photo].flatten.each_with_index do |photo, i|
       alt = photo.is_a?(String) ? '' : photo[:alt]
@@ -494,6 +496,7 @@ post '/micropub/:site' do |site|
                 else
                   params
                 end
+  logger.info post_params
   post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
