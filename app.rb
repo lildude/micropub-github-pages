@@ -19,8 +19,7 @@ SafeYAML::OPTIONS[:default_mode] = :safe
 
 configure { set :server, :puma }
 
-config_yml = "#{File.dirname(__FILE__)}/config.yml"
-# config_yml = "#{File.dirname(__FILE__)}/test/fixtures/config.yml" if test?
+config_yml = test? ? "#{File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{File.dirname(__FILE__)}/config.yml"
 
 # Override config file if CONFIG env var is set
 if ENV['SITES_CONFIG'] && !ENV['SITES_CONFIG'].empty?
