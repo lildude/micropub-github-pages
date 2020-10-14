@@ -49,6 +49,25 @@ class MultipartTest < Minitest::Test
     assert last_response.body.include?('/img/photo2.jpg')
   end
 
+  # This test is specific to the mp-photo-alt attribute micro.blog uses for images with descriptions
+  def test_new_entry_with_two_photos_multipart_with_alt
+    stub_token
+    stub_get_github_request
+    stub_get_pages_branch
+    stub_post_github_request
+    stub_patch_github_request
+    post('/micropub/testsite', {
+           h: 'entry',
+           content: 'Adding a new photo',
+           photo: ['https://example.com/img/photo.jpg', 'https://example.com/img/photo2.jpg'],
+           "mp-photo-alt": ['Alt 1', 'Alt 2']
+         }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
+    assert last_response.body.include?('![Alt 1](https://example.com/img/photo.jpg)')
+    assert last_response.body.include?('![Alt 2](https://example.com/img/photo2.jpg)')
+  end
+
   def test_media_upload
     stub_token
     stub_get_github_request

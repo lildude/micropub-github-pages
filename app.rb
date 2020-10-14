@@ -338,12 +338,25 @@ module AppHelpers
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
-      post_params[:photo] = [post_params[:photo]] if post_params[:photo]
-      p post_params[:photo].to_json if post_params[:photo]
-      # micro.blog iOS app uses mp-photo-alt for photo alt
-
-      #{:content=>"Another one", :h=>"entry", :photo=>[["https://lildude.github.io/dev-micropub-pages/images/image.jpg"]], :"mp-photo-alt"=>["desc here"], :name=>"", :type=>:note, :published=>"2020-10-14 10:22:44 +0000"}
-
+      # Rearrange photos, if present
+      # NOTE: micro.blog iOS app uses mp-photo-alt for photo alt 🤦‍♂️ - this is horrid
+      if post_params[:photo]
+        photos = []
+        if post_params[:photo].is_a?(String)
+          photos << post_params[:photo]
+        else
+          post_params[:photo].each_with_index do |photo, i|
+            # micro.blog iOS app sends form-encoded with alts in mp-photo-alt
+            alt = if post_params[:'mp-photo-alt'] && !post_params[:'mp-photo-alt'][i].nil?
+                    post_params[:'mp-photo-alt'][i]
+                  else
+                    ''
+                  end
+            photos << { value: photo, alt: alt }
+          end
+        end
+        post_params[:photo] = photos
+      end
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
