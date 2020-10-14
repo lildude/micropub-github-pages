@@ -149,6 +149,9 @@ module AppHelpers
     params[:photo].flatten.each_with_index do |photo, i|
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
+      # Next if the URL matches our own site - we've already got the picture
+      next if url =~ /#{settings.sites[@site]['site_url']}/
+
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
