@@ -496,7 +496,6 @@ post '/micropub/:site' do |site|
                 else
                   params
                 end
-  logger.info request.body.read.to_s
   post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
