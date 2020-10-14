@@ -339,11 +339,7 @@ module AppHelpers
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
       post_params[:photo] = [post_params[:photo]] if post_params[:photo]
-      p post_params[:photo].to_json if post_params[:photo]
-      # micro.blog iOS app uses mp-photo-alt for photo alt
-
-      #{:content=>"Another one", :h=>"entry", :photo=>[["https://lildude.github.io/dev-micropub-pages/images/image.jpg"]], :"mp-photo-alt"=>["desc here"], :name=>"", :type=>:note, :published=>"2020-10-14 10:22:44 +0000"}
-
+      # f7d5ceba721fbaf8f3a401803186816a5d32fd82 contains a horrid workaround for micro.blog iOS app's uses mp-photo-alt for photo alt
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
