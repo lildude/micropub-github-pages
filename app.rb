@@ -150,7 +150,7 @@ module AppHelpers
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
       # Next if the URL matches our own site - we've already got the picture
-      next if url =~ /#{settings.sites[@site]['site_url']}/
+      next params[:photo][i] = { 'url' => url, 'alt' => alt } if url =~ /#{settings.sites[@site]['site_url']}/
 
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
