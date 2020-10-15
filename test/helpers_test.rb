@@ -85,5 +85,6 @@ class HelpersTest < Minitest::Test
     assert_equal :dump_all, @helper.post_type(h: 'entry', ano: 'foo')
     assert_equal :event, @helper.post_type(h: 'event', content: 'foo')
     assert_equal :cite, @helper.post_type(h: 'cite', content: 'foo')
+    assert_equal :photo, @helper.post_type(h: 'entry', photo: 'foo')
   end
 end
