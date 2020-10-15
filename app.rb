@@ -347,7 +347,7 @@ module AppHelpers
         else
           post_params[:photo].each_with_index do |photo, i|
             # micro.blog iOS app sends form-encoded with alts in mp-photo-alt
-            alt = post_params[:'mp-photo-alt'][i] || ''
+            alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][i] : ''
             photos << { value: photo, alt: alt }
           end
         end
