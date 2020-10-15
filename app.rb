@@ -76,7 +76,8 @@ module AppHelpers
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
     params[:slug] = create_slug(params) if params[:'mp-slug']
-    filename << "-#{create_slug(params)}.md"
+    file_slug = create_slug(params)
+    filename << "-#{file_slug}.md"
 
     logger.info "Filename: #{filename}"
     @location = settings.sites[@site]['site_url'].dup
@@ -98,7 +99,7 @@ module AppHelpers
 
     files["_posts/#{filename}"] = Base64.encode64(content)
 
-    commit_to_github(files, params[:type], params[:slug])
+    commit_to_github(files, params[:type], file_slug)
 
     status 201
     headers 'Location' => @location.to_s
