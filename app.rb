@@ -492,7 +492,7 @@ post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
   # If we're getting a file upload direct to this endpoint, jump to the media endpoint
   if params[:file]
-    call! env.merge('PATH_INFO' => "/micropub/#{site}/media")
+    return call! env.merge('PATH_INFO' => "/micropub/#{site}/media")
   end
 
   @site ||= site
