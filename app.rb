@@ -75,8 +75,8 @@ module AppHelpers
   def publish_post(params)
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
-    params[:slug] = create_slug(params)
-    filename << "-#{params[:slug]}.md"
+    params[:slug] = create_slug(params) if params[:'mp-slug']
+    filename << "-#{create_slug(params)}.md"
 
     logger.info "Filename: #{filename}"
     @location = settings.sites[@site]['site_url'].dup
@@ -254,7 +254,7 @@ module AppHelpers
       ':hour' => date.strftime('%H'),
       ':minute' => date.strftime('%M'),
       ':second' => date.strftime('%S'),
-      ':title' => params[:slug],
+      ':title' => create_slug(params),
       ':categories' => ''
     }
 
@@ -333,8 +333,6 @@ module AppHelpers
       end
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
-      # TODO: Parse hashtags from content
-      # post_params[:category] = parse_hashtags(post_params[:content]) unless post_params[:category]
     else
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
@@ -355,6 +353,9 @@ module AppHelpers
       end
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
+
+    # TODO: Parse hashtags from content
+    # post_params[:category] = parse_hashtags(post_params[:content]) unless post_params[:category]
 
     # Secret functionality: We may receive markdown in the content.
     # If the first line is a header, set the name with it

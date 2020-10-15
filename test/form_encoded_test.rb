@@ -194,7 +194,7 @@ class FormEncodedTest < Minitest::Test
            :content => 'This is the content',
            :category => %w[tag1 tag2],
            :published => [now.to_s],
-           :"mp-slug" => 'this-is-the-content-slug',
+           'mp-slug' => 'this-is-the-content-slug',
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
            :unrecog_param => 'foo',
            :ano_unrecog_param => 'bar'

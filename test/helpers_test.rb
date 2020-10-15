@@ -51,7 +51,7 @@ class HelpersTest < Minitest::Test
   def test_create_permalink
     params = {
       permalink_style: '/:categories/:year/:month/:i_month/:day/:i_day/:short_year/:hour/:minute/:second/:title',
-      slug: 'foo-bar',
+      'mp-slug': 'foo-bar',
       published: '2017-07-02 02:56:22 -0700'
     }
     assert_equal '/2017/07/7/02/2/17/02/56/22/foo-bar', @helper.create_permalink(params)
