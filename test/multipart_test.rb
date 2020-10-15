@@ -10,8 +10,8 @@ class MultipartTest < Minitest::Test
   end
 
   def test_new_entry_with_photo_multipart
+    skip "I'm not sure this is how we'd ever get the photos"
     stub_token
-    stub_get_photo
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -28,8 +28,8 @@ class MultipartTest < Minitest::Test
   end
 
   def test_new_entry_with_two_photos_multipart
+    skip "I'm not sure this is how we'd ever get the photos"
     stub_token
-    stub_get_photo
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
