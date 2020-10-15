@@ -369,7 +369,6 @@ module AppHelpers
   end
 
   def post_type(post_params)
-    p post_params
     case post_params[:h]
     when 'entry'
       mapping = { name: :article, in_reply_to: :reply, repost_of: :repost, bookmark_of: :bookmark, content: :note }
@@ -422,7 +421,6 @@ not_found do
 end
 
 before do
-  return
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
     @access_token = env['HTTP_AUTHORIZATION'].match(/Bearer (.*)$/)[1]
@@ -509,8 +507,8 @@ post '/micropub/:site' do |site|
   error('invalid_request') unless post_params.any? { |k, _v| %i[h action].include? k }
 
   if post_params.key?(:h)
-    #error('insufficient_scope') unless @scopes.include?('create')
-    #logger.info post_params unless ENV['RACK_ENV'] == 'test'
+    error('insufficient_scope') unless @scopes.include?('create')
+    logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
     return publish_post post_params
 
