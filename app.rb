@@ -347,11 +347,7 @@ module AppHelpers
         else
           post_params[:photo].each_with_index do |photo, i|
             # micro.blog iOS app sends form-encoded with alts in mp-photo-alt
-            alt = if post_params[:'mp-photo-alt'] && !post_params[:'mp-photo-alt'][i].nil?
-                    post_params[:'mp-photo-alt'][i]
-                  else
-                    ''
-                  end
+            alt = post_params[:'mp-photo-alt'][i] || ''
             photos << { value: photo, alt: alt }
           end
         end
@@ -508,9 +504,7 @@ end
 post '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
   # If we're getting a file upload direct to this endpoint, jump to the media endpoint
-  if params[:file]
-    return call! env.merge('PATH_INFO' => "/micropub/#{site}/media")
-  end
+  return call! env.merge('PATH_INFO' => "/micropub/#{site}/media") if params[:file]
 
   @site ||= site
 
