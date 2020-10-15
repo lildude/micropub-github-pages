@@ -35,8 +35,8 @@ class FormEncodedTest < Minitest::Test
     assert last_response.ok?
     parse_body = JSON.parse(last_response.body)
     assert_equal parse_body['destination'].count, 1
-    assert_equal parse_body['destination'][0]['name'], 'testsite'
-    assert_equal parse_body['destination'][0]['uid'], 'https://example.com'
+    assert_equal parse_body['destination'][0]['uid'], 'testsite'
+    assert_equal parse_body['destination'][0]['name'], 'https://example.com'
 
     get '/micropub?q=source', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     refute last_response.ok?
