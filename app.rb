@@ -75,8 +75,8 @@ module AppHelpers
   def publish_post(params)
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
-    params[:slug] = create_slug(params) if params[:'mp-slug']
     file_slug = create_slug(params)
+    params[:slug] = file_slug if params[:'mp-slug']
     filename << "-#{file_slug}.md"
 
     logger.info "Filename: #{filename}"
@@ -99,7 +99,7 @@ module AppHelpers
 
     files["_posts/#{filename}"] = Base64.encode64(content)
 
-    commit_to_github(files, params[:type], file_slug)
+    commit_to_github(files, params[:type], filename)
 
     status 201
     headers 'Location' => @location.to_s
