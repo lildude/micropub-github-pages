@@ -514,7 +514,6 @@ post '/micropub/:site' do |site|
                 else
                   params
                 end
-  logger.info post_params
   post_params = process_params(post_params)
 
   # Check for reserved params which tell us what to do:
