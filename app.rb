@@ -348,6 +348,7 @@ module AppHelpers
             alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][i] : ''
             photos << { value: photo, alt: alt }
           end
+          post_params.delete(:'mp-photo-alt') if post_params[:'mp-photo-alt']
         end
         post_params[:photo] = photos
       end
