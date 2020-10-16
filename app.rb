@@ -574,7 +574,7 @@ post '/micropub/:site/media' do |site|
   files = {}
   files[upload_path] = Base64.encode64(file[:tempfile].read)
 
-  commit_to_github(files, 'media')
+  commit_to_github(files, 'media', filename)
 
   status 201
   headers 'Location' => media_path
