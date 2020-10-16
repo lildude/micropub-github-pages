@@ -335,17 +335,17 @@ module AppHelpers
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
     else
+      # rubocop:disable Metrics/BlockNesting
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
       # Rearrange photos, if present
-      # NOTE: micro.blog iOS app uses mp-photo-alt for photo alt 🤦‍♂️ - this is horrid
       if post_params[:photo]
         photos = []
         if post_params[:photo].is_a?(String)
           photos << post_params[:photo]
         else
           post_params[:photo].each_with_index do |photo, i|
-            # micro.blog iOS app sends form-encoded with alts in mp-photo-alt
+            # NOTE: micro.blog and Sunlit iOS apps use mp-photo-alt for photo alt
             alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][i] : ''
             photos << { value: photo, alt: alt }
           end
@@ -353,6 +353,7 @@ module AppHelpers
         end
         post_params[:photo] = photos
       end
+      # rubocop:enable Metrics/BlockNesting
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
