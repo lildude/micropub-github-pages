@@ -567,8 +567,8 @@ post '/micropub/:site/media' do |site|
 
   file = params[:file]
   ext = file[:filename].split('.').last
-  # micro.blog and Sunlit iOS apps always use 'image.jpg' at the mo - https://github.com/microdotblog/issues/issues/194 & https://github.com/microdotblog/sunlit/issues/131.
-  filename = file[:filename] == 'image.jpg' ? "#{SecureRandom.hex(6)}.#{ext}" : file[:filename]
+  # Always generate a unique unguessable filename as per the spec
+  filename = "#{SecureRandom.hex(6)}.#{ext}"
   upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
   media_path = "#{settings.sites[@site]['site_url']}/#{upload_path}"
 
