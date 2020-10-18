@@ -79,6 +79,7 @@ class MultipartTest < Minitest::Test
     post('/micropub/testsite/media', { file: media }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
+    refute last_response.header.include?('photo.jpg')
   end
 
   def test_media_upload_ensure_image_jpg
