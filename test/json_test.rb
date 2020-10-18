@@ -10,14 +10,6 @@ class JsonTest < Minitest::Test
     Sinatra::Application
   end
 
-  def helpers
-    Class.new { include AppHelpers }
-  end
-
-  def setup
-    @helper = helpers.new
-  end
-
   def test_new_note_json_syntax
     stub_token
     stub_get_github_request
