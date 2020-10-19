@@ -357,8 +357,10 @@ module AppHelpers
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
-    # TODO: Parse hashtags from content
-    # post_params[:category] = parse_hashtags(post_params[:content]) unless post_params[:category]
+    unless post_params[:category]
+      post_params[:category] = parse_hashtags(post_params[:content])
+      post_params[:content] = strip_hashtags(post_params[:content])
+    end
 
     # Secret functionality: We may receive markdown in the content.
     # If the first line is a header, set the name with it
