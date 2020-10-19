@@ -338,18 +338,18 @@ module AppHelpers
       # rubocop:disable Metrics/BlockNesting
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
-      # Rearrange photos, if present
+
       if post_params[:photo]
         photos = []
-        if post_params[:photo].is_a?(String)
-          photos << post_params[:photo]
-        else
+        if post_params[:'mp-photo-alt']
           post_params[:photo].each_with_index do |photo, i|
             # NOTE: micro.blog and Sunlit iOS apps use mp-photo-alt for photo alt
             alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][i] : ''
             photos << { value: photo, alt: alt }
           end
           post_params.delete(:'mp-photo-alt') if post_params[:'mp-photo-alt']
+        else
+          photos = [post_params[:photo]]
         end
         post_params[:photo] = photos
       end

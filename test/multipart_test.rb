@@ -10,7 +10,6 @@ class MultipartTest < Minitest::Test
   end
 
   def test_new_entry_with_photo_multipart
-    skip "I'm not sure this is how we'd ever get the photos"
     stub_token
     stub_get_github_request
     stub_get_pages_branch
@@ -24,11 +23,11 @@ class MultipartTest < Minitest::Test
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/photo.jpg')
+    assert last_response.body.include?('/img/')
+
   end
 
   def test_new_entry_with_two_photos_multipart
-    skip "I'm not sure this is how we'd ever get the photos"
     stub_token
     stub_get_github_request
     stub_get_pages_branch
