@@ -357,8 +357,9 @@ module AppHelpers
       post_params[:"syndicate-to"] = [*post_params[:"syndicate-to"]] if post_params[:"syndicate-to"]
     end
 
-    unless post_params[:category]
-      post_params[:category] = parse_hashtags(post_params[:content])
+    unless post_params[:category] || post_params[:content].nil?
+      tags = parse_hashtags(post_params[:content])
+      post_params[:category] = tags unless tags.empty?
       post_params[:content] = strip_hashtags(post_params[:content])
     end
 
