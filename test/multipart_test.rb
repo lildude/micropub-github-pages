@@ -24,7 +24,6 @@ class MultipartTest < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include?('/img/')
-
   end
 
   def test_new_entry_with_two_photos_multipart
