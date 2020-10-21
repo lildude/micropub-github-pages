@@ -3,7 +3,7 @@
 require File.expand_path 'test_helper.rb', __dir__
 require 'mocha/setup'
 
-class FormEncodedTest < Minitest::Test
+class FormEncoded < Minitest::Test
   include Rack::Test::Methods
 
   def app

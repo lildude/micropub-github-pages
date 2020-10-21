@@ -2,7 +2,7 @@
 
 require File.expand_path 'test_helper.rb', __dir__
 
-class MultipartTest < Minitest::Test
+class Multipart < Minitest::Test
   include Rack::Test::Methods
 
   def app
