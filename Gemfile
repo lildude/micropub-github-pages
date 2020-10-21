@@ -16,6 +16,7 @@ group :test do
   gem 'coveralls', '~> 0.8'
   gem 'm', '~> 1.5.0'
   gem 'minitest'
+  gem 'minitest-reporters'
   gem 'mocha'
   gem 'pry'
   gem 'rack-test'
