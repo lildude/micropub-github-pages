@@ -84,8 +84,7 @@ class Json < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-header", last_response.header['Location']
-    assert last_response.body.include? 'tag1'
-    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
     assert last_response.body.include?('title: This is the header'), "Expected title to include 'This is the header', but got\n#{last_response.body}"
     refute last_response.body.include? '# This is the header'
     assert last_response.body.include? 'This is the JSON content'
@@ -108,8 +107,7 @@ class Json < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-title", last_response.header['Location']
-    assert last_response.body.include? 'tag1'
-    assert last_response.body.include? 'tag2'
+    assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
     assert last_response.body.include?('title: This is the title'), "Expected title to include 'This is the title', but got\n#{last_response.body}"
     assert last_response.body.include? '# This is the header'
     assert last_response.body.include? 'This is the JSON content'

@@ -226,6 +226,7 @@ class FormEncoded < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
+    assert last_response.body.include?("tags:\n- tag1\n- tag2")
   end
 
   # TODO: Not sure this works yet.
