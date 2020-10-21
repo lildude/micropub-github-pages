@@ -10,8 +10,11 @@ class Json < Minitest::Test
     Sinatra::Application
   end
 
-  def test_new_note_json_syntax
+  def setup
     stub_token
+  end
+
+  def test_new_note_json_syntax
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -32,7 +35,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_json_syntax_with_hashtags
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -51,7 +53,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_html_json
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -69,7 +70,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_title_in_markdown_content_becomes_article_json
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -91,7 +91,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_title_in_markdown_and_name_becomes_article_with_name_as_title
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -114,7 +113,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_photo_reference_json
-    stub_token
     stub_get_photo
     stub_get_github_request
     stub_get_pages_branch
@@ -133,7 +131,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_unreachable_photo_reference_json
-    stub_token
     stub_cant_get_photo
     stub_get_github_request
     stub_get_pages_branch
@@ -152,7 +149,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_multiple_photos_reference_json
-    stub_token
     stub_get_photo
     stub_get_github_request
     stub_get_pages_branch
@@ -172,7 +168,6 @@ class Json < Minitest::Test
   end
 
   def test_new_note_with_photo_reference_with_alt_json
-    stub_token
     stub_get_photo
     stub_get_github_request
     stub_get_pages_branch
@@ -195,7 +190,6 @@ class Json < Minitest::Test
   end
 
   def test_h_entry_with_nested_object
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -223,7 +217,6 @@ class Json < Minitest::Test
 
   def test_update_property
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -243,7 +236,6 @@ class Json < Minitest::Test
 
   def test_add_to_property
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -263,7 +255,6 @@ class Json < Minitest::Test
 
   def test_add_to_non_existent_property
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     # Stub a specific response without any tags/categories
     Sinatra::Application.any_instance.expects(:get_post)
@@ -291,7 +282,6 @@ class Json < Minitest::Test
 
   def test_remove_value_from_property
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -319,7 +309,6 @@ class Json < Minitest::Test
 
   def test_remove_property
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -338,7 +327,6 @@ class Json < Minitest::Test
   end
 
   def test_action_operation_is_valid
-    stub_token
     # foobar is not a valid action
     post('/micropub/testsite', {
       action: 'foobar'
@@ -365,7 +353,6 @@ class Json < Minitest::Test
 
   def test_delete_post
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -382,7 +369,6 @@ class Json < Minitest::Test
 
   def test_undelete_post_json
     skip "FIXME: I don't test anything yet"
-    stub_token
     stub_github_search
     # Stub a specific response with fm_published: false
     Sinatra::Application.any_instance.expects(:get_post)

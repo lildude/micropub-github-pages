@@ -9,8 +9,11 @@ class Multipart < Minitest::Test
     Sinatra::Application
   end
 
-  def test_new_entry_with_photo_multipart
+  def setup
     stub_token
+  end
+
+  def test_new_entry_with_photo_multipart
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -27,7 +30,6 @@ class Multipart < Minitest::Test
   end
 
   def test_new_entry_with_two_photos_multipart
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -49,7 +51,6 @@ class Multipart < Minitest::Test
 
   # This test is specific to the mp-photo-alt attribute micro.blog uses for images with descriptions
   def test_new_entry_with_two_photos_multipart_with_alt
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -67,7 +68,6 @@ class Multipart < Minitest::Test
   end
 
   def test_media_upload
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
@@ -81,7 +81,6 @@ class Multipart < Minitest::Test
   end
 
   def test_media_upload_ensure_image_jpg
-    stub_token
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
