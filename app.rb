@@ -235,6 +235,7 @@ module AppHelpers
       elsif params.include?(:name) && !params[:name].nil? && !params[:name].empty?
         params[:name].gsub(/[^\w\s-]/, '')
       elsif params[:content]
+        # TODO: Strip HTML
         # Else generate a slug based on the first 5 words of the first line of the content
         strip_hashtags(params[:content]).split(/\r?\n/).first.gsub(/[^\w\s-]/, '').split.first(5).join(' ')
       else
