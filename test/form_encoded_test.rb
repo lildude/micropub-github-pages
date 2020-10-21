@@ -209,6 +209,7 @@ class FormEncoded < Minitest::Test
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-content-slug", last_response.header['Location']
   end
 
+  # Micropub.rocks tests: 100, 101
   def test_new_entry
     stub_token
     stub_get_github_request
@@ -289,6 +290,7 @@ class FormEncoded < Minitest::Test
   end
 
   def test_delete_post
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     stub_get_github_request
@@ -305,6 +307,7 @@ class FormEncoded < Minitest::Test
   end
 
   def test_undelete_post
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     # Stub a specific response with fm_published: false

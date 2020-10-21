@@ -222,6 +222,7 @@ class Json < Minitest::Test
   end
 
   def test_update_property
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     stub_get_github_request
@@ -241,6 +242,7 @@ class Json < Minitest::Test
   end
 
   def test_add_to_property
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     stub_get_github_request
@@ -260,6 +262,7 @@ class Json < Minitest::Test
   end
 
   def test_add_to_non_existent_property
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     # Stub a specific response without any tags/categories
@@ -287,6 +290,7 @@ class Json < Minitest::Test
   end
 
   def test_remove_value_from_property
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     stub_get_github_request
@@ -314,6 +318,7 @@ class Json < Minitest::Test
   end
 
   def test_remove_property
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     stub_get_github_request
@@ -359,6 +364,7 @@ class Json < Minitest::Test
   end
 
   def test_delete_post
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     stub_get_github_request
@@ -375,6 +381,7 @@ class Json < Minitest::Test
   end
 
   def test_undelete_post_json
+    skip "FIXME: I don't test anything yet"
     stub_token
     stub_github_search
     # Stub a specific response with fm_published: false
