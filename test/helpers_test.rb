@@ -46,6 +46,7 @@ class Helpers < Minitest::Test
     assert_equal 'no-tags', @helper.create_slug(content: 'no #hash tags')
     assert_equal '35782', @helper.create_slug(published: '2017-07-02 02:56:22 -0700')
     assert_equal 'first-three-words', @helper.create_slug(content: "First Three Words\n\nSecond three words")
+    assert_equal 'this-post-has-bold-and', @helper.create_slug(content: '<p>This post has <b>bold</b> and <i>italic</i> text.</p>')
   end
 
   def test_create_permalink
