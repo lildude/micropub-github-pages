@@ -135,6 +135,10 @@ module AppHelpers
       sha_latest_commit
     ).sha
     client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
+  rescue Octokit::TooManyRequests, Octokit::AbuseDetected
+    logger.info 'Being rate limited. Waiting...'
+    sleep client.rate_limit.resets_in
+    retry
     # TODO: this is too generic and hides other problems
   rescue Octokit::UnprocessableEntity
     error('invalid_repo')
