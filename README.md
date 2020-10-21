@@ -1,14 +1,12 @@
 # Micropub to GitHub Pages
 
-![](https://github.com/lildude/micropub-github-pages/workflows/Tests/badge.svg) ![](https://github.com/lildude/micropub-github-pages/workflows/Linters/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/lildude/micropub-github-pages/badge.svg)](https://coveralls.io/github/lildude/micropub-github-pages)
+![Tests Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Tests/badge.svg) ![Linters Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Linters/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/lildude/micropub-github-pages/badge.svg)](https://coveralls.io/github/lildude/micropub-github-pages)
 
-A simple Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository.  This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
+A Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository.  This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
 
 ## Setup
 
-[Scripts to Rule Them All](http://githubengineering.com/scripts-to-rule-them-all/) is part of my day-to-day job and I really like the idea, so that's what I use here too.
-
-Just run `script/bootstrap` and you're get all the gem bundle goodness happening for you.
+Clone the repository and run `bundle install`.
 
 ### Heroku
 
@@ -20,7 +18,7 @@ Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/but
 
 ### Elsewhere
 
-Run `GITHUB_ACCESS_TOKEN=[your_personal_access_token] script/server` and you'll have the application running on http://localhost:9292 .
+Run `GITHUB_ACCESS_TOKEN=[your_personal_access_token] bundle exec rackup` and you'll have the application running on http://localhost:9292 .
 
 Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = '[your_personal_access_token]'`.
 
@@ -34,7 +32,7 @@ TBC
 
 ## Testing
 
-Run `script/test` to run through the full test suite.
+Run `bundle exec rake test` to run through the full test suite and `bundle exec rake rubocop` for Rubocop linting.
 
 ## License
 
