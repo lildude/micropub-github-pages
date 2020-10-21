@@ -16,12 +16,9 @@ end
 require 'mocha/minitest'
 require 'minitest/pride'
 require 'minitest/autorun'
-require 'minitest/reporters'
 require 'rack/test'
 require 'webmock/minitest'
 require_relative '../app'
-
-Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
