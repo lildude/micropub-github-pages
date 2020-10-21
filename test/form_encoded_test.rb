@@ -201,10 +201,9 @@ class FormEncoded < Minitest::Test
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include? 'tag1'
-    assert last_response.body.include? 'tag2'
-    assert last_response.body.include? 'this-is-the-content-slug'
-    assert last_response.body.include? now.to_s
+    assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
+    assert last_response.body.include? 'permalink: "this-is-the-content-slug"'
+    assert last_response.body.include? "date: #{now}"
     assert last_response.body.include? 'This is the content'
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-content-slug", last_response.header['Location']
   end
@@ -227,7 +226,7 @@ class FormEncoded < Minitest::Test
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
-    assert last_response.body.include?("tags:\n- tag1\n- tag2")
+    assert last_response.body.include? "tags:\n- tag1\n- tag2"
   end
 
   # TODO: Not sure this works yet.
