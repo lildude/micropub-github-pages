@@ -3,6 +3,7 @@ AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
   ExtraDetails: true
+  NewCops: enable
   Exclude:
     - 'vendor/**/*'
     - 'env.rb'
