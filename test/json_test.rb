@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require File.expand_path 'test_helper.rb', __dir__
-require 'mocha/setup'
 
 class Json < Minitest::Test
   include Rack::Test::Methods

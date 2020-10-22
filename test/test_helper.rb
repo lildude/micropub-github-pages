@@ -18,6 +18,7 @@ require 'minitest/pride'
 require 'minitest/autorun'
 require 'rack/test'
 require 'webmock/minitest'
+require 'mocha/setup'
 require_relative '../app'
 
 WebMock.disable_net_connect!(allow_localhost: true)
