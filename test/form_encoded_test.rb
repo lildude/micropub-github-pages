@@ -34,9 +34,8 @@ class FormEncoded < Minitest::Test
     assert_equal parse_body['media-endpoint'], 'http://example.org/micropub/testsite/media'
   end
 
-  # TODO: update me when implementing syndicate-to
   def test_get_syndicate_to
-    skip
+    skip 'TODO: not yet implemented'
     get '/micropub/testsite?q=syndicate-to', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.ok?
     refute JSON.parse(last_response.body)['syndicate-to'].empty?
@@ -64,7 +63,7 @@ class FormEncoded < Minitest::Test
   end
 
   def test_get_specific_props_from_source
-    skip('TODO: not yet implemented')
+    skip 'TODO: not yet implemented'
     stub_github_search
     stub_get_github_request
     get '/micropub/testsite?q=source&properties[]=content&properties[]=category&url=https://example.com/2010/01/14/example-post', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
@@ -191,7 +190,6 @@ class FormEncoded < Minitest::Test
   end
 
   def test_delete_post
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -204,10 +202,10 @@ class FormEncoded < Minitest::Test
            action: 'delete',
            url: 'https://example.com/2017/01/this-is-a-test-post/'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_undelete_post
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     # Stub a specific response with fm_published: false
     Sinatra::Application.any_instance.expects(:get_post)
@@ -229,5 +227,6 @@ class FormEncoded < Minitest::Test
            action: 'undelete',
            url: 'https://example.com/2017/01/this-is-a-test-post/'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 end

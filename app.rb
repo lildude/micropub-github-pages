@@ -563,6 +563,7 @@ post '/micropub/:site' do |site|
       error('insufficient_scope') unless @scopes.include?('update')
       update_post post_params
     end
+    status 204
   end
 end
 

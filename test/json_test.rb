@@ -351,7 +351,6 @@ class Json < Minitest::Test
   end
 
   def test_delete_post
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -364,10 +363,10 @@ class Json < Minitest::Test
       action: 'delete',
       url: 'https://example.com/2017/01/this-is-a-test-post/'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_undelete_post_json
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     # Stub a specific response with fm_published: false
     Sinatra::Application.any_instance.expects(:get_post)
@@ -389,5 +388,6 @@ class Json < Minitest::Test
       action: 'undelete',
       url: 'https://example.com/2017/01/this-is-a-test-post/'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 end
