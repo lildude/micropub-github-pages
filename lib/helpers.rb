@@ -137,7 +137,7 @@ module AppHelpers
   #
   def download_photos(params)
     photos = []
-    params[:photo].flatten.each_with_index do |photo, i|
+    params[:photo].flatten.each_with_index do |photo, index|
       if photo.is_a?(String)
         alt = ''
         url = photo
@@ -147,7 +147,7 @@ module AppHelpers
       end
 
       # Next if the URL matches our own site - we've already got the picture
-      next photos[i] = { 'url' => url, 'alt' => alt } if url =~ /#{site_url}/
+      next photos[index] = { 'url' => url, 'alt' => alt } if url =~ /#{site_url}/
 
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
@@ -158,19 +158,19 @@ module AppHelpers
       photo_path << "/#{upload_path}"
       unless tmpfile
         tmpfile = Tempfile.new(filename)
-        File.open(tmpfile, 'wb') do |f|
+        File.open(tmpfile, 'wb') do |file|
           resp = HTTParty.get(url, stream_body: true, follow_redirects: true)
           raise unless resp.success?
 
-          f.write resp.body
+          file.write resp.body
         end
       end
       content = { upload_path => Base64.encode64(tmpfile.read) }
-      photos[i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
+      photos[index] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
       # TODO: This is too greedy and hides legit problems
     rescue StandardError
       # Fall back to orig url if we can't download
-      photos[i] = { 'url' => url, 'alt' => alt }
+      photos[index] = { 'url' => url, 'alt' => alt }
     end
     photos
   end
@@ -210,8 +210,8 @@ module AppHelpers
     properties[:slug] = [front_matter.delete('permalink')] if front_matter['permalink']
     properties[:category] = front_matter.delete('tags') if front_matter['tags']
     # For everything else, map directly onto fm_* properties
-    front_matter.each do |k, v|
-      properties[:"fm_#{k}"] = [v]
+    front_matter.each do |key, value|
+      properties[:"fm_#{key}"] = [value]
     end
 
     data[:properties] = properties
@@ -262,7 +262,7 @@ module AppHelpers
   end
 
   def stringify_keys(hash)
-    hash.is_a?(Hash) ? hash.collect { |k, v| [k.to_s, stringify_keys(v)] }.to_h : hash
+    hash.is_a?(Hash) ? hash.collect { |key, value| [key.to_s, stringify_keys(value)] }.to_h : hash
   end
 
   def strip_hashtags(text)
@@ -284,14 +284,14 @@ module AppHelpers
     # modular approach so the settings can be accessed when testing.
     destinations = Sinatra::Application.settings.syndicate_to.values
     clean_dests = []
-    destinations.each do |e|
-      clean_dests << e.reject { |k| k == 'silo_pub_token' }
+    destinations.each do |endpoint|
+      clean_dests << endpoint.reject { |key| key == 'silo_pub_token' }
     end
     return JSON.generate("syndicate-to": clean_dests) unless params
 
-    dest_entry = destinations.find do |d|
+    dest_entry = destinations.find do |destination|
       dest = params[:"syndicate-to"][0] if params.key?(:"syndicate-to")
-      d['uid'] == dest
+      destination['uid'] == dest
     end || return
 
     silo_pub_token = dest_entry['silo_pub_token']
@@ -341,9 +341,9 @@ module AppHelpers
       if post_params[:photo]
         photos = []
         if post_params[:'mp-photo-alt']
-          post_params[:photo].each_with_index do |photo, i|
+          post_params[:photo].each_with_index do |photo, index|
             # NOTE: micro.blog and Sunlit iOS apps use mp-photo-alt for photo alt
-            alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][i] : ''
+            alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][index] : ''
             photos << { value: photo, alt: alt }
           end
           post_params.delete(:'mp-photo-alt') if post_params[:'mp-photo-alt']
@@ -419,12 +419,12 @@ module AppHelpers
     if post_params.key? :replace
       post[:properties].merge!(post_params[:replace])
     elsif post_params.key? :add
-      post_params[:add].each do |k, v|
-        post[:properties].key?(k) ? post[:properties][k] += v : post[:properties][k] = v
+      post_params[:add].each do |key, value|
+        post[:properties].key?(key) ? post[:properties][key] += value : post[:properties][key] = value
       end
     elsif post_params.key? :delete
-      post_params[:delete].each do |k, v|
-        k.is_a?(String) ? post[:properties].delete(k.to_sym) : post[:properties][k] -= v
+      post_params[:delete].each do |key, value|
+        key.is_a?(String) ? post[:properties].delete(key.to_sym) : post[:properties][key] -= value
       end
     end
 
