@@ -99,7 +99,7 @@ module AppHelpers
       sha_new_tree,
       sha_latest_commit
     ).sha
-    client.update_ref(@site['github_repo'], ref, sha_new_commit)
+    client.update_ref(repo, ref, sha_new_commit)
   rescue Octokit::TooManyRequests, Octokit::AbuseDetected
     logger.info 'Being rate limited. Waiting...'
     sleep client.rate_limit.resets_in
