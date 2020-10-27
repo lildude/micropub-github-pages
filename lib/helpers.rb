@@ -334,25 +334,24 @@ module AppHelpers
       post_params[:name] = post_params[:name][0] if post_params[:name]
       post_params[:slug] = post_params[:slug][0] if post_params[:slug]
     else
-      # rubocop:disable Metrics/BlockNesting
       # Convert all keys to symbols from form submission
       post_params = Hash[post_params].transform_keys(&:to_sym)
 
       if post_params[:photo]
         photos = []
-        if post_params[:'mp-photo-alt']
+        mp_photo_alt = post_params[:'mp-photo-alt']
+        if mp_photo_alt
           post_params[:photo].each_with_index do |photo, index|
             # NOTE: micro.blog and Sunlit iOS apps use mp-photo-alt for photo alt
-            alt = post_params[:'mp-photo-alt'] ? post_params[:'mp-photo-alt'][index] : ''
+            alt = mp_photo_alt[index]
             photos << { value: photo, alt: alt }
           end
-          post_params.delete(:'mp-photo-alt') if post_params[:'mp-photo-alt']
+          post_params.delete(:'mp-photo-alt')
         else
           photos = [post_params[:photo]]
         end
         post_params[:photo] = photos
       end
-      # rubocop:enable Metrics/BlockNesting
       post_params[:"syndicate-to"] = Array(*post_params[:"syndicate-to"]) if post_params[:"syndicate-to"]
     end
 
