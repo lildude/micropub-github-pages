@@ -206,7 +206,7 @@ module AppHelpers
     # Map Jekyll Frontmatter fields back to microformat h-entry field names
     properties[:name] = [front_matter.delete('title')] if front_matter['title']
     properties[:published] = [front_matter.delete('date').to_s]
-    properties[:content] = content.nil? ? [''] : [content.strip]
+    properties[:content] = content ? [content.strip] : ['']
     properties[:slug] = [front_matter.delete('permalink')] if front_matter['permalink']
     properties[:category] = front_matter.delete('tags') if front_matter['tags']
     # For everything else, map directly onto fm_* properties
