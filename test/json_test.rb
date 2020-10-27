@@ -215,14 +215,13 @@ class Json < Minitest::Test
   end
 
   def test_update_property
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
     # Explicitly stub so we can confirm we're getting the modified category entries
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with(has_entry(category: %w[foo bar]))
+                        .with(has_entry(content: 'This is the updated text. If you can see this you passed the test!'))
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
@@ -231,10 +230,10 @@ class Json < Minitest::Test
         content: ['This is the updated text. If you can see this you passed the test!']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_add_to_property
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -250,10 +249,10 @@ class Json < Minitest::Test
         category: ['tag99']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_add_to_non_existent_property
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     # Stub a specific response without any tags/categories
     Sinatra::Application.any_instance.expects(:get_post)
@@ -277,10 +276,10 @@ class Json < Minitest::Test
         category: ['tag99']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_remove_value_from_property
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -304,10 +303,10 @@ class Json < Minitest::Test
         category: ['bar']
       }
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_remove_property
-    skip "FIXME: I don't test anything yet"
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
@@ -323,6 +322,7 @@ class Json < Minitest::Test
         'category'
       ]
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
   def test_action_operation_is_valid
