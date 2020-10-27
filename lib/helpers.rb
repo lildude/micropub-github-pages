@@ -386,14 +386,15 @@ module AppHelpers
   end
 
   def post_type(post_params)
-    case post_params[:h]
+    object_type = post_params[:h]
+    case object_type
     when 'entry'
       mapping = { name: :article, in_reply_to: :reply, repost_of: :repost, bookmark_of: :bookmark, photo: :photo, content: :note }
       mapping.each { |key, type| return type if post_params.include?(key) && !post_params[key].empty? }
       # Dump all params into this template as it doesn't fit any other type.
       :dump_all
     else
-      post_params[:h].to_sym
+      object_type.to_sym
     end
   end
 
