@@ -44,7 +44,7 @@ module AppHelpers
     filename << "-#{file_slug}.md"
 
     logger.info "Filename: #{filename}"
-    @location = settings.sites[@site]['site_url'].dup
+    @location = @site['site_url'].dup
     @location << create_permalink(params)
 
     files = {}
@@ -75,7 +75,7 @@ module AppHelpers
     # Authenticate
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     # Verify the repo exists
-    repo = settings.sites[@site]['github_repo']
+    repo = @site['github_repo']
     client.repository?(repo)
     ref = "heads/#{client.pages(repo).source.branch}"
     sha_latest_commit = client.ref(repo, ref).object.sha
@@ -99,7 +99,7 @@ module AppHelpers
       sha_new_tree,
       sha_latest_commit
     ).sha
-    client.update_ref(settings.sites[@site]['github_repo'], ref, sha_new_commit)
+    client.update_ref(@site['github_repo'], ref, sha_new_commit)
   rescue Octokit::TooManyRequests, Octokit::AbuseDetected
     logger.info 'Being rate limited. Waiting...'
     sleep client.rate_limit.resets_in
@@ -119,14 +119,14 @@ module AppHelpers
       alt = photo.is_a?(String) ? '' : photo[:alt]
       url = photo.is_a?(String) ? photo : photo[:value]
       # Next if the URL matches our own site - we've already got the picture
-      next params[:photo][i] = { 'url' => url, 'alt' => alt } if url =~ /#{settings.sites[@site]['site_url']}/
+      next params[:photo][i] = { 'url' => url, 'alt' => alt } if url =~ /#{@site['site_url']}/
 
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
-      upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
+      upload_path = "#{@site['image_dir']}/#{filename}"
       photo_path = ''.dup
-      photo_path << settings.sites[@site]['site_url'] if settings.sites[@site]['full_image_urls']
+      photo_path << @site['site_url'] if @site['full_image_urls']
       photo_path << "/#{upload_path}"
       unless tmpfile
         tmpfile = Tempfile.new(filename)
@@ -153,13 +153,13 @@ module AppHelpers
   def get_post(url)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-    code = client.search_code("filename:#{fuzzy_filename} repo:#{settings.sites[@site]['github_repo']}")
+    code = client.search_code("filename:#{fuzzy_filename} repo:#{@site['github_repo']}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     # Error if we can't find the post
     error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
 
-    content = client.contents(settings.sites[@site]['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
+    content = client.contents(@site['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post(decoded_content)
@@ -210,7 +210,7 @@ module AppHelpers
   end
 
   def create_permalink(params)
-    permalink_style = params[:permalink_style] || settings.sites[@site]['permalink_style']
+    permalink_style = params[:permalink_style] || @site['permalink_style']
     date = DateTime.parse(params[:published])
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables

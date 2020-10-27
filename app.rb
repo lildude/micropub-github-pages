@@ -2,12 +2,12 @@
 
 require 'sinatra'
 require 'sinatra/config_file'
-require 'uri'
+# require 'uri'
 require 'octokit'
 require 'httparty'
 require 'json'
 require 'base64'
-require 'open-uri'
+# require 'open-uri'
 require 'safe_yaml'
 require 'liquid'
 require 'securerandom'
@@ -82,7 +82,8 @@ get '/micropub/:site' do |site|
   halt 404 unless settings.sites.include? site
   halt 404 unless params.include? 'q'
 
-  @site ||= site
+  # TODO: set the settings to replace calls to settings.sites[@site]['<whatever>']
+  @site ||= settings.sites[site]
 
   case params['q']
     # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
@@ -115,7 +116,7 @@ post '/micropub/:site' do |site|
   # If we're getting a file upload direct to this endpoint, jump to the media endpoint
   return call! env.merge('PATH_INFO' => "/micropub/#{site}/media") if params[:file]
 
-  @site ||= site
+  @site ||= settings.sites[site]
 
   # Normalise params
   post_params = if env['CONTENT_TYPE'] == 'application/json'
@@ -168,15 +169,15 @@ end
 post '/micropub/:site/media' do |site|
   halt 404 unless settings.sites.include? site
   error('insufficient_scope') unless @scopes.include?('create') || @scopes.include?('media')
-  @site ||= site
+  @site ||= settings.sites[site]
   logger.info params
 
   file = params[:file]
   ext = file[:filename].split('.').last
   # Always generate a unique unguessable filename as per the spec
   filename = "#{SecureRandom.hex(6)}.#{ext}"
-  upload_path = "#{settings.sites[@site]['image_dir']}/#{filename}"
-  media_path = "#{settings.sites[@site]['site_url']}/#{upload_path}"
+  upload_path = "#{@site['image_dir']}/#{filename}"
+  media_path = "#{@site['site_url']}/#{upload_path}"
 
   files = {}
   files[upload_path] = Base64.encode64(file[:tempfile].read)
