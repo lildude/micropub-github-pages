@@ -115,18 +115,26 @@ module AppHelpers
   # See https://www.w3.org/TR/micropub/#uploading-a-photo-with-alt-text
   #
   def download_photos(params)
+    photos = []
     params[:photo].flatten.each_with_index do |photo, i|
-      alt = photo.is_a?(String) ? '' : photo[:alt]
-      url = photo.is_a?(String) ? photo : photo[:value]
+      if photo.is_a?(String)
+        alt = ''
+        url = photo
+      else
+        alt = photo[:alt]
+        url = photo[:value]
+      end
+
       # Next if the URL matches our own site - we've already got the picture
-      next params[:photo][i] = { 'url' => url, 'alt' => alt } if url =~ /#{@site['site_url']}/
+      site_url = @site['site_url']
+      next photos[i] = { 'url' => url, 'alt' => alt } if url =~ /#{site_url}/
 
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
       upload_path = "#{@site['image_dir']}/#{filename}"
       photo_path = ''.dup
-      photo_path << @site['site_url'] if @site['full_image_urls']
+      photo_path << site_url if @site['full_image_urls']
       photo_path << "/#{upload_path}"
       unless tmpfile
         tmpfile = Tempfile.new(filename)
@@ -138,13 +146,13 @@ module AppHelpers
         end
       end
       content = { upload_path => Base64.encode64(tmpfile.read) }
-      params[:photo][i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
+      photos[i] = { 'url' => photo_path, 'alt' => alt, 'content' => content }
       # TODO: This is too greedy and hides legit problems
     rescue StandardError
       # Fall back to orig url if we can't download
-      params[:photo][i] = { 'url' => url, 'alt' => alt }
+      photos[i] = { 'url' => url, 'alt' => alt }
     end
-    params[:photo]
+    photos
   end
 
   # Grab the contents of the file referenced by the URL received from the client
