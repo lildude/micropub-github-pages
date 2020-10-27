@@ -287,7 +287,7 @@ module AppHelpers
     destinations.each do |e|
       clean_dests << e.reject { |k| k == 'silo_pub_token' }
     end
-    return JSON.generate("syndicate-to": clean_dests) if params.nil?
+    return JSON.generate("syndicate-to": clean_dests) unless params
 
     dest_entry = destinations.find do |d|
       dest = params[:"syndicate-to"][0] if params.key?(:"syndicate-to")
@@ -356,7 +356,7 @@ module AppHelpers
       post_params[:"syndicate-to"] = Array(*post_params[:"syndicate-to"]) if post_params[:"syndicate-to"]
     end
 
-    unless post_params[:category] || post_params[:content].nil?
+    unless post_params[:category] || !post_params[:content]
       tags = parse_hashtags(post_params[:content])
       post_params[:category] = tags unless tags.empty?
       post_params[:content] = strip_hashtags(post_params[:content])
@@ -365,7 +365,7 @@ module AppHelpers
     # Secret functionality: We may receive markdown in the content.
     # If the first line is a header, set the name with it
     first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
-    if !first_line.nil? && !post_params[:name]
+    if first_line && !post_params[:name]
       post_params[:name] = first_line[1].to_s.strip
       post_params[:content].sub!(first_line[0], '')
     end
