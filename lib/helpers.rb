@@ -36,6 +36,26 @@ module AppHelpers
     decoded_resp[:scope].gsub(/post/, 'create').split(' ')
   end
 
+  def github_repo
+    @github_repo ||= settings.sites[@site]['github_repo']
+  end
+
+  def permalink_style
+    @permalink_style ||= settings.sites[@site]['permalink_style']
+  end
+
+  def site_url
+    @site_url ||= settings.sites[@site]['site_url']
+  end
+
+  def full_image_urls
+    @full_image_urls ||= !!settings.sites[@site]['full_image_urls']
+  end
+
+  def image_dir
+    @image_dir ||= settings.sites[@site]['image_dir']
+  end
+
   def publish_post(params)
     date = DateTime.parse(params[:published])
     filename = date.strftime('%F')
@@ -44,7 +64,7 @@ module AppHelpers
     filename << "-#{file_slug}.md"
 
     logger.info "Filename: #{filename}"
-    @location = @site['site_url'].dup
+    @location = site_url.dup
     @location << create_permalink(params)
 
     files = {}
@@ -75,31 +95,30 @@ module AppHelpers
     # Authenticate
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     # Verify the repo exists
-    repo = @site['github_repo']
-    client.repository?(repo)
-    ref = "heads/#{client.pages(repo).source.branch}"
-    sha_latest_commit = client.ref(repo, ref).object.sha
-    sha_base_tree = client.commit(repo, sha_latest_commit).commit.tree.sha
+    client.repository?(github_repo)
+    ref = "heads/#{client.pages(github_repo).source.branch}"
+    sha_latest_commit = client.ref(github_repo, ref).object.sha
+    sha_base_tree = client.commit(github_repo, sha_latest_commit).commit.tree.sha
 
     new_tree = files.map do |path, new_content|
       Hash(
         path: path,
         mode: '100644',
         type: 'blob',
-        sha: client.create_blob(repo, new_content, 'base64')
+        sha: client.create_blob(github_repo, new_content, 'base64')
       )
     end
 
-    sha_new_tree = client.create_tree(repo, new_tree, base_tree: sha_base_tree).sha
+    sha_new_tree = client.create_tree(github_repo, new_tree, base_tree: sha_base_tree).sha
     @action ||= 'new'
     commit_message = "#{@action.capitalize} #{type}: #{slug}"
     sha_new_commit = client.create_commit(
-      repo,
+      github_repo,
       commit_message,
       sha_new_tree,
       sha_latest_commit
     ).sha
-    client.update_ref(repo, ref, sha_new_commit)
+    client.update_ref(github_repo, ref, sha_new_commit)
   rescue Octokit::TooManyRequests, Octokit::AbuseDetected
     logger.info 'Being rate limited. Waiting...'
     sleep client.rate_limit.resets_in
@@ -126,15 +145,14 @@ module AppHelpers
       end
 
       # Next if the URL matches our own site - we've already got the picture
-      site_url = @site['site_url']
       next photos[i] = { 'url' => url, 'alt' => alt } if url =~ /#{site_url}/
 
       # If we have a tempfile property, this is a multipart upload
       tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
       filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
-      upload_path = "#{@site['image_dir']}/#{filename}"
+      upload_path = "#{image_dir}/#{filename}"
       photo_path = ''.dup
-      photo_path << site_url if @site['full_image_urls']
+      photo_path << site_url if full_image_urls
       photo_path << "/#{upload_path}"
       unless tmpfile
         tmpfile = Tempfile.new(filename)
@@ -161,13 +179,13 @@ module AppHelpers
   def get_post(url)
     fuzzy_filename = url.split('/').last
     client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-    code = client.search_code("filename:#{fuzzy_filename} repo:#{@site['github_repo']}")
+    code = client.search_code("filename:#{fuzzy_filename} repo:#{github_repo}")
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     # Error if we can't find the post
     error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
 
-    content = client.contents(@site['github_repo'], path: code[:items][0][:path]) if code[:total_count] == 1
+    content = client.contents(github_repo, path: code[:items][0][:path]) if code[:total_count] == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post(decoded_content)
@@ -218,7 +236,7 @@ module AppHelpers
   end
 
   def create_permalink(params)
-    permalink_style = params[:permalink_style] || @site['permalink_style']
+    link_style = params[:permalink_style] || permalink_style
     date = DateTime.parse(params[:published])
 
     # Common Jekyll permalink template variables - https://jekyllrb.com/docs/permalinks/#template-variables
@@ -236,7 +254,7 @@ module AppHelpers
       ':categories' => ''
     }
 
-    permalink_style.gsub(/(:[a-z_]+)/, template_variables).gsub(%r{(//)}, '/')
+    link_style.gsub(/(:[a-z_]+)/, template_variables).gsub(%r{(//)}, '/')
   end
 
   def stringify_keys(hash)
