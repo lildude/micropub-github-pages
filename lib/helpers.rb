@@ -200,18 +200,19 @@ module AppHelpers
     content = matches[4]
     data = {}
     data[:type] = ['h-entry'] # TODO: Handle other types.
-    data[:properties] = {}
+    properties = {}
     # Map Jekyll Frontmatter fields back to microformat h-entry field names
-    data[:properties][:name] = [front_matter.delete('title')] if front_matter['title']
-    data[:properties][:published] = [front_matter.delete('date').to_s]
-    data[:properties][:content] = content.nil? ? [''] : [content.strip]
-    data[:properties][:slug] = [front_matter.delete('permalink')] unless front_matter['permalink'].nil?
-    data[:properties][:category] = front_matter.delete('tags') unless front_matter['tags'].nil? || front_matter['tags'].empty?
+    properties[:name] = [front_matter.delete('title')] if front_matter['title']
+    properties[:published] = [front_matter.delete('date').to_s]
+    properties[:content] = content.nil? ? [''] : [content.strip]
+    properties[:slug] = [front_matter.delete('permalink')] if front_matter['permalink']
+    properties[:category] = front_matter.delete('tags') if front_matter['tags']
     # For everything else, map directly onto fm_* properties
     front_matter.each do |k, v|
-      data[:properties][:"fm_#{k}"] = [v]
+      properties[:"fm_#{k}"] = [v]
     end
 
+    data[:properties] = properties
     data
   end
 
