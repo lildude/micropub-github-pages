@@ -71,19 +71,20 @@ module AppHelpers
 
     # Download any photos we want to include in the commit
     # TODO: Per-repo settings take pref over global. Global only at the mo
-    if settings.download_photos && (!params[:photo].nil? && !params[:photo].empty?)
+    if settings.download_photos && params[:photo]
       params[:photo] = download_photos(params)
       params[:photo].each do |photo|
         files.merge!(photo.delete('content')) if photo['content']
       end
     end
 
-    template = File.read("templates/#{params[:type]}.liquid")
+    post_type = params[:type]
+    template = File.read("templates/#{post_type}.liquid")
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
     files["_posts/#{filename}"] = Base64.encode64(content)
 
-    commit_to_github(files, params[:type], filename)
+    commit_to_github(files, post_type, filename)
 
     status 201
     headers 'Location' => @location.to_s
