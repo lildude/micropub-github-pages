@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Put helper functions in a module for easy testing.
 module AppHelpers
   def error(error, description = nil)
     case error
