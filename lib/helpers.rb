@@ -73,7 +73,7 @@ module AppHelpers
     # Download any photos we want to include in the commit
     # TODO: Per-repo settings take pref over global. Global only at the mo
     if settings.download_photos && params[:photo]
-      params[:photo] = download_photos(params)
+      params[:photo] = download_photos(params[:photo])
       params[:photo].each do |photo|
         files.merge!(photo.delete('content')) if photo['content']
       end
@@ -137,7 +137,7 @@ module AppHelpers
   #
   def download_photos(params)
     photos = []
-    params[:photo].flatten.each_with_index do |photo, index|
+    params.flatten.each_with_index do |photo, index|
       if photo.is_a?(String)
         alt = ''
         url = photo
