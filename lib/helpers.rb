@@ -183,9 +183,10 @@ module AppHelpers
     # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
     code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
     # Error if we can't find the post
-    error('invalid_request', 'The post with the requested URL was not found') if (code[:total_count]).zero?
+    total_count = code[:total_count]
+    error('invalid_request', 'The post with the requested URL was not found') if total_count.zero?
 
-    content = client.contents(github_repo, path: code[:items][0][:path]) if code[:total_count] == 1
+    content = client.contents(github_repo, path: code[:items][0][:path]) if total_count == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
 
     jekyll_post(decoded_content)
