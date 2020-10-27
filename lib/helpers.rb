@@ -199,13 +199,13 @@ module AppHelpers
   def create_slug(params)
     slug =
       # Use the provided slug
-      if params.include?(:"mp-slug") && !params[:"mp-slug"].nil?
+      if params[:"mp-slug"] && !params[:"mp-slug"].empty?
         File.basename(params[:"mp-slug"])
       # If there's a title, use that
-      elsif params.include?(:title) && !params[:title].nil? && !params[:title].empty?
+      elsif params[:title] && !params[:title].empty?
         params[:title].gsub(/[^\w\s-]/, '')
       # If there's a name, use that
-      elsif params.include?(:name) && !params[:name].nil? && !params[:name].empty?
+      elsif params[:name] && !params[:name].empty?
         params[:name].gsub(/[^\w\s-]/, '')
       elsif params[:content]
         # Else generate a slug based on the first 5 words of the first line of the content
