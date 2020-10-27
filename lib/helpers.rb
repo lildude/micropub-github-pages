@@ -189,7 +189,7 @@ module AppHelpers
     error('invalid_request', 'The post with the requested URL was not found') if total_count.zero?
 
     content = client.contents(github_repo, path: code[:items][0][:path]) if total_count == 1
-    decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode unless content.nil?
+    decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode if content
 
     jekyll_post(decoded_content)
   end
