@@ -293,6 +293,8 @@ class Json < Minitest::Test
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with({
                                 type: :article,
+                                path: '_post/2010-01-14-example-post.md',
+                                url: 'https://example.com/2010/01/this-is-a-test-post/',
                                 h: 'entry',
                                 name: 'This is a Test Post',
                                 published: '2010-01-14 10:01:48 +0000',

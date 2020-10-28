@@ -75,6 +75,7 @@ def stub_get_github_request(code: 200, fixture: '2010-01-14-example-post.md')
         },
         sha: 'd735c3364cacbda4a9631af085227ce200589676',
         content: Base64.encode64(File.read("test/fixtures/#{fixture}")),
+        path: "_post/#{fixture}",
         total_count: 1,
         items: [{
           name: 'example-post.md',
