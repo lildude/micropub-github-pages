@@ -214,7 +214,6 @@ class Json < Minitest::Test
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
   end
 
-  # TODO: We need an identical test but without the slug param
   def test_update_property
     stub_github_search
     stub_get_github_request
