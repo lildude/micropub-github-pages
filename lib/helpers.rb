@@ -50,7 +50,7 @@ module AppHelpers
   end
 
   def full_image_urls
-    @full_image_urls ||= !!settings.sites[@site]['full_image_urls']
+    @full_image_urls ||= settings.sites[@site]['full_image_urls']
   end
 
   def image_dir
