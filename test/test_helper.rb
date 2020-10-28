@@ -64,7 +64,7 @@ end
 
 # Handles all GET API requests - this is a fudged reponse to satisfy all requests
 # and does match an actual GitHub API response
-def stub_get_github_request(code: 200)
+def stub_get_github_request(code: 200, fixture: '2010-01-14-example-post.md')
   stub_request(:get, %r{api.github.com/repos/.*/micropub-github-pages})
     .to_return(
       status: code, headers: { 'Content-Type' => 'application/json' },
@@ -74,16 +74,11 @@ def stub_get_github_request(code: 200)
           tree: { sha: '6dcb09b5b57875f334f61aebed695e2e4193db5e' }
         },
         sha: 'd735c3364cacbda4a9631af085227ce200589676',
-        content: 'LS0tDQpsYXlvdXQ6IHBvc3QNCnRpdGxlOiAgVGhpcyBpcyBhIFRlc3QgUG9z'\
-                 'dA0KZGF0ZTogICAyMDE3LTAxLTIwIDEwOjAxOjQ4DQp0YWdzOiANCi0gZm9v'\
-                 'IA0KLSBiYXINCnBlcm1hbGluazogLzIwMTcvMDEvdGhpcy1pcy1hLXRlc3Qt'\
-                 'cG9zdA0KLS0tDQoNClRoaXMgaXMgYSB0ZXN0IHBvc3Qgd2l0aDoNCg0KLSBU'\
-                 'YWdzLA0KLSBhIHBlcm1hbGluaw0KLSBhbmQgc29tZSAqKmJvbGQqKiBhbmQg'\
-                 'X19pdGFsaWNfXyBtYXJrZG93bg==',
+        content: Base64.encode64(File.read("test/fixtures/#{fixture}")),
         total_count: 1,
         items: [{
           name: 'example-post.md',
-          path: '_post/2010-01-14-example-post.md',
+          path: "_post/#{fixture}",
           sha: 'd735c3364cacbda4a9631af085227ce200589676'
         }]
       )
@@ -125,7 +120,7 @@ end
 
 def stub_get_photo
   stub_request(:get, %r{.*instagram.*/t51.2885-15/e35/\d+_\d+_\d+_n.jpg})
-    .to_return(status: 200, body: open('test/fixtures/photo.jpg', 'rb'))
+    .to_return(status: 200, body: File.open('test/fixtures/photo.jpg', 'rb'))
 end
 
 def stub_cant_get_photo
@@ -133,14 +128,14 @@ def stub_cant_get_photo
     .to_return(status: 404, body: '')
 end
 
-def stub_github_search(count: 1)
+def stub_github_search(count: 1, fixture: '2010-01-14-example-post.md')
   stub_request(:get, %r{api.github.com/search/code})
     .to_return(status: 200,
                body: JSON.generate(
                  total_count: count,
                  items: [{
                    name: 'example-post.md',
-                   path: '_post/2010-01-14-example-post.md',
+                   path: "_post/#{fixture}",
                    sha: 'd735c3364cacbda4a9631af085227ce200589676'
                  }]
                ))

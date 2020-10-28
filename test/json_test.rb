@@ -214,14 +214,20 @@ class Json < Minitest::Test
     assert last_response.body.include?('kg'), 'Body did not include "kg"'
   end
 
+  # TODO: We need an identical test but without the slug param
   def test_update_property
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
-    # Explicitly stub so we can confirm we're getting the modified category entries
+    # Explicitly stub so we can confirm we're getting the modified category entries and no change to the slug
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with(has_entry(content: 'This is the updated text. If you can see this you passed the test!'))
+                        .with(
+                          has_entries(
+                            content: 'This is the updated text. If you can see this you passed the test!',
+                            slug: '/2017/01/this-is-a-test-post'
+                          )
+                        )
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
@@ -291,7 +297,7 @@ class Json < Minitest::Test
                                 h: 'entry',
                                 name: 'This is a Test Post',
                                 published: '2017-01-20 10:01:48 +0000',
-                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
+                                content: "This is a test post with:\n\n- Tags,\n- a permalink\n- and some **bold** and __italic__ markdown",
                                 slug: '/2017/01/this-is-a-test-post',
                                 category: %w[foo]
                               })

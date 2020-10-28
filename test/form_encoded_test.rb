@@ -52,7 +52,7 @@ class FormEncoded < Minitest::Test
     assert last_response.body.include? '"published":["2017-01-20 10:01:48 +0000"]'
     assert last_response.body.include? '"category":["foo","bar"]'
     assert last_response.body.include? '"slug":["/2017/01/this-is-a-test-post"]'
-    assert last_response.body.include? '["This is a test post with:\\r\n\\r\n- Tags,\\r\n- a permalink\\r\n- and some **bold** and __italic__ markdown"]'
+    assert last_response.body.include? '["This is a test post with:\n\n- Tags,\n- a permalink\n- and some **bold** and __italic__ markdown"]'
   end
 
   def test_400_get_source_not_found
