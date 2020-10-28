@@ -58,15 +58,22 @@ module AppHelpers
   end
 
   def publish_post(params)
-    date = DateTime.parse(params[:published])
-    filename = date.strftime('%F')
-    file_slug = create_slug(params)
-    params[:slug] = file_slug if params[:'mp-slug']
-    filename << "-#{file_slug}.md"
-
+    filename =  if params[:path]
+                  File.basename(params[:path])
+                else
+                  date = DateTime.parse(params[:published])
+                  fn = date.strftime('%F')
+                  file_slug = create_slug(params)
+                  params[:slug] = file_slug if params[:'mp-slug']
+                  fn << "-#{file_slug}.md"
+                end
     logger.info "Filename: #{filename}"
-    @location = site_url.dup
-    @location << create_permalink(params)
+    @location = if params[:url]
+                  params[:url]
+                else
+                  loc = settings.sites[@site]['site_url'].dup
+                  loc << create_permalink(params)
+                end
 
     files = {}
 
@@ -191,7 +198,11 @@ module AppHelpers
     content = client.contents(github_repo, path: code[:items][0][:path]) if total_count == 1
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode if content
 
-    jekyll_post(decoded_content)
+    data = jekyll_post(decoded_content)
+    data[:path] = content[:path]
+    data[:url] = url
+
+    data
   end
 
   def jekyll_post(content)
