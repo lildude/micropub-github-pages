@@ -49,10 +49,10 @@ class FormEncoded < Minitest::Test
     assert last_response.ok?, "Expected 200 but got #{last_response.status}"
     assert JSON.parse(last_response.body)
     assert last_response.body.include? '"type":["h-entry"]'
-    assert last_response.body.include? '"published":["2017-01-20 10:01:48 +0000"]'
+    assert last_response.body.include? '"published":["2010-01-14 10:01:48 +0000"]'
     assert last_response.body.include? '"category":["foo","bar"]'
-    assert last_response.body.include? '"slug":["/2017/01/this-is-a-test-post"]'
-    assert last_response.body.include? '["This is a test post with:\\r\n\\r\n- Tags,\\r\n- a permalink\\r\n- and some **bold** and __italic__ markdown"]'
+    assert last_response.body.include? '"slug":["/2010/01/this-is-a-test-post"]'
+    assert last_response.body.include? '["This is a test post with:\n\n- Tags,\n- a permalink\n- and some **bold** and __italic__ markdown"]'
   end
 
   def test_400_get_source_not_found
@@ -200,7 +200,7 @@ class FormEncoded < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
            action: 'delete',
-           url: 'https://example.com/2017/01/this-is-a-test-post/'
+           url: 'https://example.com/2010/01/this-is-a-test-post/'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
@@ -225,7 +225,7 @@ class FormEncoded < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
            action: 'undelete',
-           url: 'https://example.com/2017/01/this-is-a-test-post/'
+           url: 'https://example.com/2010/01/this-is-a-test-post/'
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end

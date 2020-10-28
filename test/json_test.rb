@@ -219,13 +219,18 @@ class Json < Minitest::Test
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
-    # Explicitly stub so we can confirm we're getting the modified category entries
+    # Explicitly stub so we can confirm we're getting the modified category entries and no change to the slug
     Sinatra::Application.any_instance.expects(:publish_post)
-                        .with(has_entry(content: 'This is the updated text. If you can see this you passed the test!'))
+                        .with(
+                          has_entries(
+                            content: 'This is the updated text. If you can see this you passed the test!',
+                            slug: '/2010/01/this-is-a-test-post'
+                          )
+                        )
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2010/01/this-is-a-test-post/',
       replace: {
         content: ['This is the updated text. If you can see this you passed the test!']
       }
@@ -244,7 +249,7 @@ class Json < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2010/01/this-is-a-test-post/',
       add: {
         category: ['tag99']
       }
@@ -271,7 +276,7 @@ class Json < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2010/01/this-is-a-test-post/',
       add: {
         category: ['tag99']
       }
@@ -288,17 +293,19 @@ class Json < Minitest::Test
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with({
                                 type: :article,
+                                path: '_post/2010-01-14-example-post.md',
+                                url: 'https://example.com/2010/01/this-is-a-test-post/',
                                 h: 'entry',
                                 name: 'This is a Test Post',
-                                published: '2017-01-20 10:01:48 +0000',
-                                content: "This is a test post with:\r\n\r\n- Tags,\r\n- a permalink\r\n- and some **bold** and __italic__ markdown",
-                                slug: '/2017/01/this-is-a-test-post',
+                                published: '2010-01-14 10:01:48 +0000',
+                                content: "This is a test post with:\n\n- Tags,\n- a permalink\n- and some **bold** and __italic__ markdown",
+                                slug: '/2010/01/this-is-a-test-post',
                                 category: %w[foo]
                               })
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2010/01/this-is-a-test-post/',
       delete: {
         category: ['bar']
       }
@@ -317,7 +324,7 @@ class Json < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'update',
-      url: 'https://example.com/2017/01/this-is-a-test-post/',
+      url: 'https://example.com/2010/01/this-is-a-test-post/',
       delete: [
         'category'
       ]
@@ -361,7 +368,7 @@ class Json < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'delete',
-      url: 'https://example.com/2017/01/this-is-a-test-post/'
+      url: 'https://example.com/2010/01/this-is-a-test-post/'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
@@ -373,7 +380,7 @@ class Json < Minitest::Test
                         .returns(
                           { type: ['h-entry'],
                             properties: {
-                              published: ['2017-01-20 10:01:48 +0000'],
+                              published: ['2010-01-14 10:01:48 +0000'],
                               content: ['Micropub update test.'],
                               fm_published: 'false'
                             } }
@@ -386,7 +393,7 @@ class Json < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
       action: 'undelete',
-      url: 'https://example.com/2017/01/this-is-a-test-post/'
+      url: 'https://example.com/2010/01/this-is-a-test-post/'
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
