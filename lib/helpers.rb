@@ -327,69 +327,69 @@ module AppHelpers
   def process_params(post_params)
     # Bump off the standard Sinatra params we don't use
     post_params.reject! { |key, _v| key =~ /^splat|captures|site/i }
-
     error('invalid_request') if post_params.empty?
 
-    # JSON-specific processing
-    if post_params.key?(:type) && !post_params.key?(:action)
-      post_params[:h] = post_params[:type][0].tr('h-', '') if post_params[:type][0]
-      post_params.merge!(post_params.delete(:properties))
-      if post_params[:content]
-        post_params[:content] =
-          if post_params[:content][0].is_a?(Hash)
-            post_params[:content][0][:html]
-          else
-            post_params[:content][0]
-          end
-      end
-      post_params[:name] = post_params[:name][0] if post_params[:name]
-      post_params[:slug] = post_params[:slug][0] if post_params[:slug]
-    else
-      # Convert all keys to symbols from form submission
-      post_params = Hash[post_params].transform_keys(&:to_sym)
+    post_params = Hash[post_params].transform_keys(&:to_sym)
+    post_params.merge!(post_params.delete(:properties)) if post_params[:properties]
+    post_params[:h] = post_params[:type][0].tr('h-', '') if post_params[:type]
 
-      if post_params[:photo]
-        photos = []
-        mp_photo_alt = post_params[:'mp-photo-alt']
-        if mp_photo_alt
-          post_params[:photo].each_with_index do |photo, index|
-            # NOTE: micro.blog and Sunlit iOS apps use mp-photo-alt for photo alt
-            alt = mp_photo_alt[index]
-            photos << { value: photo, alt: alt }
-          end
-          post_params.delete(:'mp-photo-alt')
-        else
-          photos = [post_params[:photo]]
+    content = post_params[:content].dup
+    if content
+      content = if content.is_a?(String)
+                  content
+                else
+                  content = content.first
+                  content.is_a?(Hash) && content.key?(:html) ? content[:html] : content
+                end
+    end
+
+    %i[name slug published].each do |param|
+      param_value = post_params[param]
+      post_params[param] = param_value.first if param_value.is_a?(Array)
+    end
+
+    photo_param = post_params[:photo].dup
+    if photo_param
+      photos = []
+      # micro.blog and Sunlit iOS apps use mp-photo-alt for photo alt
+      mp_photo_alt = post_params.delete(:'mp-photo-alt')
+      if mp_photo_alt
+        photo_param.each_with_index do |photo, index|
+          alt = mp_photo_alt[index]
+          photos << { value: photo, alt: alt }
         end
-        post_params[:photo] = photos
+      else
+        photos = [photo_param]
       end
-      post_params[:"syndicate-to"] = Array(*post_params[:"syndicate-to"]) if post_params[:"syndicate-to"]
+      post_params[:photo] = photos
     end
 
-    unless post_params[:category] || !post_params[:content]
-      tags = parse_hashtags(post_params[:content])
-      post_params[:category] = tags unless tags.empty?
-      post_params[:content] = strip_hashtags(post_params[:content])
-    end
+    post_params[:"syndicate-to"] = Array(*post_params[:"syndicate-to"]) if post_params[:"syndicate-to"]
 
-    # Secret functionality: We may receive markdown in the content.
-    # If the first line is a header, set the name with it
-    first_line = post_params[:content].match(/^#+\s?(.+$)\n+/) if post_params[:content]
-    if first_line && !post_params[:name]
-      post_params[:name] = first_line[1].to_s.strip
-      post_params[:content].sub!(first_line[0], '')
-    end
+    # Add additional properties, unless we're performing an action
+    unless post_params.key? :action
+      # Secret functionality: determine tags from content if none provided
+      unless post_params[:category] || !content
+        tags = parse_hashtags(content)
+        post_params[:category] = tags unless tags.empty?
+        content = strip_hashtags(content)
+      end
+      # Secret functionality: If the first line is a header, set the name with it
+      first_line = content.match(/^#+\s?(.+$)\n+/) if content
+      if first_line && !post_params[:name]
+        post_params[:name] = first_line[1].to_s.strip
+        content.sub!(first_line[0], '')
+      end
 
-    # Determine the template to use based on various params received.
-    post_params[:type] = post_type(post_params) unless post_params.key? :action
-
-    # Add in a few more params if they're not set
-    unless post_params.include?(:action)
+      # Determine the template to use based on various params received.
+      post_params[:type] = post_type(post_params)
       # Spec says we should use h-entry if no type provided.
       post_params[:h] = 'entry' unless post_params.include?(:h)
-      # It's nice to honour the client's published date, if set, else set one.
-      post_params[:published] = post_params[:published] ? post_params[:published].first : Time.now.to_s
+      # Honour the client's published date, if set, else set one.
+      post_params[:published] = Time.now.to_s unless post_params[:published]
     end
+
+    post_params[:content] = content if content
     post_params
   end
 
