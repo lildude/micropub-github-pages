@@ -233,7 +233,7 @@ module AppHelpers
     slug =
       # Use the provided slug
       if params[:"mp-slug"] && !params[:"mp-slug"].empty?
-        File.basename(params[:"mp-slug"])
+        params[:"mp-slug"].split('/').last
       # If there's a title, use that
       elsif params[:title] && !params[:title].empty?
         params[:title].gsub(/[^\w\s-]/, '')
