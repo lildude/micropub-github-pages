@@ -32,7 +32,6 @@ end
 config_file config_yml
 
 # Default settings if not set in config
-configure { set download_photos: false } unless settings.respond_to?(:download_photos)
 configure { set syndicate_to: {} } unless settings.respond_to?(:syndicate_to)
 
 Sinatra::Application.helpers AppHelpers
