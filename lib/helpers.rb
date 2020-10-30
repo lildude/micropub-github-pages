@@ -54,7 +54,7 @@ module AppHelpers
   end
 
   def image_dir
-    @image_dir ||= settings.sites[@site]['image_dir']
+    @image_dir ||= settings.sites[@site]['image_dir'] || 'images'
   end
 
   def posts_dir
