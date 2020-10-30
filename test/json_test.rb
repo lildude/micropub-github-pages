@@ -126,7 +126,8 @@ class Json < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
+    refute last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
+    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
   end
 
   def test_new_note_with_unreachable_photo_reference_json
@@ -163,7 +164,8 @@ class Json < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
+    refute last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
+    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
   end
 
   def test_new_note_with_photo_reference_with_alt_json
@@ -184,7 +186,8 @@ class Json < Minitest::Test
     }.to_json, 'CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/12716713_162835967431386_291746593_n.jpg'), "Body contains #{last_response.body}"
+    refute last_response.body.include?('/img/12716713_162835967431386_291746593_n.jpg'), "Body contains #{last_response.body}"
+    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
     assert last_response.body.include? 'Instagram photo'
   end
 

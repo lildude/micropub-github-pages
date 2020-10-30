@@ -157,8 +157,14 @@ module AppHelpers
       next photos[index] = { 'url' => url, 'alt' => alt } if url =~ /#{site_url}/
 
       # If we have a tempfile property, this is a multipart upload
-      tmpfile = photo[:tempfile] if photo.is_a?(Hash) && photo.key?(:tempfile)
-      filename = photo.is_a?(Hash) && photo.key?(:filename) ? photo[:filename] : url.split('/').last
+      filename = if photo.is_a?(Hash)
+                   tmpfile = photo[:tempfile] if photo.key?(:tempfile)
+                   photo.key?(:filename) ? photo[:filename] : url
+                 else
+                   url
+                 end
+      # Always generate a unique unguessable filename as per the spec
+      filename = "#{SecureRandom.hex(6)}.#{filename.split('.').last}"
       upload_path = "#{image_dir}/#{filename}"
       photo_path = ''.dup
       photo_path << site_url if full_image_urls

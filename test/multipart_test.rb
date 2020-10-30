@@ -45,8 +45,9 @@ class Multipart < Minitest::Test
          }, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890')
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/photo.jpg')
-    assert last_response.body.include?('/img/photo2.jpg')
+    refute last_response.body.include?('/img/photo.jpg')
+    refute last_response.body.include?('/img/photo2.jpg')
+    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
   end
 
   # This test is specific to the mp-photo-alt attribute micro.blog uses for images with descriptions
