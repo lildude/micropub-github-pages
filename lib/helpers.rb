@@ -57,6 +57,10 @@ module AppHelpers
     @image_dir ||= settings.sites[@site]['image_dir']
   end
 
+  def posts_dir
+    @posts_dir ||= settings.sites[@site]['posts_dir'] || '_posts'
+  end
+
   def publish_post(params)
     filename =  if params[:path]
                   File.basename(params[:path])
@@ -90,7 +94,7 @@ module AppHelpers
     template = File.read("templates/#{post_type}.liquid")
     content = Liquid::Template.parse(template).render(stringify_keys(params))
 
-    files["_posts/#{filename}"] = Base64.encode64(content)
+    files["#{posts_dir}/#{filename}"] = Base64.encode64(content)
 
     commit_to_github(files, post_type, filename)
 
