@@ -51,7 +51,7 @@ class Multipart < Minitest::Test
   end
 
   # This test is specific to the mp-photo-alt attribute micro.blog uses for images with descriptions
-  def test_new_entry_with_two_photos_multipart_with_alt
+  def test_new_entry_with_two_photos_multipart_with_alt_from_our_own_domain
     stub_get_github_request
     stub_get_pages_branch
     stub_post_github_request
