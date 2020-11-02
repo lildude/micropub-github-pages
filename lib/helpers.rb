@@ -49,8 +49,8 @@ module AppHelpers
     @site_url ||= settings.sites[@site]['site_url']
   end
 
-  def full_image_urls
-    @full_image_urls ||= settings.sites[@site]['full_image_urls'] || true
+  def full_image_urls?
+    @full_image_urls ||= settings.sites[@site]['full_image_urls'] || settings.download_photos || true
   end
 
   def image_dir
@@ -172,7 +172,7 @@ module AppHelpers
       filename = "#{SecureRandom.hex(6)}.#{filename.split('.').last}"
       upload_path = "#{image_dir}/#{filename}"
       photo_path = ''.dup
-      photo_path << site_url if full_image_urls
+      photo_path << site_url if full_image_urls?
       photo_path << "/#{upload_path}"
       unless tmpfile
         tmpfile = Tempfile.new(filename)
