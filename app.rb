@@ -2,12 +2,10 @@
 
 require 'sinatra'
 require 'sinatra/config_file'
-# require 'uri'
 require 'octokit'
 require 'httparty'
 require 'json'
 require 'base64'
-# require 'open-uri'
 require 'safe_yaml'
 require 'liquid'
 require 'securerandom'
