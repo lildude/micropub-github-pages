@@ -61,6 +61,10 @@ module AppHelpers
     @posts_dir ||= settings.sites[@site]['posts_dir'] || '_posts'
   end
 
+  def download_photos?
+    @download_photos = settings.sites[@site]['download_photos'] || settings.download_photos || false
+  end
+
   def publish_post(params)
     filename =  if params[:path]
                   File.basename(params[:path])
@@ -82,8 +86,7 @@ module AppHelpers
     files = {}
 
     # Download any photos we want to include in the commit
-    # TODO: Per-repo settings take pref over global. Global only at the mo
-    if settings.download_photos && params[:photo]
+    if download_photos? && params[:photo]
       params[:photo] = download_photos(params[:photo])
       params[:photo].each do |photo|
         files.merge!(photo.delete('content')) if photo['content']
