@@ -98,9 +98,7 @@ module AppHelpers
 
     commit_to_github(files, post_type, filename)
 
-    status 201
-    headers 'Location' => @location.to_s
-    body content if ENV['RACK_ENV'] == 'test'
+    content if ENV['RACK_ENV'] == 'test'
   end
 
   # Files should be an array of path and base64 encoded content

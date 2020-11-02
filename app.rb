@@ -133,10 +133,15 @@ post '/micropub/:site' do |site|
     error('insufficient_scope') unless @scopes.include?('create')
     logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
-    return publish_post post_params
+    content = publish_post post_params
+
+    status 201
+    headers 'Location' => @location.to_s
+    body content if ENV['RACK_ENV'] == 'test'
 
     # Syndicate the post
     # syndicate_to post_params
+    return
   end
 
   if post_params.key?(:action)
