@@ -83,21 +83,17 @@ get '/micropub/:site' do |site|
 
   @site ||= site
 
+  status 200
+  headers 'Content-type' => 'application/json'
   case params['q']
     # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
   when /config/
-    status 200
-    headers 'Content-type' => 'application/json'
     # We are our own media-endpoint
     body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
   when /source/
-    status 200
-    headers 'Content-type' => 'application/json'
     # TODO: Determine what goes in here
     body JSON.generate(get_post(params[:url]))
   when /syndicate-to/
-    status 200
-    headers 'Content-type' => 'application/json'
     body syndicate_to
   end
 end
@@ -134,13 +130,13 @@ post '/micropub/:site' do |site|
     logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
     content = publish_post post_params
+    # Syndicate the post
+    # syndicate_to post_params
 
     status 201
     headers 'Location' => @location.to_s
     body content if ENV['RACK_ENV'] == 'test'
 
-    # Syndicate the post
-    # syndicate_to post_params
     return
   end
 
