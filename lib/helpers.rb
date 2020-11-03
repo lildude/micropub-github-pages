@@ -37,34 +37,6 @@ module AppHelpers
     decoded_resp[:scope].gsub(/post/, 'create').split(' ')
   end
 
-  def github_repo
-    @github_repo ||= settings.sites[@site]['github_repo']
-  end
-
-  def permalink_style
-    @permalink_style ||= settings.sites[@site]['permalink_style'] || settings.permalink_style
-  end
-
-  def site_url
-    @site_url ||= settings.sites[@site]['site_url']
-  end
-
-  def full_image_urls?
-    @full_image_urls ||= settings.sites[@site]['full_image_urls'] || settings.download_photos || true
-  end
-
-  def image_dir
-    @image_dir ||= settings.sites[@site]['image_dir'] || settings.image_dir || 'images'
-  end
-
-  def posts_dir
-    @posts_dir ||= settings.sites[@site]['posts_dir'] || settings.posts_dir || '_posts'
-  end
-
-  def download_photos?
-    @download_photos = settings.sites[@site]['download_photos'] || settings.download_photos || false
-  end
-
   def publish_post(params)
     filename =  if params[:path]
                   File.basename(params[:path])
@@ -447,5 +419,45 @@ module AppHelpers
 
     updated_props = process_params(post)
     publish_post updated_props
+  end
+
+  private
+
+  def site_global_default(opt, default: nil)
+    if settings.sites[@site][opt]
+      settings.sites[@site][opt]
+    elsif settings.respond_to?(opt.to_sym)
+      settings.send(opt.to_sym)
+    else
+      default
+    end
+  end
+
+  def github_repo
+    @github_repo ||= settings.sites[@site]['github_repo']
+  end
+
+  def permalink_style
+    @permalink_style ||= settings.sites[@site]['permalink_style'] || settings.permalink_style
+  end
+
+  def site_url
+    @site_url ||= settings.sites[@site]['site_url']
+  end
+
+  def full_image_urls?
+    @full_image_urls ||= site_global_default('full_image_urls', default: true)
+  end
+
+  def image_dir
+    @image_dir ||= site_global_default('image_dir', default: 'images')
+  end
+
+  def download_photos?
+    @download_photos = site_global_default('download_photos', default: false)
+  end
+
+  def posts_dir
+    @posts_dir ||= site_global_default('posts_dir', default: '_posts2')
   end
 end
