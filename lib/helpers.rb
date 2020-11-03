@@ -42,7 +42,7 @@ module AppHelpers
   end
 
   def permalink_style
-    @permalink_style ||= settings.sites[@site]['permalink_style']
+    @permalink_style ||= settings.sites[@site]['permalink_style'] || settings.permalink_style
   end
 
   def site_url
@@ -54,11 +54,11 @@ module AppHelpers
   end
 
   def image_dir
-    @image_dir ||= settings.sites[@site]['image_dir'] || 'images'
+    @image_dir ||= settings.sites[@site]['image_dir'] || settings.image_dir || 'images'
   end
 
   def posts_dir
-    @posts_dir ||= settings.sites[@site]['posts_dir'] || '_posts'
+    @posts_dir ||= settings.sites[@site]['posts_dir'] || settings.posts_dir || '_posts'
   end
 
   def download_photos?
