@@ -22,7 +22,7 @@ config_yml = test? ? "#{File.dirname(__FILE__)}/test/fixtures/config.yml" : "#{F
 
 # Override config file if CONFIG env var is set
 if ENV['SITES_CONFIG'] && !ENV['SITES_CONFIG'].empty?
-  logger.info 'Using configuration from SITES_CONFIG'
+  puts 'Using configuration from SITES_CONFIG'
   config_yml = Tempfile.new(['config-', '.yml'])
   File.write(config_yml, JSON.parse(ENV['SITES_CONFIG']).to_yaml)
 end
