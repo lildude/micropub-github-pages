@@ -38,8 +38,9 @@ module AppHelpers
   end
 
   def publish_post(params)
-    filename =  if params[:path]
-                  File.basename(params[:path])
+    @location = params[:url] if params[:url]
+    filename =  if @location
+                  file_path(@location)
                 else
                   date = DateTime.parse(params[:published])
                   fn = date.strftime('%F')
@@ -48,12 +49,9 @@ module AppHelpers
                   fn << "-#{file_slug}.md"
                 end
     logger.info "Filename: #{filename}"
-    @location = if params[:url]
-                  params[:url]
-                else
-                  loc = settings.sites[@site]['site_url'].dup
-                  loc << create_permalink(params)
-                end
+
+    loc = settings.sites[@site]['site_url'].dup
+    @location ||= loc << create_permalink(params)
 
     files = {}
 
@@ -78,8 +76,6 @@ module AppHelpers
 
   # Files should be an array of path and base64 encoded content
   def commit_to_github(files, type, slug = nil)
-    # Authenticate
-    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
     # Verify the repo exists
     client.repository?(github_repo)
     ref = "heads/#{client.pages(github_repo).source.branch}"
@@ -169,23 +165,23 @@ module AppHelpers
   # This assumes the final part of the URL contains part of the filename as it
   # appears in the repository.
   def get_post(url)
-    fuzzy_filename = url.split('/').last
-    client = Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
-    code = client.search_code("filename:#{fuzzy_filename} repo:#{github_repo}")
-    # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
-    code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
-    # Error if we can't find the post
-    total_count = code[:total_count]
-    error('invalid_request', 'The post with the requested URL was not found') if total_count.zero?
-
-    content = client.contents(github_repo, path: code[:items][0][:path]) if total_count == 1
+    path = file_path(url)
+    content = client.contents(github_repo, path: path)
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode if content
-
     data = jekyll_post(decoded_content)
-    data[:path] = content[:path]
     data[:url] = url
 
     data
+  end
+
+  def file_path(url)
+    fuzzy_filename = url.split('/').last
+    code = client.search_code("filename:#{fuzzy_filename} repo:#{github_repo}")
+    # This is an ugly hack because webmock doesn't play nice - https://github.com/bblimke/webmock/issues/449
+    code = JSON.parse(code, symbolize_names: true) if ENV['RACK_ENV'] == 'test'
+    # Error if we can't find a unique single post
+    error('invalid_request', 'The post with the requested URL was not found') unless code[:total_count] == 1
+    code[:items][0][:path]
   end
 
   def jekyll_post(content)
@@ -422,6 +418,10 @@ module AppHelpers
   end
 
   private
+
+  def client
+    @client ||= Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
+  end
 
   def site_global_default(opt, default: nil)
     if settings.sites[@site][opt]
