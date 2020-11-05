@@ -34,11 +34,6 @@ configure { set syndicate_to: {} } unless settings.respond_to?(:syndicate_to)
 
 Sinatra::Application.helpers AppHelpers
 
-# My own message for 404 errors
-not_found do
-  '404: Not Found'
-end
-
 before do
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
@@ -59,7 +54,7 @@ end
 
 # Multiple site query
 get '/micropub' do
-  halt 404 unless params.include? 'q'
+  halt 404, 'Missing query' unless params.include? 'q'
   if params['q'] == 'config'
     status 200
     headers 'Content-type' => 'application/json'
@@ -76,8 +71,8 @@ end
 
 # Query
 get '/micropub/:site' do |site|
-  halt 404 unless settings.sites.include? site
-  halt 404 unless params.include? 'q'
+  halt 404, 'Site not found!' unless settings.sites.include? site
+  halt 404, 'Missing query for site' unless params.include? 'q'
 
   @site ||= site
 
@@ -98,13 +93,13 @@ end
 
 # Multisite publishing - assumes mp-destination=site_section_name as per the config.yml
 post '/micropub' do
-  halt 404 unless params.include? 'mp-destination'
+  halt 404, 'No destination' unless params.include? 'mp-destination'
   site = params.delete('mp-destination')
   call! env.merge('PATH_INFO' => "/micropub/#{site}")
 end
 
 post '/micropub/:site' do |site|
-  halt 404 unless settings.sites.include? site
+  halt 404, 'Site not found!' unless settings.sites.include? site
   # If we're getting a file upload direct to this endpoint, jump to the media endpoint
   return call! env.merge('PATH_INFO' => "/micropub/#{site}/media") if params[:file]
 
@@ -162,7 +157,7 @@ post '/micropub/:site' do |site|
 end
 
 post '/micropub/:site/media' do |site|
-  halt 404 unless settings.sites.include? site
+  halt 404, 'Site not found!' unless settings.sites.include? site
   error('insufficient_scope') unless @scopes.include?('create') || @scopes.include?('media')
   @site ||= site
   logger.info params
