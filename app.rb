@@ -37,7 +37,8 @@ Sinatra::Application.helpers AppHelpers
 before do
   # Pull out and verify the authorization header or access_token
   if env['HTTP_AUTHORIZATION']
-    @access_token = env['HTTP_AUTHORIZATION'].match(/Bearer (.*)$/)[1]
+    header = env['HTTP_AUTHORIZATION'].match(/Bearer (.*)$/)
+    @access_token = header[1] unless header.nil?
   elsif params['access_token']
     @access_token = params['access_token']
   else
