@@ -34,7 +34,7 @@ class Authorization < Minitest::Test
   def test_404_if_not_defined_site
     post '/micropub/foobar', nil, 'HTTP_AUTHORIZATION' => 'Bearer 1234567890'
     assert last_response.not_found?
-    assert last_response.body.include? '404: Not Found'
+    assert last_response.body.include? 'Site not found!'
   end
 
   def test_unauthorized_if_no_auth_header_or_access_token_and_error_body_is_json
