@@ -93,7 +93,7 @@ module AppHelpers
 
     sha_new_tree = client.create_tree(github_repo, new_tree, base_tree: sha_base_tree).sha
     @action ||= 'new'
-    commit_message = "#{@action.capitalize} #{type}: #{slug}"
+    commit_message = "#{@action.capitalize} #{type}: #{files.keys.first}"
     sha_new_commit = client.create_commit(
       github_repo,
       commit_message,
