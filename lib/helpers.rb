@@ -164,12 +164,16 @@ module AppHelpers
   # Grab the contents of the file referenced by the URL received from the client
   # This assumes the final part of the URL contains part of the filename as it
   # appears in the repository.
-  def get_post(url)
+  def get_post(url, properties = [])
     path = file_path(url)
     content = client.contents(github_repo, path: path)
     decoded_content = Base64.decode64(content[:content]).force_encoding('UTF-8').encode if content
     data = jekyll_post(decoded_content)
     data[:url] = url
+    return data if properties.empty?
+
+    data.delete(:type)
+    data[:properties].delete_if { |key, _| !properties.include? key.to_s }
 
     data
   end

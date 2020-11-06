@@ -85,8 +85,8 @@ get '/micropub/:site' do |site|
     # We are our own media-endpoint
     body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
   when /source/
-    # TODO: Determine what goes in here
-    body JSON.generate(get_post(params[:url]))
+    properties = params['properties'] || []
+    body JSON.generate(get_post(params[:url], properties))
   when /syndicate-to/
     body syndicate_to
   end
