@@ -40,7 +40,7 @@ module AppHelpers
   def publish_post(params)
     @location = params[:url] if params[:url]
     filename =  if @location
-                  file_path(@location)
+                  file_path(@location).split('/').last
                 else
                   date = DateTime.parse(params[:published])
                   fn = date.strftime('%F')
