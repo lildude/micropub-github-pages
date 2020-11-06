@@ -462,6 +462,6 @@ module AppHelpers
   end
 
   def posts_dir
-    @posts_dir ||= site_global_default('posts_dir', default: '_posts2')
+    @posts_dir ||= site_global_default('posts_dir', default: '_posts')
   end
 end
