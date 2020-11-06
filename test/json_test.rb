@@ -223,7 +223,6 @@ class Json < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly stub so we can confirm we're getting the modified category entries and no change to the slug
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with(
@@ -247,7 +246,6 @@ class Json < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly stub so we can confirm we're getting the category modified
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with(has_entry(category: %w[foo bar tag99]))
@@ -274,7 +272,6 @@ class Json < Minitest::Test
                             } }
                         )
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly stub so we can confirm we're getting the category property added
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with(has_entry(category: ['tag99']))
@@ -293,7 +290,6 @@ class Json < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly mock so we can confirm we're getting the modified content as expected
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with({
@@ -321,7 +317,6 @@ class Json < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly stub so we can confirm the category propery has been removed
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with(Not(has_key(:category)))
@@ -365,7 +360,6 @@ class Json < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly stub so we can confirm we're getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with(has_entry(fm_published: 'false'))
@@ -390,7 +384,6 @@ class Json < Minitest::Test
                             } }
                         )
     stub_get_pages_branch
-    stub_post_github_request
     # Explicitly stub so we can confirm we're not getting the fm_published key
     Sinatra::Application.any_instance.expects(:publish_post)
                         .with(Not(has_key(:fm_published)))
