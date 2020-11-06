@@ -11,7 +11,7 @@ class Multipart < Minitest::Test
 
   def setup
     stub_token
-    @headers = { 'HTTP_AUTHORIZATION' => 'Bearer 1234567890' }
+    env 'HTTP_AUTHORIZATION', 'Bearer 1234567890'
   end
 
   def test_new_entry_with_photo_multipart
@@ -24,7 +24,7 @@ class Multipart < Minitest::Test
            h: 'entry',
            content: 'Adding a new photo',
            photo: photo
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include?('/img/')
@@ -43,7 +43,7 @@ class Multipart < Minitest::Test
            h: 'entry',
            content: 'Adding a new photo',
            photo: photo
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include?('/img/photo.jpg')
@@ -62,7 +62,7 @@ class Multipart < Minitest::Test
            content: 'Adding a new photo',
            photo: ['https://example.com/img/photo.jpg', 'https://example.com/img/photo2.jpg'],
            "mp-photo-alt": ['Alt 1']
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include?('![Alt 1](https://example.com/img/photo.jpg)')
@@ -76,7 +76,7 @@ class Multipart < Minitest::Test
     stub_patch_github_request
     media = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg'), 'image/jpeg')
 
-    post('/micropub/testsite/media', { file: media }, @headers)
+    post('/micropub/testsite/media', { file: media })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.header.include?('photo.jpg')
@@ -89,7 +89,7 @@ class Multipart < Minitest::Test
     stub_patch_github_request
     media = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'image.jpg'), 'image/jpeg')
 
-    post('/micropub/testsite/media', { file: media }, @headers)
+    post('/micropub/testsite/media', { file: media })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute_match 'image.jpg', last_response.header['Location']

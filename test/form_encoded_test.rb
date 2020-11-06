@@ -11,7 +11,7 @@ class FormEncoded < Minitest::Test
 
   def setup
     stub_token
-    @headers = { 'HTTP_AUTHORIZATION' => 'Bearer 1234567890' }
+    env 'HTTP_AUTHORIZATION', 'Bearer 1234567890'
   end
 
   def test_422_if_repo_not_found
@@ -26,7 +26,7 @@ class FormEncoded < Minitest::Test
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
            :unrecog_param => 'foo',
            :ano_unrecog_param => 'bar'
-         }, @headers)
+         })
     assert last_response.body.include? 'invalid_repo'
     refute last_response.created?
   end
@@ -46,7 +46,7 @@ class FormEncoded < Minitest::Test
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
            :unrecog_param => 'foo',
            :ano_unrecog_param => 'bar'
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
@@ -69,7 +69,7 @@ class FormEncoded < Minitest::Test
            :content => 'This is the content',
            :category => %w[tag1 tag2],
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
@@ -90,7 +90,7 @@ class FormEncoded < Minitest::Test
            :content => 'This is the content',
            :category => %w[tag1 tag2],
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
@@ -106,7 +106,7 @@ class FormEncoded < Minitest::Test
            h: 'entry',
            content: "# This is a 😍 Post!!\n\nThis is the content",
            category: %w[tag1 tag2]
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got \n#{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location'], "Expected Location header of: https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post but got \n#{last_response.header}"
@@ -126,7 +126,7 @@ class FormEncoded < Minitest::Test
            h: 'entry',
            content: 'Adding a new photo',
            photo: 'https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_n.jpg'
-         }, @headers)
+         })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
@@ -145,7 +145,7 @@ class FormEncoded < Minitest::Test
     post('/micropub/testsite', {
            action: 'delete',
            url: 'https://example.com/2010/01/this-is-a-test-post/'
-         }, @headers)
+         })
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
@@ -170,7 +170,7 @@ class FormEncoded < Minitest::Test
     post('/micropub/testsite', {
            action: 'undelete',
            url: 'https://example.com/2010/01/this-is-a-test-post/'
-         }, @headers)
+         })
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 end
