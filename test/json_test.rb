@@ -223,13 +223,11 @@ class Json < Minitest::Test
     stub_github_search
     stub_get_github_request
     stub_get_pages_branch
-    # Explicitly stub so we can confirm we're getting the modified category entries and no change to the slug
-    Sinatra::Application.any_instance.expects(:publish_post)
+    # Explicitly expect the commit to ensure we've got the content and filenames we should
+    Sinatra::Application.any_instance.expects(:commit_to_github)
                         .with(
-                          has_entries(
-                            content: 'This is the updated text. If you can see this you passed the test!',
-                            slug: '/2010/01/this-is-a-test-post'
-                          )
+                          { '_posts/2010-01-14-example-post.md' => "LS0tCmxheW91dDogcG9zdAp0aXRsZTogVGhpcyBpcyBhIFRlc3QgUG9zdAp0\nYWdzOgotIGZvbwotIGJhcgpwZXJtYWxpbms6IC8yMDEwLzAxL3RoaXMtaXMt\nYS10ZXN0LXBvc3QKZGF0ZTogMjAxMC0wMS0xNCAxMDowMTo0OCArMDAwMAot\nLS0KVGhpcyBpcyB0aGUgdXBkYXRlZCB0ZXh0LiBJZiB5b3UgY2FuIHNlZSB0\naGlzIHlvdSBwYXNzZWQgdGhlIHRlc3QhCg==\n" },
+                          :article
                         )
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
