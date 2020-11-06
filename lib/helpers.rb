@@ -48,7 +48,6 @@ module AppHelpers
                   params[:slug] = file_slug if params[:'mp-slug']
                   fn << "-#{file_slug}.md"
                 end
-    logger.info "Filename: #{filename}"
 
     loc = settings.sites[@site]['site_url'].dup
     @location ||= loc << create_permalink(params)

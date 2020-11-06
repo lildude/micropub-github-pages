@@ -121,7 +121,6 @@ post '/micropub/:site' do |site|
 
   if post_params.key?(:h)
     error('insufficient_scope') unless @scopes.include?('create')
-    logger.info post_params unless ENV['RACK_ENV'] == 'test'
     # Publish the post
     content = publish_post post_params
     # Syndicate the post
@@ -161,7 +160,6 @@ post '/micropub/:site/media' do |site|
   halt 404, 'Site not found!' unless settings.sites.include? site
   error('insufficient_scope') unless @scopes.include?('create') || @scopes.include?('media')
   @site ||= site
-  logger.info params
 
   file = params[:file]
   ext = file[:filename].split('.').last
