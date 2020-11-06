@@ -69,13 +69,13 @@ module AppHelpers
 
     files["#{posts_dir}/#{filename}"] = Base64.encode64(content)
 
-    commit_to_github(files, post_type, filename)
+    commit_to_github(files, post_type)
 
     content if ENV['RACK_ENV'] == 'test'
   end
 
   # Files should be an array of path and base64 encoded content
-  def commit_to_github(files, type, slug = nil)
+  def commit_to_github(files, type)
     # Verify the repo exists
     client.repository?(github_repo)
     ref = "heads/#{client.pages(github_repo).source.branch}"
