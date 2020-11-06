@@ -89,7 +89,7 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 ✅ 600 Configuration Query  
 ✅ 601 Syndication Endpoint Query  
 ✅ 602 Source Query (All Properties)  
-✅ 603 Source Query (Specific Properties) <small>* this only passes because we currently return everything and the test doesn't check for requested properties.</small>  
+✅ 603 Source Query (Specific Properties)
 
 ### Media Endpoint
 
@@ -103,7 +103,7 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 ✅ 801 Accept access token in POST body  
 ✅ 802 Does not store access token property  
 ✅ 803 Rejects unauthenticated requests  
-✅ 804 Rejects unauthorized access tokens <small>* I think this passes, but holding off checkig until 💯</small>  
+✅ 804 Rejects unauthorized access tokens
 
 ---
 
@@ -111,5 +111,3 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 - [ ] Use GitHub App for access instead of PAT
 - [ ] Dockerise
-- [ ] Switch to Rails ?
-
