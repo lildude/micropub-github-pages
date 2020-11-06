@@ -8,10 +8,6 @@ sites:
 
 download_photos: true # Ensure linked images are added to repo
 
-github:
-  token:  # Personal access token with all repo permissions
-  username:
-
 micropub:
   token_endpoint:
   token_me:
