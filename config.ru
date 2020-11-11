@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'rubygems'
-require 'bundler'
+env = ENV['RACK_ENV'].to_sym
 
-Bundler.require
+require 'bundler/setup'
+Bundler.require(:default, env)
 
 require './app'
 run Sinatra::Application
