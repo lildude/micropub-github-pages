@@ -126,7 +126,8 @@ post '/micropub/:site' do |site|
     # Syndicate the post
     # syndicate_to post_params
 
-    status 201
+    # Return 202 as we don't publish immediately as we rely on GitHub Pages etc to do that
+    status 202
     headers 'Location' => @location.to_s
     body content if ENV['RACK_ENV'] == 'test'
 

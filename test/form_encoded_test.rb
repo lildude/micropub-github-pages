@@ -28,7 +28,7 @@ class FormEncoded < Minitest::Test
            :ano_unrecog_param => 'bar'
          })
     assert last_response.body.include? 'invalid_repo'
-    refute last_response.created?
+    refute last_response.accepted?
   end
 
   def test_new_note_with_syndication_everything_and_unrecognised_params
@@ -47,7 +47,7 @@ class FormEncoded < Minitest::Test
            :unrecog_param => 'foo',
            :ano_unrecog_param => 'bar'
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
     assert last_response.body.include? 'permalink: "this-is-the-content-slug"'
@@ -70,7 +70,7 @@ class FormEncoded < Minitest::Test
            :category => %w[tag1 tag2],
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
     assert last_response.body.include? "tags:\n- tag1\n- tag2"
@@ -91,7 +91,7 @@ class FormEncoded < Minitest::Test
            :category => %w[tag1 tag2],
            'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location']
   end
@@ -107,7 +107,7 @@ class FormEncoded < Minitest::Test
            content: "# This is a 😍 Post!!\n\nThis is the content",
            category: %w[tag1 tag2]
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got \n#{last_response.header}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post", last_response.header['Location'], "Expected Location header of: https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-a-post but got \n#{last_response.header}"
     assert last_response.body.include?('tag1'), "Expected body to include tag 'tag1' but got \n#{last_response.body}"
@@ -127,7 +127,7 @@ class FormEncoded < Minitest::Test
            content: 'Adding a new photo',
            photo: 'https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_n.jpg'
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
     assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
@@ -143,7 +143,7 @@ class FormEncoded < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
            action: 'delete',
-           url: 'https://example.com/2010/01/this-is-a-test-post/'
+           url: 'https://example.com/2020/01/this-is-a-test-post/'
          })
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
@@ -155,7 +155,7 @@ class FormEncoded < Minitest::Test
                         .returns(
                           { type: ['h-entry'],
                             properties: {
-                              published: ['2017-01-20 10:01:48 +0000'],
+                              published: ['2027-01-20 10:01:48 +0000'],
                               content: ['Micropub update test.'],
                               fm_published: 'false'
                             } }
@@ -167,7 +167,7 @@ class FormEncoded < Minitest::Test
                         .returns(true) # We don't care about the status
     post('/micropub/testsite', {
            action: 'undelete',
-           url: 'https://example.com/2010/01/this-is-a-test-post/'
+           url: 'https://example.com/2020/01/this-is-a-test-post/'
          })
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
