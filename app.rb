@@ -125,6 +125,7 @@ post '/micropub/:site' do |site|
     content = publish_post post_params
     # Syndicate the post
     # TODO: Devise an async method to webmention Bridgy as we can't synchronously syndicate as our post won't exist straight away.
+    # This will prob need to be outside of this app. Can tap into Redis and retry until URL is available. Or get Netlify to ping Bridgy
     # syndicate_to post_params
 
     # Return 202 as we don't publish immediately as we rely on GitHub Pages etc to do that
