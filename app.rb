@@ -124,6 +124,7 @@ post '/micropub/:site' do |site|
     # Publish the post
     content = publish_post post_params
     # Syndicate the post
+    # TODO: Devise an async method to webmention Bridgy as we can't synchronously syndicate as our post won't exist straight away.
     # syndicate_to post_params
 
     status 201

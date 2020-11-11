@@ -266,42 +266,30 @@ module AppHelpers
     text.scan(/\B#(\w+)/).flatten
   end
 
-  # Syndicate to destinations supported by silo.pub as that's what we use
-  # instead of having to implement all the APIs ourselves.
-  #
+  # Syndicate to destinations supported by Bridgy so we don't have implement all the APIs ourselves.
+  # We make no attempt to verify if Bridgy has an account before attempting the webmention.
   # If no destination is provided, assume it's a query and return all destinations.
+  # TODO: Implement settings to enable and provide specific options
   def syndicate_to(params = nil)
-    # TODO: Per-repo settings take pref over global. Global only at the mo
-    # TODO Add the response URL to the post meta data
-    # Note: need to use Sinatra::Application.syndicate_to here until we move to
-    # modular approach so the settings can be accessed when testing.
-    destinations = Sinatra::Application.settings.syndicate_to.values
-    clean_dests = []
-    destinations.each do |endpoint|
-      clean_dests << endpoint.reject { |key| key == 'silo_pub_token' }
+    destinations = %w[flickr github mastodon meetup twitter]
+
+    dests = []
+    destinations.each do |dest|
+      dests << { uid: dest, name: dest == 'github' ? 'GitHub' : dest.capitalize }
     end
-    return JSON.generate("syndicate-to": clean_dests) unless params
+    return JSON.generate("syndicate-to": dests) unless params
 
-    dest_entry = destinations.find do |destination|
-      dest = params[:"syndicate-to"][0] if params.key?(:"syndicate-to")
-      destination['uid'] == dest
-    end || return
+    dest = params[:'syndicate-to'] && !params[:'syndicate-to'].empty? ? params[:"syndicate-to"].first : nil
+    return nil unless dest && destinations.include?(dest)
 
-    silo_pub_token = dest_entry['silo_pub_token']
-    uri = URI.parse('https://silo.pub/micropub')
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = (uri.port == 443)
-    request = Net::HTTP::Post.new(uri.request_uri)
-    request.initialize_http_header('Authorization' => "Bearer #{silo_pub_token}")
-
-    form_data = {}
-    form_data['name'] = params[:name] if params[:name]
-    form_data['url'] = @location
-    form_data['content'] = params[:content]
-
-    request.set_form_data(form_data)
-    resp = http.request(request)
-    JSON.parse(resp.body)['id_str'] if ENV['RACK_ENV'] == 'test'
+    # TODO: Append formatting options
+    # bridgy_omit_link=true|maybe|false
+    # bridgy_ignore_formatting=true|false
+    resp = HTTParty.post('https://brid.gy/publish/webmention',
+                         body: { source: @location, target: "https://brid.gy/publish/#{dest}" })
+    # Or do we only need the Location header?
+    # TODO: Return Link header in post response but also add the dest to a syndication property
+    JSON.parse(resp.body) if ENV['RACK_ENV'] == 'test'
   end
 
   # Process and clean up params for use later

@@ -36,10 +36,13 @@ class Query < Minitest::Test
   end
 
   def test_get_syndicate_to
-    skip 'TODO: not yet implemented'
     get '/micropub/testsite?q=syndicate-to'
     assert last_response.ok?
-    refute JSON.parse(last_response.body)['syndicate-to'].empty?
+    parse_body = JSON.parse(last_response.body)
+    refute parse_body['syndicate-to'].empty?
+    %w[flickr github mastodon meetup twitter].each_with_index do |dest, i|
+      assert_equal parse_body['syndicate-to'][i]['uid'], dest
+    end
   end
 
   # I think Sunlit performs a media-endpoint query IIRC

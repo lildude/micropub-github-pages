@@ -23,7 +23,7 @@ class FormEncoded < Minitest::Test
            :category => %w[tag1 tag2],
            :published => [now.to_s],
            :"mp-slug" => 'this-is-the-content-slug',
-           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
+           'syndicate-to' => 'twitter',
            :unrecog_param => 'foo',
            :ano_unrecog_param => 'bar'
          })
@@ -43,7 +43,7 @@ class FormEncoded < Minitest::Test
            :category => %w[tag1 tag2],
            :published => [now.to_s],
            'mp-slug' => 'this-is-the-content-slug',
-           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude',
+           'syndicate-to' => 'twitter',
            :unrecog_param => 'foo',
            :ano_unrecog_param => 'bar'
          })
@@ -68,7 +68,7 @@ class FormEncoded < Minitest::Test
            :name => 'This is a 😍 Post!!',
            :content => 'This is the content',
            :category => %w[tag1 tag2],
-           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
+           'syndicate-to' => 'twitter'
          })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
@@ -89,7 +89,7 @@ class FormEncoded < Minitest::Test
            :name => 'This is a 😍 Post!!',
            :content => 'This is the content',
            :category => %w[tag1 tag2],
-           'syndicate-to' => 'https://myfavoritesocialnetwork.example/lildude'
+           'syndicate-to' => 'twitter'
          })
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"

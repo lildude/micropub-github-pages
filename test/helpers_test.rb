@@ -55,17 +55,20 @@ class Helpers < Minitest::Test
   def test_syndicate_to_get
     output = JSON.parse(@helper.syndicate_to)
     assert output.include? 'syndicate-to'
-    assert_equal 'Twitter', output['syndicate-to'][0]['name']
-    assert_equal 'https://twitter.com/lildude', output['syndicate-to'][0]['uid']
-    refute output['syndicate-to'][0].include? 'silo_pub_token'
+    refute output['syndicate-to'].empty?
+    %w[flickr github mastodon meetup twitter].each_with_index do |dest, i|
+      assert_equal dest, output['syndicate-to'][i]['uid']
+      assert_equal dest == 'github' ? 'GitHub' : dest.capitalize, output['syndicate-to'][i]['name']
+    end
   end
 
   def test_syndicate_note
-    stub_silo_pub
-    @helper.instance_variable_set(:@content, 'this is the content')
+    stub_bridgy_webmention
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
-    params = { 'syndicate-to': ['https://twitter.com/lildude'], content: 'this is the content' }
-    assert_equal '12344321', @helper.syndicate_to(params)
+    params = { 'syndicate-to': ['twitter'] }
+    output = @helper.syndicate_to(params)
+    assert_equal 'https://twitter.com/me/status/456789', output['url']
+
     assert_nil @helper.syndicate_to({})
     assert_nil @helper.syndicate_to('syndicate-to': '')
   end
