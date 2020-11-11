@@ -85,7 +85,7 @@ get '/micropub/:site' do |site|
     properties = params['properties'] || []
     body JSON.generate(get_post(params[:url], properties))
   when /syndicate-to/
-    body JSON.generate([])
+    body syndicate_to
   end
 end
 

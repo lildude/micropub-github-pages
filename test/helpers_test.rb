@@ -53,7 +53,6 @@ class Helpers < Minitest::Test
   end
 
   def test_syndicate_to_get
-    skip 'Not implemented'
     output = JSON.parse(@helper.syndicate_to)
     assert output.include? 'syndicate-to'
     refute output['syndicate-to'].empty?
