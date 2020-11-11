@@ -266,44 +266,6 @@ module AppHelpers
     text.scan(/\B#(\w+)/).flatten
   end
 
-  # Syndicate to destinations supported by silo.pub as that's what we use
-  # instead of having to implement all the APIs ourselves.
-  #
-  # If no destination is provided, assume it's a query and return all destinations.
-  def syndicate_to(params = nil)
-    # TODO: Per-repo settings take pref over global. Global only at the mo
-    # TODO Add the response URL to the post meta data
-    # Note: need to use Sinatra::Application.syndicate_to here until we move to
-    # modular approach so the settings can be accessed when testing.
-    destinations = Sinatra::Application.settings.syndicate_to.values
-    clean_dests = []
-    destinations.each do |endpoint|
-      clean_dests << endpoint.reject { |key| key == 'silo_pub_token' }
-    end
-    return JSON.generate("syndicate-to": clean_dests) unless params
-
-    dest_entry = destinations.find do |destination|
-      dest = params[:"syndicate-to"][0] if params.key?(:"syndicate-to")
-      destination['uid'] == dest
-    end || return
-
-    silo_pub_token = dest_entry['silo_pub_token']
-    uri = URI.parse('https://silo.pub/micropub')
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = (uri.port == 443)
-    request = Net::HTTP::Post.new(uri.request_uri)
-    request.initialize_http_header('Authorization' => "Bearer #{silo_pub_token}")
-
-    form_data = {}
-    form_data['name'] = params[:name] if params[:name]
-    form_data['url'] = @location
-    form_data['content'] = params[:content]
-
-    request.set_form_data(form_data)
-    resp = http.request(request)
-    JSON.parse(resp.body)['id_str'] if ENV['RACK_ENV'] == 'test'
-  end
-
   # Process and clean up params for use later
   # TODO: Need to .to_yaml nested objects for easy access in the template
   def process_params(post_params)
@@ -345,8 +307,6 @@ module AppHelpers
       end
       post_params[:photo] = photos
     end
-
-    post_params[:"syndicate-to"] = Array(*post_params[:"syndicate-to"]) if post_params[:"syndicate-to"]
 
     # Add additional properties, unless we're performing an action
     unless post_params.key? :action

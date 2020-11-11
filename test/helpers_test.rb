@@ -53,6 +53,7 @@ class Helpers < Minitest::Test
   end
 
   def test_syndicate_to_get
+    skip 'Not implemented'
     output = JSON.parse(@helper.syndicate_to)
     assert output.include? 'syndicate-to'
     assert_equal 'Twitter', output['syndicate-to'][0]['name']
@@ -61,6 +62,7 @@ class Helpers < Minitest::Test
   end
 
   def test_syndicate_note
+    skip 'Not implemented'
     stub_silo_pub
     @helper.instance_variable_set(:@content, 'this is the content')
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')

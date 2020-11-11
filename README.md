@@ -4,11 +4,7 @@
 
 A Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository.  This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
 
-## Setup
-
-Clone the repository and run `bundle install`.
-
-### Heroku
+## Run on Heroku
 
 TBC
 
@@ -16,9 +12,11 @@ TBC
 Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lildude/micropub-github-pages) :soon:. It doesn't work just yet.
 -->
 
-### Elsewhere
+## Running Elsewhere or Locally
 
-Run `GITHUB_ACCESS_TOKEN=[your_personal_access_token] bundle exec rackup` and you'll have the application running on http://localhost:9292 .
+Clone the repository and run `bundle install`.
+
+Run `GITHUB_ACCESS_TOKEN="your_personal_access_token" bundle exec rackup` and you'll have the application running on http://localhost:9292 .
 
 Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = 'your_personal_access_token'`.
 
@@ -28,7 +26,7 @@ Copy `config-example.yml` to `config.yml` and customise to your :heart:'s conten
 
 ## Syndication
 
-TBC
+Not yet implemented.
 
 ## Testing
 
@@ -82,7 +80,7 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 ✅ 502 Undelete a post (form-encoded)  
 ✅ 503 Undelete a post (JSON)  
 
-**Note** Deleting doesn't remove the post, it just adds/toggles the `published` property
+**Note** Deleting doesn't remove the post, it adds/removes the `published` property from the post's frontmatter.
 
 ### Query
 
@@ -109,5 +107,6 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 ### TODOs
 
+- [ ] Create job to wait for publishing of site and then perform syndication
 - [ ] Use GitHub App for access instead of PAT
 - [ ] Dockerise
