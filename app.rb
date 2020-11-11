@@ -29,9 +29,6 @@ end
 
 config_file config_yml
 
-# Default settings if not set in config
-configure { set syndicate_to: {} } unless settings.respond_to?(:syndicate_to)
-
 Sinatra::Application.helpers AppHelpers
 
 before do
@@ -88,7 +85,7 @@ get '/micropub/:site' do |site|
     properties = params['properties'] || []
     body JSON.generate(get_post(params[:url], properties))
   when /syndicate-to/
-    body syndicate_to
+    body JSON.generate([])
   end
 end
 

@@ -334,8 +334,6 @@ module AppHelpers
       post_params[:photo] = photos
     end
 
-    post_params[:"syndicate-to"] = Array(*post_params[:"syndicate-to"]) if post_params[:"syndicate-to"]
-
     # Add additional properties, unless we're performing an action
     unless post_params.key? :action
       # Secret functionality: determine tags from content if none provided
