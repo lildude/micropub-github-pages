@@ -28,7 +28,7 @@ class Json < Minitest::Test
         category: %w[tag1 tag2]
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-json-content", last_response.header['Location']
     assert last_response.body.include? 'tag1'
     assert last_response.body.include? 'tag2'
@@ -47,7 +47,7 @@ class Json < Minitest::Test
         content: ['This is the JSON content #tag1 #tag2 end.']
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-json-content", last_response.header['Location']
     assert last_response.body.include? "tags:\n- tag1\n- tag2"
     assert last_response.body.include? 'This is the JSON content end.'
@@ -66,7 +66,7 @@ class Json < Minitest::Test
         }]
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.body.include? '<p>This post has <b>bold</b> and <i>italic</i> text.</p>'
   end
 
@@ -83,7 +83,7 @@ class Json < Minitest::Test
         category: %w[tag1 tag2]
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-header", last_response.header['Location']
     assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
     assert last_response.body.include?('title: This is the header'), "Expected title to include 'This is the header', but got\n#{last_response.body}"
@@ -105,7 +105,7 @@ class Json < Minitest::Test
         category: %w[tag1 tag2]
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/this-is-the-title", last_response.header['Location']
     assert last_response.body.include? "tags:\n- tag1\n- tag2\n"
     assert last_response.body.include?('title: This is the title'), "Expected title to include 'This is the title', but got\n#{last_response.body}"
@@ -126,7 +126,7 @@ class Json < Minitest::Test
         photo: ['https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_n.jpg']
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
     assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
@@ -145,7 +145,7 @@ class Json < Minitest::Test
         photo: ['https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_nope.jpg']
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include? 'https://scontent.cdninstagram.com/t51.2885-15/e35/12716713_162835967431386_291746593_nope.jpg'
   end
@@ -164,7 +164,7 @@ class Json < Minitest::Test
                 'https://instagram.flhr2-1.fna.fbcdn.net/t51.2885-15/e35/13557237_1722207908037147_1805177879_n.jpg']
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include? '/img/12716713_162835967431386_291746593_n.jpg'
     assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
@@ -186,7 +186,7 @@ class Json < Minitest::Test
         }]
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include?('/img/12716713_162835967431386_291746593_n.jpg'), "Body contains #{last_response.body}"
     assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
@@ -212,7 +212,7 @@ class Json < Minitest::Test
         }]
       }
     }.to_json)
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert_equal "https://example.com/#{now.strftime('%Y')}/#{now.strftime('%m')}/#{now.strftime('%s').to_i % (24 * 60 * 60)}", last_response.header['Location']
     assert last_response.body.include?('Weighed 70.64 kg'), "Body did not include 'Weighed 70.64 kg'\n#{last_response.body}"
     assert last_response.body.include?('70.64'), 'Body did not include "70.64"'

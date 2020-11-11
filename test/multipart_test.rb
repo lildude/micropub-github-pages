@@ -25,7 +25,7 @@ class Multipart < Minitest::Test
            content: 'Adding a new photo',
            photo: photo
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include?('/img/')
   end
@@ -44,7 +44,7 @@ class Multipart < Minitest::Test
            content: 'Adding a new photo',
            photo: photo
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include?('/img/photo.jpg')
     refute last_response.body.include?('/img/photo2.jpg')
@@ -63,7 +63,7 @@ class Multipart < Minitest::Test
            photo: ['https://example.com/img/photo.jpg', 'https://example.com/img/photo2.jpg'],
            "mp-photo-alt": ['Alt 1']
          })
-    assert last_response.created?, "Expected 201 but got #{last_response.status}"
+    assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
     assert last_response.body.include?('![Alt 1](https://example.com/img/photo.jpg)')
     assert last_response.body.include?('![](https://example.com/img/photo2.jpg)')

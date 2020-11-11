@@ -20,7 +20,7 @@ Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/but
 
 Run `GITHUB_ACCESS_TOKEN=[your_personal_access_token] bundle exec rackup` and you'll have the application running on http://localhost:9292 .
 
-Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = '[your_personal_access_token]'`.
+Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = 'your_personal_access_token'`.
 
 ## Configuration
 
