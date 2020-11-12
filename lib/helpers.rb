@@ -285,11 +285,7 @@ module AppHelpers
     # TODO: Append formatting options
     # bridgy_omit_link=true|maybe|false
     # bridgy_ignore_formatting=true|false
-    resp = HTTParty.post('https://brid.gy/publish/webmention',
-                         body: { source: @location, target: "https://brid.gy/publish/#{dest}" })
-    # Or do we only need the Location header?
-    # TODO: Return Link header in post response but also add the dest to a syndication property
-    JSON.parse(resp.body) if ENV['RACK_ENV'] == 'test'
+    BridgyJob.perform_async(@location, dest, bridgy_omit_link: false, bridgy_ignore_formatting: false)
   end
 
   # Process and clean up params for use later

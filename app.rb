@@ -1,17 +1,19 @@
 # frozen_string_literal: true
 
-require 'sinatra'
-require 'sinatra/config_file'
-require 'octokit'
+require 'base64'
 require 'httparty'
 require 'json'
-require 'base64'
-require 'safe_yaml'
 require 'liquid'
+require 'octokit'
+require 'safe_yaml'
 require 'securerandom'
-require 'stringex'
-require_relative 'lib/helpers'
+require 'sucker_punch' # This must go before sinatra
+require 'sinatra'
+require 'sinatra/config_file'
 require 'sinatra/reloader' if development?
+require 'stringex'
+require_relative 'lib/bridgy_job'
+require_relative 'lib/helpers'
 require './env' if File.exist?('env.rb')
 
 SafeYAML::OPTIONS[:default_mode] = :safe
