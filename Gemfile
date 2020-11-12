@@ -11,6 +11,7 @@ gem 'safe_yaml'
 gem 'sinatra'
 gem 'sinatra-contrib'
 gem 'stringex'
+gem 'sucker_punch', '~> 2.0'
 
 group :test do
   gem 'coveralls', '~> 0.8'
