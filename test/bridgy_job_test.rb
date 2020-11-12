@@ -4,7 +4,6 @@ require 'sucker_punch/testing/inline'
 require File.expand_path 'test_helper.rb', __dir__
 
 class BridgyJobTest < Minitest::Test
-
   def test_perform_success_with_defaults
     stub_get_published_page
     stub_request(:post, 'https://brid.gy/publish/webmention?bridgy_ignore_formatting=false&bridgy_omit_link=false')
@@ -13,7 +12,7 @@ class BridgyJobTest < Minitest::Test
     out, = capture_subprocess_io do
       BridgyJob.perform_async('https://example.com/2020/01/this-is-a-test-post/', 'twitter')
     end
-    assert_match %r{Successfully}, out
+    assert_match(/Successfully/, out)
   end
 
   def test_perform_success_with_options
@@ -24,7 +23,7 @@ class BridgyJobTest < Minitest::Test
     out, = capture_subprocess_io do
       BridgyJob.perform_async('https://example.com/2020/01/this-is-a-test-post/', 'twitter', bridgy_omit_link: 'maybe', bridgy_ignore_formatting: true)
     end
-    assert_match %r{Successfully}, out
+    assert_match(/Successfully/, out)
   end
 
   def test_perform_success_on_multiple_attempts
@@ -34,7 +33,7 @@ class BridgyJobTest < Minitest::Test
     out, = capture_subprocess_io do
       BridgyJob.perform_async('https://example.com/2020/01/this-is-a-test-post/', 'twitter')
     end
-    assert_match %r{Successfully}, out
+    assert_match(/Successfully/, out)
   end
 
   def test_perform_post_never_appears
@@ -42,7 +41,7 @@ class BridgyJobTest < Minitest::Test
     out, = capture_subprocess_io do
       BridgyJob.perform_async('https://example.com/2020/01/this-is-a-test-post/', 'twitter')
     end
-    assert_match %r{No syndication attempted}, out
+    assert_match(/No syndication attempted/, out)
   end
 
   def test_perform_bridgy_is_not_happy
@@ -52,6 +51,6 @@ class BridgyJobTest < Minitest::Test
     out, = capture_subprocess_io do
       BridgyJob.perform_async('https://example.com/2020/01/this-is-a-test-post/', 'twitter')
     end
-    assert_match %r{Bridgy not happy: 500}, out
+    assert_match(/Bridgy not happy: 500/, out)
   end
 end
