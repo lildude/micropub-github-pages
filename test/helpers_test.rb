@@ -63,14 +63,11 @@ class Helpers < Minitest::Test
   end
 
   def test_syndicate_note
-    stub_bridgy_webmention
+    stub_get_published_page
+    BridgyJob.expects(:perform_async).returns(true)
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
     params = { 'syndicate-to': ['twitter'] }
-    output = @helper.syndicate_to(params)
-    assert_equal 'https://twitter.com/me/status/456789', output['url']
-
-    assert_nil @helper.syndicate_to({})
-    assert_nil @helper.syndicate_to('syndicate-to': '')
+    assert @helper.syndicate_to(params)
   end
 
   def test_post_type
