@@ -270,16 +270,16 @@ module AppHelpers
   # We make no attempt to verify if Bridgy has an account before attempting the webmention.
   # If no destination is provided, assume it's a query and return all destinations.
   # TODO: Implement settings to enable and provide specific options
-  def syndicate_to(params = nil)
+  def syndicate_to(syndicate_to = nil)
     destinations = %w[flickr github mastodon meetup twitter]
 
     dests = []
     destinations.each do |dest|
       dests << { uid: dest, name: dest == 'github' ? 'GitHub' : dest.capitalize }
     end
-    return dests unless params
+    return dests unless syndicate_to
 
-    dest = params[:'syndicate-to'] && !params[:'syndicate-to'].empty? ? params[:"syndicate-to"].first : nil
+    dest = syndicate_to.empty? ? nil : syndicate_to.first
     return nil unless dest && destinations.include?(dest)
 
     # TODO: Append formatting options
