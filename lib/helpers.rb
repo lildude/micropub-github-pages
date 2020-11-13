@@ -277,7 +277,7 @@ module AppHelpers
     destinations.each do |dest|
       dests << { uid: dest, name: dest == 'github' ? 'GitHub' : dest.capitalize }
     end
-    return JSON.generate("syndicate-to": dests) unless params
+    return dests unless params
 
     dest = params[:'syndicate-to'] && !params[:'syndicate-to'].empty? ? params[:"syndicate-to"].first : nil
     return nil unless dest && destinations.include?(dest)
@@ -444,5 +444,9 @@ module AppHelpers
 
   def posts_dir
     @posts_dir ||= site_global_default('posts_dir', default: '_posts')
+  end
+
+  def syndicate_to_bridgy?
+    @syndicate_to_bridgy ||= site_global_default('syndicate_to_bridgy', default: false)
   end
 end

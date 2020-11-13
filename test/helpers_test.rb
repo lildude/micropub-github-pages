@@ -53,12 +53,11 @@ class Helpers < Minitest::Test
   end
 
   def test_syndicate_to_get
-    output = JSON.parse(@helper.syndicate_to)
-    assert output.include? 'syndicate-to'
-    refute output['syndicate-to'].empty?
+    output = @helper.syndicate_to
+    refute output.empty?
     %w[flickr github mastodon meetup twitter].each_with_index do |dest, i|
-      assert_equal dest, output['syndicate-to'][i]['uid']
-      assert_equal dest == 'github' ? 'GitHub' : dest.capitalize, output['syndicate-to'][i]['name']
+      assert_equal dest, output[i][:uid]
+      assert_equal dest == 'github' ? 'GitHub' : dest.capitalize, output[i][:name]
     end
   end
 
