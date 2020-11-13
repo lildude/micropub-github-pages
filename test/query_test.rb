@@ -45,15 +45,6 @@ class Query < Minitest::Test
     end
   end
 
-  # I think Sunlit performs a media-endpoint query IIRC
-  def test_get_media_endpoint
-    skip 'TODO: not yet implemented'
-    get '/micropub/testsite?q=media-endpoint'
-    assert last_response.ok?
-    parse_body = JSON.parse(last_response.body)
-    assert_equal parse_body['media-endpoint'], 'http://example.org/micropub/testsite/media'
-  end
-
   def test_get_source
     stub_github_search
     stub_get_github_request
