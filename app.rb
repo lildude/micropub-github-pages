@@ -10,6 +10,7 @@ require 'securerandom'
 require 'sucker_punch' # This must go before sinatra
 require 'sinatra'
 require 'sinatra/config_file'
+require 'sinatra/json'
 require 'sinatra/reloader' if development?
 require 'stringex'
 require_relative 'lib/bridgy_job'
@@ -63,7 +64,7 @@ get '/micropub' do
     settings.sites.each do |site, opts|
       config['destination'] << { uid: site, name: opts['site_url'] }
     end
-    body JSON.generate(config)
+    body json(config)
   else
     error('invalid_request')
   end
@@ -82,13 +83,13 @@ get '/micropub/:site' do |site|
     # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
   when /config/
     # We are our own media-endpoint
-    body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
+    body json({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
   when /source/
     properties = params['properties'] || []
-    body JSON.generate(get_post(params[:url], properties))
+    body json(get_post(params[:url], properties))
   when /syndicate-to/
     dests = syndicate_to_bridgy? ? syndicate_to : []
-    body JSON.generate("syndicate-to": dests)
+    body json("syndicate-to": dests)
   end
 end
 

@@ -19,7 +19,7 @@ module AppHelpers
     when 'unauthorized'
       code = 401
     end
-    halt code, JSON.generate(error: error, error_description: description)
+    halt code, json(error: error, error_description: description)
   end
 
   def verify_token
