@@ -7,7 +7,7 @@
 class BridgyJob
   include SuckerPunch::Job
 
-  def perform(location, destination, options = { bridgy_omit_link: false, bridgy_ignore_formatting: false })
+  def perform(location, destination, options = { 'bridgy_omit_link' => false, 'bridgy_ignore_formatting' => false })
     logger.info "Syndicating #{location} to #{destination}"
     count = 1
     post_ready = false

@@ -270,7 +270,7 @@ module AppHelpers
   # We make no attempt to verify if Bridgy has an account before attempting the webmention.
   # If no destination is provided, assume it's a query and return all destinations.
   # TODO: Implement settings to enable and provide specific options
-  def syndicate_to(syndicate_to = nil)
+  def syndicate_to(syndicate_to = nil, options = nil)
     destinations = %w[flickr github mastodon meetup twitter]
 
     dests = []
@@ -285,7 +285,7 @@ module AppHelpers
     # TODO: Append formatting options
     # bridgy_omit_link=true|maybe|false
     # bridgy_ignore_formatting=true|false
-    BridgyJob.perform_async(@location, dest, bridgy_omit_link: false, bridgy_ignore_formatting: false)
+    BridgyJob.perform_async(@location, dest, options)
   end
 
   # Process and clean up params for use later
@@ -450,5 +450,9 @@ module AppHelpers
 
   def syndicate_to_bridgy?
     @syndicate_to_bridgy ||= site_global_default('syndicate_to_bridgy', default: false)
+  end
+
+  def bridgy_options
+    @bridgy_options ||= site_global_default('bridgy_options', default: { 'bridgy_omit_link' => false, 'bridgy_ignore_formatting' => false })
   end
 end

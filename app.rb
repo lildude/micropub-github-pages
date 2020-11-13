@@ -124,7 +124,7 @@ post '/micropub/:site' do |site|
     # Publish the post
     content = publish_post post_params
     # Syndicate the post
-    syndicate_to(post_params[:'syndicate-to'])
+    syndicate_to(post_params[:'syndicate-to'], bridgy_options)
 
     # Return 202 as we don't publish immediately as we rely on GitHub Pages etc to do that
     status 202
