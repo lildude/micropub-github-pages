@@ -36,6 +36,8 @@ class FormEncoded < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
+    stub_get_published_page
+    BridgyJob.expects(:perform_async).returns(true)
     now = Time.now
     post('/micropub/testsite', {
            :h => 'entry',
@@ -62,6 +64,8 @@ class FormEncoded < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
+    stub_get_published_page
+    BridgyJob.expects(:perform_async).returns(true)
     now = Time.now
     post('/micropub/testsite', {
            :h => 'entry',
@@ -82,6 +86,8 @@ class FormEncoded < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
+    stub_get_published_page
+    BridgyJob.expects(:perform_async).returns(true)
     now = Time.now
     post('/micropub', {
            'mp-destination' => 'testsite',

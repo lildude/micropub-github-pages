@@ -66,7 +66,7 @@ class Helpers < Minitest::Test
     BridgyJob.expects(:perform_async).returns(true)
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
     params = { 'syndicate-to': ['twitter'] }
-    assert @helper.syndicate_to(params)
+    assert @helper.syndicate_to(params[:'syndicate-to'])
   end
 
   def test_post_type
