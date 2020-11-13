@@ -269,7 +269,6 @@ module AppHelpers
   # Syndicate to destinations supported by Bridgy so we don't have implement all the APIs ourselves.
   # We make no attempt to verify if Bridgy has an account before attempting the webmention.
   # If no destination is provided, assume it's a query and return all destinations.
-  # TODO: Implement settings to enable and provide specific options
   def syndicate_to(syndicate_to = nil, options = nil)
     destinations = %w[flickr github mastodon meetup twitter]
 
@@ -282,9 +281,6 @@ module AppHelpers
     dest = syndicate_to.empty? ? nil : syndicate_to.first
     return nil unless dest && destinations.include?(dest)
 
-    # TODO: Append formatting options
-    # bridgy_omit_link=true|maybe|false
-    # bridgy_ignore_formatting=true|false
     BridgyJob.perform_async(@location, dest, options)
   end
 
