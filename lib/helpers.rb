@@ -326,7 +326,7 @@ module AppHelpers
       post_params[:photo] = photos
     end
 
-    post_params[:'syndicate-to'] = Array(*post_params[:'syndicate-to']) if post_params[:'syndicate-to']
+    post_params[:'mp-syndicate-to'] = Array(*post_params[:'mp-syndicate-to']) if post_params[:'mp-syndicate-to']
 
     # Add additional properties, unless we're performing an action
     unless post_params.key? :action
