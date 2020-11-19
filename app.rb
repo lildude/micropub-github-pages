@@ -83,7 +83,9 @@ get '/micropub/:site' do |site|
     # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
   when /config/
     # We are our own media-endpoint
-    body json({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
+    config = { "media-endpoint": "#{request.base_url}#{request.path}/media" }
+    config['syndicate-to'] = syndicate_to_bridgy? ? syndicate_to : []
+    body json(config)
   when /source/
     properties = params['properties'] || []
     body json(get_post(params[:url], properties))
