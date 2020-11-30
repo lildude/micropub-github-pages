@@ -27,6 +27,6 @@ class BridgyJob
                          body: { source: location, target: "https://brid.gy/publish/#{destination}" },
                          query: options)
 
-    logger.info resp.created? ? "Successfully syndicated #{location} to #{destination}" : "Bridgy not happy: #{resp.code}: #{resp.body}"
+    logger.info resp.created? ? "Successfully syndicated #{location} to #{destination}" : "Bridgy not happy: #{resp.code}: #{resp['error']}"
   end
 end
