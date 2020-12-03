@@ -59,7 +59,7 @@ get '/micropub' do
   if params['q'] == 'config'
     status 200
     headers 'Content-type' => 'application/json'
-    config = {}
+    config = { "media-endpoint": "#{request.base_url}/dev/media" }
     config['destination'] = []
     settings.sites.each do |site, opts|
       config['destination'] << { uid: site, name: opts['site_url'] }
