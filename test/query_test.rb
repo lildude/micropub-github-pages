@@ -21,6 +21,7 @@ class Query < Minitest::Test
     assert_equal parse_body['destination'].count, 1
     assert_equal parse_body['destination'][0]['uid'], 'testsite'
     assert_equal parse_body['destination'][0]['name'], 'https://example.com'
+    assert_equal parse_body['post-types'].count, 3
 
     get '/micropub?q=source'
     refute last_response.ok?

@@ -73,6 +73,15 @@ module AppHelpers
     content if ENV['RACK_ENV'] == 'test'
   end
 
+  # Return the list of supported post types. Add entries here as new templates are added.
+  def post_types
+    [
+      { type: 'note', name: 'Note', properties: %w[content category] },
+      { type: 'article', name: 'Article', properties: %w[name content category] },
+      { type: 'photo', name: 'Photo', properties: %w[content category] }
+    ]
+  end
+
   # Files should be an array of path and base64 encoded content
   def commit_to_github(files, type)
     # Verify the repo exists

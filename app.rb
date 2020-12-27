@@ -64,7 +64,8 @@ get '/micropub' do
     settings.sites.each do |site, opts|
       config['destination'] << { uid: site, name: opts['site_url'] }
     end
-    body json(config)
+    config['post-types'] = post_types
+    body JSON.generate(config)
   else
     error('invalid_request')
   end
