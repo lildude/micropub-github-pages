@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
-require 'sinatra'
-require 'sinatra/config_file'
-require 'octokit'
+require 'base64'
 require 'httparty'
 require 'json'
-require 'base64'
-require 'safe_yaml'
 require 'liquid'
+require 'octokit'
+require 'safe_yaml'
 require 'securerandom'
-require 'stringex'
-require_relative 'lib/helpers'
+require 'sucker_punch' # This must go before sinatra
+require 'sinatra'
+require 'sinatra/config_file'
+require 'sinatra/json'
 require 'sinatra/reloader' if development?
+require 'stringex'
+require_relative 'lib/bridgy_job'
+require_relative 'lib/helpers'
 require './env' if File.exist?('env.rb')
 
 SafeYAML::OPTIONS[:default_mode] = :safe
@@ -56,12 +59,13 @@ get '/micropub' do
   if params['q'] == 'config'
     status 200
     headers 'Content-type' => 'application/json'
-    config = {}
+    config = { "media-endpoint": "#{request.base_url}/dev/media" }
     config['destination'] = []
     settings.sites.each do |site, opts|
       config['destination'] << { uid: site, name: opts['site_url'] }
     end
     config['post-types'] = post_types
+    config['syndicate-to'] = syndicate_to_bridgy? ? syndicate_to : []
     body JSON.generate(config)
   else
     error('invalid_request')
@@ -81,12 +85,15 @@ get '/micropub/:site' do |site|
     # TODO: Implement support for some of the extensions at https://indieweb.org/Micropub-extensions
   when /config/
     # We are our own media-endpoint
-    body JSON.generate({ "media-endpoint": "#{request.base_url}#{request.path}/media" })
+    config = { "media-endpoint": "#{request.base_url}#{request.path}/media" }
+    config['syndicate-to'] = syndicate_to_bridgy? ? syndicate_to : []
+    body json(config)
   when /source/
     properties = params['properties'] || []
-    body JSON.generate(get_post(params[:url], properties))
+    body json(get_post(params[:url], properties))
   when /syndicate-to/
-    body JSON.generate([])
+    dests = syndicate_to_bridgy? ? syndicate_to : []
+    body json("syndicate-to": dests)
   end
 end
 
@@ -121,6 +128,8 @@ post '/micropub/:site' do |site|
     error('insufficient_scope') unless @scopes.include?('create')
     # Publish the post
     content = publish_post post_params
+    # Syndicate the post
+    syndicate_to(post_params[:'mp-syndicate-to'], bridgy_options)
 
     # Return 202 as we don't publish immediately as we rely on GitHub Pages etc to do that
     status 202

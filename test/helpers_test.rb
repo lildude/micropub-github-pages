@@ -53,23 +53,20 @@ class Helpers < Minitest::Test
   end
 
   def test_syndicate_to_get
-    skip 'Not implemented'
-    output = JSON.parse(@helper.syndicate_to)
-    assert output.include? 'syndicate-to'
-    assert_equal 'Twitter', output['syndicate-to'][0]['name']
-    assert_equal 'https://twitter.com/lildude', output['syndicate-to'][0]['uid']
-    refute output['syndicate-to'][0].include? 'silo_pub_token'
+    output = @helper.syndicate_to
+    refute output.empty?
+    %w[twitter].each_with_index do |dest, i|
+      assert_equal dest, output[i][:uid]
+      # assert_equal dest == 'github' ? 'GitHub' : dest.capitalize, output[i][:name]
+    end
   end
 
   def test_syndicate_note
-    skip 'Not implemented'
-    stub_silo_pub
-    @helper.instance_variable_set(:@content, 'this is the content')
+    stub_get_published_page
+    BridgyJob.expects(:perform_async).returns(true)
     @helper.instance_variable_set(:@location, 'http://example.com/2010/01/14/12345')
-    params = { 'syndicate-to': ['https://twitter.com/lildude'], content: 'this is the content' }
-    assert_equal '12344321', @helper.syndicate_to(params)
-    assert_nil @helper.syndicate_to({})
-    assert_nil @helper.syndicate_to('syndicate-to': '')
+    params = { 'syndicate-to': ['twitter'] }
+    assert @helper.syndicate_to(params[:'syndicate-to'])
   end
 
   def test_post_type

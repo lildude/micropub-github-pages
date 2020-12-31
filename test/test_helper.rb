@@ -142,10 +142,6 @@ def stub_github_search(count: 1, fixture: '2010-01-14-example-post.md')
                ))
 end
 
-def stub_silo_pub
-  stub_request(:post, 'https://silo.pub/micropub')
-    .with(body: { content: /.*/, url: /.*/ },
-          headers: { 'Authorization' => 'Bearer 0987654321',
-                     'Content-Type' => 'application/x-www-form-urlencoded' })
-    .to_return(status: 200, body: '{"id_str": "12344321"}', headers: {})
+def stub_get_published_page
+  stub_request(:head, %r{example.com/}).to_return(status: 200)
 end

@@ -19,7 +19,7 @@ module AppHelpers
     when 'unauthorized'
       code = 401
     end
-    halt code, JSON.generate(error: error, error_description: description)
+    halt code, json(error: error, error_description: description)
   end
 
   def verify_token
@@ -275,6 +275,26 @@ module AppHelpers
     text.scan(/\B#(\w+)/).flatten
   end
 
+  # Syndicate to destinations supported by Bridgy so we don't have implement all the APIs ourselves.
+  # We make no attempt to verify if Bridgy has an account before attempting the webmention.
+  # If no destination is provided, assume it's a query and return all destinations.
+  # TODO: Return services based on types
+  def syndicate_to(syndicate_to = nil, options = nil)
+    # destinations = %w[flickr github mastodon meetup twitter]
+    destinations = %w[twitter]
+
+    dests = []
+    destinations.each do |dest|
+      dests << { uid: dest, name: dest == 'github' ? 'GitHub' : dest.capitalize }
+    end
+    return dests unless syndicate_to
+
+    dest = syndicate_to.empty? ? nil : syndicate_to.first
+    return nil unless dest && destinations.include?(dest)
+
+    BridgyJob.perform_async(@location, dest, options)
+  end
+
   # Process and clean up params for use later
   # TODO: Need to .to_yaml nested objects for easy access in the template
   def process_params(post_params)
@@ -316,6 +336,8 @@ module AppHelpers
       end
       post_params[:photo] = photos
     end
+
+    post_params[:'mp-syndicate-to'] = Array(*post_params[:'mp-syndicate-to']) if post_params[:'mp-syndicate-to']
 
     # Add additional properties, unless we're performing an action
     unless post_params.key? :action
@@ -396,7 +418,7 @@ module AppHelpers
   end
 
   def site_global_default(opt, default: nil)
-    if settings.sites[@site][opt]
+    if @site && settings.sites[@site][opt]
       settings.sites[@site][opt]
     elsif settings.respond_to?(opt.to_sym)
       settings.send(opt.to_sym)
@@ -431,5 +453,13 @@ module AppHelpers
 
   def posts_dir
     @posts_dir ||= site_global_default('posts_dir', default: '_posts')
+  end
+
+  def syndicate_to_bridgy?
+    @syndicate_to_bridgy ||= site_global_default('syndicate_to_bridgy', default: false)
+  end
+
+  def bridgy_options
+    @bridgy_options ||= site_global_default('bridgy_options', default: { 'bridgy_omit_link' => false, 'bridgy_ignore_formatting' => false })
   end
 end

@@ -11,11 +11,4 @@ micropub:
 
 download_photos: true
 
-syndicate_to:
-  0:
-    uid: "https://twitter.com/lildude"
-    name: "Twitter"
-    silo_pub_token: "0987654321"
-  1:
-    uid: "https://example.com/foobar"
-    name: "fooBar"
+syndicate_to_bridgy: true
