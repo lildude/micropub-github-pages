@@ -416,7 +416,7 @@ module AppHelpers
   end
 
   def site_global_default(opt, default: nil)
-    if settings.sites[@site][opt]
+    if @site && settings.sites[@site][opt]
       settings.sites[@site][opt]
     elsif settings.respond_to?(opt.to_sym)
       settings.send(opt.to_sym)
