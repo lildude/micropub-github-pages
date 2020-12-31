@@ -55,9 +55,9 @@ class Helpers < Minitest::Test
   def test_syndicate_to_get
     output = @helper.syndicate_to
     refute output.empty?
-    %w[flickr github mastodon meetup twitter].each_with_index do |dest, i|
+    %w[twitter].each_with_index do |dest, i|
       assert_equal dest, output[i][:uid]
-      assert_equal dest == 'github' ? 'GitHub' : dest.capitalize, output[i][:name]
+      # assert_equal dest == 'github' ? 'GitHub' : dest.capitalize, output[i][:name]
     end
   end
 

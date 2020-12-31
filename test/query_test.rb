@@ -41,7 +41,7 @@ class Query < Minitest::Test
     assert last_response.ok?
     parse_body = JSON.parse(last_response.body)
     refute parse_body['syndicate-to'].empty?
-    %w[flickr github mastodon meetup twitter].each_with_index do |dest, i|
+    %w[twitter].each_with_index do |dest, i|
       assert_equal parse_body['syndicate-to'][i]['uid'], dest
     end
   end
