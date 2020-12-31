@@ -278,6 +278,7 @@ module AppHelpers
   # Syndicate to destinations supported by Bridgy so we don't have implement all the APIs ourselves.
   # We make no attempt to verify if Bridgy has an account before attempting the webmention.
   # If no destination is provided, assume it's a query and return all destinations.
+  # TODO: Return services based on types
   def syndicate_to(syndicate_to = nil, options = nil)
     # destinations = %w[flickr github mastodon meetup twitter]
     destinations = %w[twitter]
