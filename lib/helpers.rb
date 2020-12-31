@@ -279,7 +279,8 @@ module AppHelpers
   # We make no attempt to verify if Bridgy has an account before attempting the webmention.
   # If no destination is provided, assume it's a query and return all destinations.
   def syndicate_to(syndicate_to = nil, options = nil)
-    destinations = %w[flickr github mastodon meetup twitter]
+    # destinations = %w[flickr github mastodon meetup twitter]
+    destinations = %w[twitter]
 
     dests = []
     destinations.each do |dest|
