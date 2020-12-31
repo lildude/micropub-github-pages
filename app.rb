@@ -65,6 +65,7 @@ get '/micropub' do
       config['destination'] << { uid: site, name: opts['site_url'] }
     end
     config['post-types'] = post_types
+    config['syndicate-to'] = syndicate_to_bridgy? ? syndicate_to : []
     body JSON.generate(config)
   else
     error('invalid_request')
