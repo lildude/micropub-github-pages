@@ -6,17 +6,13 @@ A Micropub server that accepts [Micropub](http://micropub.net/) requests and cre
 
 ## Run on Heroku
 
-TBC
-
-<!--
-Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lildude/micropub-github-pages) :soon:. It doesn't work just yet.
--->
+Fork this repo, [configure](#configuration) and then clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ## Running Elsewhere or Locally
 
 Clone the repository and run `bundle install`.
 
-Run `GITHUB_ACCESS_TOKEN="your_personal_access_token" bundle exec rackup` and you'll have the application running on http://localhost:9292 .
+Run `GITHUB_ACCESS_TOKEN="your_personal_access_token" bundle exec rackup` and you'll have the application running on <http://localhost:9292> .
 
 Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = 'your_personal_access_token'`.
 
