@@ -114,8 +114,7 @@ module AppHelpers
     logger.info 'Being rate limited. Waiting...'
     sleep client.rate_limit.resets_in
     retry
-    # TODO: this is too generic and hides other problems
-  rescue Octokit::UnprocessableEntity
+  rescue Octokit::NotFound
     error('invalid_repo')
   end
 
