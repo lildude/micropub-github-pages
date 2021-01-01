@@ -1,13 +1,25 @@
+# Required
+micropub_token_endpoint: https://indieauth.com/token
+
+# Global options used if not set or overwritten on a per-site basis later
+permalink_style: "/:title"        # Jekyll permalink style as per your site's _config.yml
+full_image_urls: true             # Include site_url in image paths
+download_photos: false            # Ensure linked images are added to repo
+image_dir: "images"               # Directory in to which images will be saved. Default: images
+posts_dir: "_posts"               # Directory in to which posts will be saved. Default: _posts
+syndicate_to_bridgy: false        # Syndicate post using Brid.gy. Default: false
+bridgy_options:
+  bridgy_omit_link: false         # Disable link back to post. Opts: true|false|maybe. Default: false
+  bridgy_ignore_formatting: false # Disable the plain text whitespace and formatting. Opts: true|false. Default: false
+
+# Individual site-specific configuration
 sites:
   mysite:
-    github_repo: my-website
-    permalink_style: "/:categories/:year/:month/:title/"
-    site_url: "https://example.com"
-    full_image_urls: false # Include site_url in img paths
-    image_dir: "images"
-
-download_photos: true # Ensure linked images are added to repo
-
-micropub:
-  token_endpoint:
-  token_me:
+    github_repo: user/my-website                          # Required for each site
+    site_url: "https://example.com"                       # Required for each site
+    permalink_style: "/:categories/:year/:month/:title/"  # Overrides global set above
+    full_image_urls: false                                # Overrides global set above
+    image_dir: "images"                                   # Overrides global set above
+  myothersite: # Uses all the global defaults
+    github_repo: user/my-other-website
+    site_url: https://gonefora.run
