@@ -85,8 +85,9 @@ module AppHelpers
   # Files should be an array of path and base64 encoded content
   def commit_to_github(files, type)
     # Verify the repo exists
-    client.repository?(github_repo)
-    ref = "heads/#{client.pages(github_repo).source.branch}"
+    repo = client.repository(github_repo)
+    branch = repo.has_pages ? client.pages(github_repo).source.branch : repo.default_branch
+    ref = "heads/#{branch}"
     sha_latest_commit = client.ref(github_repo, ref).object.sha
     sha_base_tree = client.commit(github_repo, sha_latest_commit).commit.tree.sha
 
@@ -113,8 +114,7 @@ module AppHelpers
     logger.info 'Being rate limited. Waiting...'
     sleep client.rate_limit.resets_in
     retry
-    # TODO: this is too generic and hides other problems
-  rescue Octokit::UnprocessableEntity
+  rescue Octokit::NotFound
     error('invalid_repo')
   end
 

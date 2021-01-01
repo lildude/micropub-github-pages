@@ -15,7 +15,7 @@ class FormEncoded < Minitest::Test
   end
 
   def test_422_if_repo_not_found
-    stub_get_github_request(code: 422)
+    stub_get_github_request(code: 404)
     now = Time.now
     post('/micropub/testsite', {
            :h => 'entry',
