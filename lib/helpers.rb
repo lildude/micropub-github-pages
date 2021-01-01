@@ -25,7 +25,7 @@ module AppHelpers
   def verify_token
     return %w[create update delete undelete media] if ENV['RACK_ENV'] == 'development'
 
-    resp = HTTParty.get(Sinatra::Application.settings.micropub[:token_endpoint], {
+    resp = HTTParty.get(Sinatra::Application.settings.micropub_token_endpoint, {
                           headers: {
                             'Accept' => 'application/x-www-form-urlencoded',
                             'Authorization' => "Bearer #{@access_token}"
