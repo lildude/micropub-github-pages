@@ -6,8 +6,7 @@ sites:
     full_image_urls: false # Include site_url in img paths
     image_dir: "img"
 
-micropub:
-  token_endpoint: "http://example.com/micropub/token"
+micropub_token_endpoint: "http://example.com/micropub/token"
 
 download_photos: true
 

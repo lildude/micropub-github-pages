@@ -8,6 +8,4 @@ sites:
 
 download_photos: true # Ensure linked images are added to repo
 
-micropub:
-  token_endpoint:
-  token_me:
+micropub_token_endpoint:
