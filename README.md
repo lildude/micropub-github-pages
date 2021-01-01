@@ -2,7 +2,7 @@
 
 ![Tests Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Tests/badge.svg) ![Linters Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Linters/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/lildude/micropub-github-pages/badge.svg)](https://coveralls.io/github/lildude/micropub-github-pages)
 
-A Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository.  This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
+A Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository. This server supports posting to multiple sites from the same server. This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
 
 ## Run on Heroku
 
@@ -16,13 +16,13 @@ Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/but
 
 Clone the repository and run `bundle install`.
 
-Run `GITHUB_ACCESS_TOKEN="your_personal_access_token" bundle exec rackup` and you'll have the application running on http://localhost:9292 .
+Run `GITHUB_ACCESS_TOKEN="your_personal_access_token" bundle exec rackup` and you'll have the application running on <http://localhost:9292> .
 
 Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = 'your_personal_access_token'`.
 
 ## Configuration
 
-Copy `config-example.yml` to `config.yml` and customise to your :heart:'s content.
+Copy `config-example.yml` to `config.yml` and customise to your :heart:'s content. See the [configuration docs](docs/configuration.md) for full details.
 
 ## Syndication
 
@@ -107,6 +107,5 @@ I'm using a local instance of <https://micropub.rocks> ([my fork](https://github
 
 ### TODOs
 
-- [ ] Create job to wait for publishing of site and then perform syndication
 - [ ] Use GitHub App for access instead of PAT
 - [ ] Dockerise
