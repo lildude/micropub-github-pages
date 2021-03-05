@@ -5,7 +5,7 @@ ENV["RACK_ENV"] = "test"
 require "simplecov"
 SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter]
 
-if ENV["GITHUB_WORKSPACE"] == "true"
+if ENV["GITHUB_WORKSPACE"]
   require "codecov"
   SimpleCov.formatters << SimpleCov::Formatter::Codecov
 end
