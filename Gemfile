@@ -22,9 +22,7 @@ group :test do
   gem 'rack-test'
   gem 'rake'
   gem 'reek'
-  gem 'rubocop', require: false
-  gem 'rubocop-minitest', require: false
-  gem 'rubocop-performance', require: false
   gem 'simplecov'
+  gem 'standard', '~> 1.0'
   gem 'webmock'
 end
