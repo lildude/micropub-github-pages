@@ -3,17 +3,18 @@ name: Linters
 
 on:
   pull_request:
-    branches:
-      - "*"
+    paths-ignore:
+      - '**.md'
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
 
 jobs:
   rubocop:
     name: RuboCop Action
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
     steps:
       - uses: actions/checkout@v2
       - name: Run Rubocop
