@@ -13,12 +13,11 @@ SimpleCov.start do
   add_filter 'test'
 end
 
-require 'mocha/minitest'
 require 'minitest/pride'
 require 'minitest/autorun'
 require 'rack/test'
 require 'webmock/minitest'
-require 'mocha/setup'
+require 'mocha/minitest'
 require_relative '../app'
 
 WebMock.disable_net_connect!(allow_localhost: true)
