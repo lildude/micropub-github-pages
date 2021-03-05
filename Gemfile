@@ -14,7 +14,7 @@ gem "stringex"
 gem "sucker_punch", "~> 2.0"
 
 group :test do
-  gem "coveralls", "~> 0.8"
+  gem "codecov", require: false
   gem "m", "~> 1.5.0"
   gem "minitest"
   gem "mocha"

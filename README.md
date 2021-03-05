@@ -1,6 +1,6 @@
 # Micropub to GitHub Pages
 
-![Tests Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Tests/badge.svg) ![Linters Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Linters/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/lildude/micropub-github-pages/badge.svg)](https://coveralls.io/github/lildude/micropub-github-pages)
+![Tests Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Tests/badge.svg) ![Linters Status Badge](https://github.com/lildude/micropub-github-pages/workflows/Linters/badge.svg) [![codecov](https://codecov.io/gh/lildude/micropub-github-pages/branch/main/graph/badge.svg?token=C2W0HNSM5Q)](https://codecov.io/gh/lildude/micropub-github-pages)
 
 A Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository. This server supports posting to multiple sites from the same server. This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
 
