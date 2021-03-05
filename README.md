@@ -36,11 +36,11 @@ Syndication is available via [Brid.gy](https://brid.gy/).
 
 Run `bundle exec rake test` to run through the full test suite and `bundle exec rake standard` for [Standard](https://github.com/testdouble/standard) linting.
 
+## Contributing
+
+Want to contribute to this project? Great! Fork the repo, make your changes (don't forget to add tests 😉) and submit a pull request.
+
 ## License
-
-Micropub to GitHub Pages is licensed under the MIT License.
-
----
 
 ## Micropub.rocks Validation Tests
 
