@@ -21,8 +21,6 @@ jobs:
         ruby-version: 2.7
         bundler-cache: true
     - name: Run tests
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       run: bundle exec rake test
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
