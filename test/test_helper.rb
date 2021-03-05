@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 ENV["RACK_ENV"] = "test"
-require "codecov"
+
 require "simplecov"
-SimpleCov.formatters = [
-  SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::Codecov
-]
+SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter]
+
+if ENV["CI"] == "true"
+  require "codecov"
+  SimpleCov.formatters << SimpleCov::Formatter::Codecov
+end
+
 SimpleCov.start do
   add_filter "vendor"
   add_filter "test"
