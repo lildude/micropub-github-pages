@@ -1,6 +1,6 @@
 # Configuration
 
-Micropub to GitHub supports posting to multiple sites from a single server so you only need to deploy this once and publish to multiple destinations. Each setting can be set globally or on a per-site basis. 
+Micropub to GitHub supports posting to multiple sites from a single server so you only need to deploy this once and publish to multiple destinations. Each setting can be set globally or on a per-site basis.
 
 The following configuration options are available:
 
@@ -35,6 +35,15 @@ These settings are all optional and can be set globally or on a per-site basis, 
   - `bridgy_ignore_formatting`: [Disable the plain text whitespace and formatting](https://brid.gy/about#ignore-formatting).
     Options: `true|false`
     Default: `false`
+
+## Using an Environment Variable for the Configuration
+
+If you'd prefer not to commit your `config.yml` file to your repository, you can convert it to JSON and use the `SITES_CONFIG` environment variable.
+The `jsoncfg` rake task can be used to do this: `bundle exec rake jsoncfg`.
+
+If you're hosting on Heroku, you can set the `SITE_CONFIG` config var from the CLI using: `heroku config:set SITE_CONFIG="$(bundle exec rake jsoncfg)"`
+
+# Examples
 
 ## Examples of Single Site Configurations
 

@@ -24,9 +24,13 @@ Alternatively, create an `env.rb` file in the root of this repository containing
 
 Copy `config-example.yml` to `config.yml` and customise to your :heart:'s content. See the [configuration docs](docs/configuration.md) for full details.
 
+## Customise Posts Layouts
+
+You can customise the layout and format of your posts by modifying the templates in the `templates/` directory. These are written in Liquid like Jekyll themes.
+
 ## Syndication
 
-Not yet implemented.
+Syndication is available via [Brid.gy](https://brid.gy/).
 
 ## Testing
 
