@@ -44,9 +44,9 @@
       }
     },
     {
-      "label": "Run Rubocop",
+      "label": "Run Standardrb",
       "type": "shell",
-      "command": "bundle exec rake rubocop",
+      "command": "bundle exec rake standard STANDARDOPTS='--format progress'",
       "group": "build",
       "problemMatcher": [],
       "presentation": {
