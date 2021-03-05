@@ -13,16 +13,15 @@ on:
 
 jobs:
   lint:
-    name: Linting Action
+    name: Standard
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7
         bundler-cache: true
-    - name: Run standard linter
+    - name: Run Standard linter
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: bundle exec standard --format progress
+      run: bundle exec rake standard STANDARDOPTS="--format progress"
