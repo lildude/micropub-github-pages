@@ -2,13 +2,11 @@
 
 ENV["RACK_ENV"] = "test"
 
+require "codecov"
 require "simplecov"
-SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter]
 
-if ENV["GITHUB_WORKSPACE"]
-  require "codecov"
-  SimpleCov.formatters << SimpleCov::Formatter::Codecov
-end
+SimpleCov.formatters = SimpleCov::Formatter::HTMLFormatter
+SimpleCov.formatters = SimpleCov::Formatter::Codecov if ENV["GITHUB_WORKSPACE"]
 
 SimpleCov.start do
   add_filter "vendor"
