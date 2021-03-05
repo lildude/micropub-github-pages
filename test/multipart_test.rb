@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path 'test_helper.rb', __dir__
+require File.expand_path "test_helper.rb", __dir__
 
 class Multipart < Minitest::Test
   include Rack::Test::Methods
@@ -11,7 +11,7 @@ class Multipart < Minitest::Test
 
   def setup
     stub_token
-    env 'HTTP_AUTHORIZATION', 'Bearer 1234567890'
+    env "HTTP_AUTHORIZATION", "Bearer 1234567890"
   end
 
   def test_new_entry_with_photo_multipart
@@ -19,15 +19,15 @@ class Multipart < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
-    photo = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg'))
-    post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: photo
-         })
+    photo = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), "fixtures", "photo.jpg"))
+    post("/micropub/testsite", {
+      h: "entry",
+      content: "Adding a new photo",
+      photo: photo
+    })
     assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('/img/')
+    assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
+    assert last_response.body.include?("/img/")
   end
 
   def test_new_entry_with_two_photos_multipart
@@ -36,18 +36,18 @@ class Multipart < Minitest::Test
     stub_post_github_request
     stub_patch_github_request
     photo = [
-      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg')),
-      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo2.jpg'))
+      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), "fixtures", "photo.jpg")),
+      Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), "fixtures", "photo2.jpg"))
     ]
-    post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: photo
-         })
+    post("/micropub/testsite", {
+      h: "entry",
+      content: "Adding a new photo",
+      photo: photo
+    })
     assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    refute last_response.body.include?('/img/photo.jpg')
-    refute last_response.body.include?('/img/photo2.jpg')
+    assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
+    refute last_response.body.include?("/img/photo.jpg")
+    refute last_response.body.include?("/img/photo2.jpg")
     assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
   end
 
@@ -57,16 +57,16 @@ class Multipart < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
-    post('/micropub/testsite', {
-           h: 'entry',
-           content: 'Adding a new photo',
-           photo: ['https://example.com/img/photo.jpg', 'https://example.com/img/photo2.jpg'],
-           "mp-photo-alt": ['Alt 1']
-         })
+    post("/micropub/testsite", {
+      h: "entry",
+      content: "Adding a new photo",
+      photo: ["https://example.com/img/photo.jpg", "https://example.com/img/photo2.jpg"],
+      "mp-photo-alt": ["Alt 1"]
+    })
     assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    assert last_response.body.include?('![Alt 1](https://example.com/img/photo.jpg)')
-    assert last_response.body.include?('![](https://example.com/img/photo2.jpg)')
+    assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
+    assert last_response.body.include?("![Alt 1](https://example.com/img/photo.jpg)")
+    assert last_response.body.include?("![](https://example.com/img/photo2.jpg)")
   end
 
   def test_media_upload
@@ -74,12 +74,12 @@ class Multipart < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
-    media = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'photo.jpg'), 'image/jpeg')
+    media = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), "fixtures", "photo.jpg"), "image/jpeg")
 
-    post('/micropub/testsite/media', { file: media })
+    post("/micropub/testsite/media", {file: media})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    refute last_response.header.include?('photo.jpg')
+    assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
+    refute last_response.header.include?("photo.jpg")
   end
 
   def test_media_upload_ensure_image_jpg
@@ -87,11 +87,11 @@ class Multipart < Minitest::Test
     stub_get_pages_branch
     stub_post_github_request
     stub_patch_github_request
-    media = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), 'fixtures', 'image.jpg'), 'image/jpeg')
+    media = Rack::Test::UploadedFile.new(File.join(File.dirname(__FILE__), "fixtures", "image.jpg"), "image/jpeg")
 
-    post('/micropub/testsite/media', { file: media })
+    post("/micropub/testsite/media", {file: media})
     assert last_response.created?, "Expected 201 but got #{last_response.status}"
-    assert last_response.header.include?('Location'), "Expected 'Location' header, but got #{last_response.header}"
-    refute_match 'image.jpg', last_response.header['Location']
+    assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
+    refute_match "image.jpg", last_response.header["Location"]
   end
 end
