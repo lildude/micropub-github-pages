@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 ENV["RACK_ENV"] = "test"
+
 require "codecov"
 require "simplecov"
-SimpleCov.formatters = [
-  SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::Codecov
-]
+
+SimpleCov.formatters = SimpleCov::Formatter::HTMLFormatter
+SimpleCov.formatters = SimpleCov::Formatter::Codecov if ENV["GITHUB_WORKSPACE"]
+
 SimpleCov.start do
   add_filter "vendor"
   add_filter "test"
