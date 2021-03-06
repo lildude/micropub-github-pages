@@ -3,20 +3,25 @@ name: Linters
 
 on:
   pull_request:
-    branches:
-      - "*"
+    paths-ignore:
+      - '**.md'
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
 
 jobs:
-  rubocop:
-    name: RuboCop Action
+  lint:
+    name: Standard
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
     steps:
-      - uses: actions/checkout@v2
-      - name: Run Rubocop
-        uses: andrewmcodes/rubocop-linter-action@v3.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+        bundler-cache: true
+    - name: Run Standard linter
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: bundle exec rake standard STANDARDOPTS="--format progress"
