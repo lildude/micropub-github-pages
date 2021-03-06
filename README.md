@@ -6,11 +6,7 @@ A Micropub server that accepts [Micropub](http://micropub.net/) requests and cre
 
 ## Run on Heroku
 
-TBC
-
-<!--
-Clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/lildude/micropub-github-pages) :soon:. It doesn't work just yet.
--->
+Fork this repo (optional), [configure](#configuration) and then clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ## Running Elsewhere or Locally
 
