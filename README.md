@@ -4,17 +4,31 @@
 
 A Micropub server that accepts [Micropub](http://micropub.net/) requests and creates and publishes a Jekyll/GitHub Pages post to a configured GitHub repository. This server supports posting to multiple sites from the same server. This project is inspired by [Micropub to GitHub](https://github.com/voxpelli/webpage-micropub-to-github), a Node.js implementation.
 
+# Installation
+
 ## Run on Heroku
 
 Fork this repo (optional), [configure](#configuration) and then clicky this button :point_right: [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-## Running Elsewhere or Locally
+## Run Elsewhere or Locally
 
 Clone the repository and run `bundle install`.
 
 Run `GITHUB_ACCESS_TOKEN="your_personal_access_token" bundle exec rackup` and you'll have the application running on <http://localhost:9292> .
 
 Alternatively, create an `env.rb` file in the root of this repository containing: `ENV['GITHUB_ACCESS_TOKEN'] = 'your_personal_access_token'`.
+
+## Endpoint Discovery
+
+Once deployed, your Micropub endpoint can be found at `/micropub/<sitename>` e.g. `https://example.com/micropub/mysite`.
+`<sitename>` is the site-specific section on your `config.yml` file.
+
+To enable automatic discovery for your [Micropub endpoint](https://indieweb.org/micropub#Endpoint_Discovery) and [token endpoint](https://indieweb.org/obtaining-an-access-token#Discovery), you will need to add the following values to your site's `<head>`:
+
+```html
+<link rel="micropub" href="https://example.com/micropub/mysite">
+<link rel="token_endpoint" href="https://tokens.indieauth.com/token">
+```
 
 ## Configuration
 
