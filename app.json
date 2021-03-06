@@ -14,7 +14,8 @@
       "required": true
     },
     "SITE_CONFIG": {
-      "description": "A JSON representation of your 'config.yml' if you'd prefer not to commit your config to your repo."
+      "description": "A JSON representation of your 'config.yml' if you'd prefer not to commit your config to your repo.",
+      "required": false
     }
   },
   "buildpacks": [
