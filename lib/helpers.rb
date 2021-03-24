@@ -292,7 +292,7 @@ module AppHelpers
     dest = syndicate_to.empty? ? nil : syndicate_to.first
     return nil unless dest && destinations.include?(dest)
 
-    BridgyJob.perform_async(@location, dest, options)
+    BridgyJob.perform_async(@site, @location, dest, options)
   end
 
   # Process and clean up params for use later
