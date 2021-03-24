@@ -34,14 +34,17 @@ class BridgyJob
     logger.info "Successfully syndicated #{location} to #{destination}"
 
     # Update our post with the syndication url
+    # TODO: This is a horrid hack. Find a better way of doing this when time permits
     parsed = JSON.parse(resp.body, symbolize_names: true)
+    syn_url = parsed[:url]
     @site ||= site
     params = {
       url: location,
       add: {
-        syndication: [parsed[:url]]
+        syndication: [syn_url]
       }
     }
+    logger.info "Updating #{location} post with syndication url: #{syn_url}"
 
     update_post params
   end
