@@ -258,6 +258,33 @@ class Json < Minitest::Test
     assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
   end
 
+  def test_modifying_property_keeps_type
+    stub_github_search
+    # Stub a specific response without any tags/categories
+    Sinatra::Application.any_instance.expects(:get_post)
+      .returns(
+        {type: ["h-entry"],
+         properties: {
+           layout: ["photo"],
+           published: ["2017-01-20 10:01:48 +0000"],
+           content: ["Micropub update test."]
+         }}
+      )
+    stub_get_pages_branch
+    # Explicitly stub so we can confirm we're getting the category property added
+    Sinatra::Application.any_instance.expects(:publish_post)
+      .with(has_entry(layout: ["photo"]))
+      .returns(true) # We don't care about the status
+    post("/micropub/testsite", {
+      action: "update",
+      url: "https://example.com/2010/01/this-is-a-test-post/",
+      add: {
+        category: ["tag99"]
+      }
+    }.to_json)
+    assert last_response.no_content?, "Expected 204 but got #{last_response.status}"
+  end
+
   def test_add_to_non_existent_property
     stub_github_search
     # Stub a specific response without any tags/categories
