@@ -14,5 +14,11 @@ date: {{ published }}
 {% if fm_published -%}
 published: {{ fm_published }}
 {% endif -%}
+{% if syndication -%}
+syndication:
+{% for url in syndication -%}
+- {{ url }}
+{% endfor -%}
+{% endif -%}
 ---
 {{ content }}
