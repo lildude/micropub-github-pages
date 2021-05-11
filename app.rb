@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "base64"
+require "digest"
 require "httparty"
 require "json"
 require "liquid"

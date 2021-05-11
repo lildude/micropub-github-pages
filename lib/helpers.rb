@@ -144,12 +144,7 @@ module AppHelpers
       else
         url
       end
-      # Always generate a unique unguessable filename as per the spec
-      filename = "#{SecureRandom.hex(6)}.#{filename.split(".").last}"
-      upload_path = "#{image_dir}/#{filename}"
-      photo_path = +""
-      photo_path << site_url if full_image_urls?
-      photo_path << "/#{upload_path}"
+
       unless tmpfile
         tmpfile = Tempfile.new(filename)
         File.open(tmpfile, "wb") do |file|
@@ -159,6 +154,13 @@ module AppHelpers
           file.write resp.body
         end
       end
+      # Always generate a unique unguessable filename as per the spec
+      digest = Digest::SHA256.file(tmpfile).hexdigest
+      filename = "#{digest}.#{filename.split(".").last}"
+      upload_path = "#{image_dir}/#{filename}"
+      photo_path = +""
+      photo_path << site_url if full_image_urls?
+      photo_path << "/#{upload_path}"
       content = {upload_path => Base64.encode64(tmpfile.read)}
       photos[index] = {"url" => photo_path, "alt" => alt, "content" => content}
       # TODO: This is too greedy and hides legit problems
