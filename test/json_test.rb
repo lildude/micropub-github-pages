@@ -129,7 +129,7 @@ class Json < Minitest::Test
     assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include? "/img/12716713_162835967431386_291746593_n.jpg"
-    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
+    assert_match(%r{img/[0-9a-f]{64}\.jpg}, last_response.body)
   end
 
   def test_new_note_with_unreachable_photo_reference_json
@@ -167,7 +167,7 @@ class Json < Minitest::Test
     assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include? "/img/12716713_162835967431386_291746593_n.jpg"
-    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
+    assert_match(%r{img/[0-9a-f]{64}\.jpg}, last_response.body)
   end
 
   def test_new_note_with_photo_reference_with_alt_json
@@ -189,7 +189,7 @@ class Json < Minitest::Test
     assert last_response.accepted?, "Expected 202 but got #{last_response.status}"
     assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include?("/img/12716713_162835967431386_291746593_n.jpg"), "Body contains #{last_response.body}"
-    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
+    assert_match(%r{img/[0-9a-f]{64}\.jpg}, last_response.body)
     assert last_response.body.include? "Instagram photo"
   end
 

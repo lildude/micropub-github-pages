@@ -48,7 +48,7 @@ class Multipart < Minitest::Test
     assert last_response.header.include?("Location"), "Expected 'Location' header, but got #{last_response.header}"
     refute last_response.body.include?("/img/photo.jpg")
     refute last_response.body.include?("/img/photo2.jpg")
-    assert_match(%r{img/[0-9a-f]{12}\.jpg}, last_response.body)
+    assert_match(%r{img/[0-9a-f]{64}\.jpg}, last_response.body)
   end
 
   # This test is specific to the mp-photo-alt attribute micro.blog uses for images with descriptions
