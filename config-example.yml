@@ -4,6 +4,7 @@ micropub_token_endpoint: https://indieauth.com/token
 # Global options used if not set or overwritten on a per-site basis later
 permalink_style: "/:title"        # Jekyll permalink style as per your site's _config.yml
 full_image_urls: true             # Include site_url in image paths
+use_picture_tag: false            # Use the Jeklly picture tag - http://rbuchberger.github.io/jekyll_picture_tag/
 download_photos: false            # Ensure linked images are added to repo
 image_dir: "images"               # Directory in to which images will be saved. Default: images
 posts_dir: "_posts"               # Directory in to which posts will be saved. Default: _posts

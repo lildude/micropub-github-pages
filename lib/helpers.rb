@@ -445,6 +445,10 @@ module AppHelpers
     @full_image_urls ||= site_global_default("full_image_urls", default: true)
   end
 
+  def use_picture_tag?
+    @use_picture_tag ||= site_global_default("use_picture_tag", default: false)
+  end
+
   def image_dir
     @image_dir ||= site_global_default("image_dir", default: "images")
   end

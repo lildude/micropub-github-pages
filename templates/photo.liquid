@@ -22,8 +22,8 @@ syndication:
 ---
 {% if photo -%}
   {% for pic in photo -%}
-    {% assign fileparts = pic['url'].split('/') %}
-    {% picture u-photo img/{{ fileparts | last }} %}
+    {% assign fileparts = pic['url'] | split: '/' %}
+    {% raw  -%}{% picture u-photo img/{% endraw -%}{{ fileparts | last }}{% raw -%} %}{% endraw -%}
   {% endfor -%}
 {% endif %}
 {{ content }}
