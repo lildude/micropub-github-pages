@@ -22,7 +22,8 @@ syndication:
 ---
 {% if photo -%}
   {% for pic in photo -%}
-![{{ pic["alt"] }}]({{ pic["url"] }}){: .u-photo}
+    {% assign fileparts = pic['url'].split('/') %}
+    {% picture u-photo img/{{ fileparts | last }} %}
   {% endfor -%}
 {% endif %}
 {{ content }}
